@@ -1,0 +1,22 @@
+{
+    "name": "netglue/expressive-prismic",
+    "description": "Module/Library for creating content driven websites with prismic.io and Zend Expressive",
+    "type": "module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "George Steel",
+            "email": "george@net-glue.co.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ExpressivePrismic\\": "src"
+        }
+    },
+    "require": {
+        "prismic/php-sdk": "^2.0",
+        "zendframework/zend-expressive": "^1.0",
+        "zendframework/zend-stdlib": "^3.0"
+    }
+}
