@@ -23,6 +23,7 @@ class ConfigProvider
                     Service\RouteParams::class          => Service\Factory\RouteParamsFactory::class,
                     View\MetaDataExtractor::class       => View\Factory\MetaDataExtractorFactory::class,
                     Middleware\ApiCacheBust::class      => Middleware\Factory\ApiCacheBustFactory::class,
+                    Middleware\SetCanonical::class      => Middleware\Factory\SetCanonicalFactory::class,
                     LinkResolver::class                 => Factory\LinkResolverFactory::class,
                 ],
                 'invokables' => [
