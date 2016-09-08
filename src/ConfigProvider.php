@@ -25,6 +25,8 @@ class ConfigProvider
                     Middleware\ApiCacheBust::class      => Middleware\Factory\ApiCacheBustFactory::class,
                     Middleware\SetCanonical::class      => Middleware\Factory\SetCanonicalFactory::class,
                     LinkResolver::class                 => Factory\LinkResolverFactory::class,
+                    Middleware\PreviewInitiator::class     => Middleware\Factory\PreviewInitiatorFactory::class,
+                    Middleware\InjectPreviewScript::class  => Middleware\Factory\InjectPreviewScriptFactory::class,
                 ],
                 'invokables' => [
 
@@ -69,6 +71,16 @@ class ConfigProvider
                     'token' => null,
                     'url' => null,
                 ],
+
+                /**
+                 * URL of the Prismic toolbar Javascript
+                 */
+                'toolbarScript' => '//static.cdn.prismic.io/prismic.min.js',
+
+                /**
+                 * Format of edit button initialisation script
+                 */
+                'editScript' => 'window.prismic = { endpoint: \'%s\' };',
 
                 /**
                  * Determines the parameter names we look for inroutes to identify
