@@ -92,6 +92,25 @@ class ConfigProvider
                 ],
 
                 /**
+                 * Error Handler configuration for content managed
+                 * error pages in production
+                 */
+                'error_handler' => [
+                    'template_404'   => 'error::404',
+                    'template_error' => 'error::error',
+                    // Switch layout for 404's and Exceptions?
+                    'layout'         => null,
+                    'bookmark_404'   => null,
+                    'bookmark_error' => null,
+                ],
+
+                'templates' => [
+                    'map' => [
+                        'prismic::fallback-error' => __DIR__ . '/../templates/fallback-error.phtml',
+                    ],
+                ],
+
+                /**
                  * URL of the Prismic toolbar Javascript
                  */
                 'toolbarScript' => '//static.cdn.prismic.io/prismic.min.js',
