@@ -6,7 +6,6 @@ namespace ExpressivePrismic\Middleware\Factory;
 use Interop\Container\ContainerInterface;
 use ExpressivePrismic\Middleware\MetaDataAutomator;
 use Zend\View\HelperPluginManager;
-use ExpressivePrismic\View\MetaDataExtractor;
 
 class MetaDataAutomatorFactory
 {
@@ -21,7 +20,6 @@ class MetaDataAutomatorFactory
         $config = $container->get('config');
         $config = isset($config['prismic']['head']) ? $config['prismic']['head'] : [];
 
-        $extractor = $container->get(MetaDataExtractor::class);
         return new MetaDataAutomator($helpers, $config);
     }
 }
