@@ -39,6 +39,18 @@ class ConfigProvider
                 ],
             ],
 
+            /**
+             * View Helpers
+             */
+            'view_helpers' => [
+                'factories' => [
+                    View\Helper\Url::class => View\Helper\Factory\UrlFactory::class,
+                ],
+                'aliases' => [
+                    'prismicUrl' => View\Helper\Url::class,
+                ],
+            ],
+
             'routes' => [
                 'prismic-cache-webhook' => [
                     'name' => 'prismic-webhook-cache-bust',
