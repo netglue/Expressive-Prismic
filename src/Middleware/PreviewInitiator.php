@@ -31,7 +31,8 @@ class PreviewInitiator
     {
         $query = $request->getQueryParams();
         if (!isset($query['token']) || empty($query['token'])) {
-            return $response->withStatus(400);
+            // Pass through in order to raise a 404
+            return $next($request, $response);
         }
 
         $token = urldecode($query['token']);
