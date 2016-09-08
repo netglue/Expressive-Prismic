@@ -16,15 +16,18 @@ class ConfigProvider
         return [
             'dependencies' => [
                 'factories' => [
-                    Prismic\Api::class                  => Factory\ApiFactory::class,
-                    Middleware\PrismicTemplate::class   => Middleware\Factory\PrismicTemplateFactory::class,
-                    Middleware\DocumentResolver::class  => Middleware\Factory\DocumentResolverFactory::class,
-                    Middleware\MetaDataAutomator::class => Middleware\Factory\MetaDataAutomatorFactory::class,
-                    Service\RouteParams::class          => Service\Factory\RouteParamsFactory::class,
-                    View\MetaDataExtractor::class       => View\Factory\MetaDataExtractorFactory::class,
-                    Middleware\ApiCacheBust::class      => Middleware\Factory\ApiCacheBustFactory::class,
-                    Middleware\SetCanonical::class      => Middleware\Factory\SetCanonicalFactory::class,
-                    LinkResolver::class                 => Factory\LinkResolverFactory::class,
+                    // Api Instance
+                    Prismic\Api::class                     => Factory\ApiFactory::class,
+                    // Default Link Resolver
+                    LinkResolver::class                    => Factory\LinkResolverFactory::class,
+                    // Mapping Route Parameters
+                    Service\RouteParams::class             => Service\Factory\RouteParamsFactory::class,
+                    // Middleware
+                    Middleware\PrismicTemplate::class      => Middleware\Factory\PrismicTemplateFactory::class,
+                    Middleware\DocumentResolver::class     => Middleware\Factory\DocumentResolverFactory::class,
+                    Middleware\MetaDataAutomator::class    => Middleware\Factory\MetaDataAutomatorFactory::class,
+                    Middleware\ApiCacheBust::class         => Middleware\Factory\ApiCacheBustFactory::class,
+                    Middleware\SetCanonical::class         => Middleware\Factory\SetCanonicalFactory::class,
                     Middleware\PreviewInitiator::class     => Middleware\Factory\PreviewInitiatorFactory::class,
                     Middleware\InjectPreviewScript::class  => Middleware\Factory\InjectPreviewScriptFactory::class,
                 ],
@@ -68,8 +71,12 @@ class ConfigProvider
             'prismic' => [
                 // Api Connection Params
                 'api' => [
+                    // Permanent Access Token
                     'token' => null,
+                    // Api Endpoint
                     'url' => null,
+                    // Api Cache TTL in seconds. Set to 0 to cache forever (recommended)
+                    'ttl' => null,
                 ],
 
                 /**

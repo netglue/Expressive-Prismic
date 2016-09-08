@@ -26,6 +26,7 @@ class ApiFactory
 
         $token = isset($config['token']) ? $config['token'] : null;
         $url   = isset($config['url'])   ? $config['url']   : null;
+        $ttl   = isset($config['ttl'])   ? $config['ttl']   : null;
 
         if (!$url) {
             throw new \RuntimeException('Prismic API endpoint URL must be specified in [prismic][api][url]');
@@ -35,6 +36,6 @@ class ApiFactory
 
         // Use either the configured token, or a preview token retrieved from the session
 
-        return Api::get($url, $token, null, null, 0);
+        return Api::get($url, $token, null, null, $ttl);
     }
 }
