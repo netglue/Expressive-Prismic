@@ -34,6 +34,7 @@ class PrismicTemplate
 
         $view = [
             'document' => $document,
+            'linkResolver' => $this->linkResolver,
         ];
 
         return new HtmlResponse($this->renderer->render($template, $view));
