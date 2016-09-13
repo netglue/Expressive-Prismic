@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
 use Zend\Expressive\Router\RouteResult;
+use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Service\RouteParams;
 
 class DocumentResolver
@@ -21,10 +22,16 @@ class DocumentResolver
      */
     private $routeParams;
 
-    public function __construct(Prismic\Api $api, RouteParams $params)
+    /**
+     * @var CurrentDocument
+     */
+    private $documentRegistry;
+
+    public function __construct(Prismic\Api $api, RouteParams $params, CurrentDocument $documentRegistry)
     {
-        $this->api = $api;
-        $this->routeParams = $params;
+        $this->api              = $api;
+        $this->routeParams      = $params;
+        $this->documentRegistry = $documentRegistry;
     }
 
     public function __invoke(Request $request, Response $response, callable $next = null) : Response
@@ -55,6 +62,7 @@ class DocumentResolver
         }
 
         if ($document) {
+            $this->documentRegistry->setDocument($document);
             $request = $request->withAttribute(Prismic\Document::class, $document);
         }
 

@@ -32,7 +32,8 @@ class ConfigProvider
                     Middleware\InjectPreviewScript::class  => Middleware\Factory\InjectPreviewScriptFactory::class,
                 ],
                 'invokables' => [
-
+                    // An instance used to track the current document for the request
+                    Service\CurrentDocument::class         => Service\CurrentDocument::class,
                 ],
                 'aliases' => [
                     Prismic\LinkResolver::class         => LinkResolver::class,
