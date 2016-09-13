@@ -17,21 +17,21 @@ class ConfigProvider
             'dependencies' => [
                 'factories' => [
                     // Api Instance
-                    Prismic\Api::class                     => Factory\ApiFactory::class,
+                    Prismic\Api::class                              => Factory\ApiFactory::class,
                     // Default Link Resolver
-                    LinkResolver::class                    => Factory\LinkResolverFactory::class,
+                    LinkResolver::class                             => Factory\LinkResolverFactory::class,
                     // Mapping Route Parameters
-                    Service\RouteParams::class             => Service\Factory\RouteParamsFactory::class,
+                    Service\RouteParams::class                      => Service\Factory\RouteParamsFactory::class,
                     Service\MetaDataAutomator::class                => Service\Factory\MetaDataAutomatorFactory::class,
 
                     // Middleware
-                    Middleware\PrismicTemplate::class      => Middleware\Factory\PrismicTemplateFactory::class,
-                    Middleware\DocumentResolver::class     => Middleware\Factory\DocumentResolverFactory::class,
+                    Middleware\PrismicTemplate::class               => Middleware\Factory\PrismicTemplateFactory::class,
+                    Middleware\DocumentResolver::class              => Middleware\Factory\DocumentResolverFactory::class,
                     Middleware\MetaDataAutomatorMiddleware::class   => Middleware\Factory\MetaDataAutomatorMiddlewareFactory::class,
-                    Middleware\ApiCacheBust::class         => Middleware\Factory\ApiCacheBustFactory::class,
-                    Middleware\SetCanonical::class         => Middleware\Factory\SetCanonicalFactory::class,
-                    Middleware\PreviewInitiator::class     => Middleware\Factory\PreviewInitiatorFactory::class,
-                    Middleware\InjectPreviewScript::class  => Middleware\Factory\InjectPreviewScriptFactory::class,
+                    Middleware\ApiCacheBust::class                  => Middleware\Factory\ApiCacheBustFactory::class,
+                    Middleware\SetCanonical::class                  => Middleware\Factory\SetCanonicalFactory::class,
+                    Middleware\PreviewInitiator::class              => Middleware\Factory\PreviewInitiatorFactory::class,
+                    Middleware\InjectPreviewScript::class           => Middleware\Factory\InjectPreviewScriptFactory::class,
                     Middleware\ErrorHandler::class                  => Middleware\Factory\ErrorHandlerFactory::class,
                 ],
                 'invokables' => [
@@ -40,7 +40,13 @@ class ConfigProvider
                     Middleware\NormalizeNotFound::class    => Middleware\NormalizeNotFound::class,
                 ],
                 'aliases' => [
-                    Prismic\LinkResolver::class         => LinkResolver::class,
+                    /**
+                     * Alias to the Prismic\LinkResolver namespace
+                     * 'Prismic\LinkResolver' is used throughout the codebase so
+                     * that consumers can replace the default link resolver
+                     * with their own implementation and retain the use of everything else
+                     */
+                    Prismic\LinkResolver::class            => LinkResolver::class,
                 ],
             ],
 
@@ -49,10 +55,12 @@ class ConfigProvider
              */
             'view_helpers' => [
                 'factories' => [
-                    View\Helper\Url::class => View\Helper\Factory\UrlFactory::class,
+                    View\Helper\Url::class      => View\Helper\Factory\UrlFactory::class,
+                    View\Helper\Fragment::class => View\Helper\Factory\FragmentFactory::class,
                 ],
                 'aliases' => [
                     'prismicUrl' => View\Helper\Url::class,
+                    'fragment'   => View\Helper\Fragment::class,
                 ],
             ],
 
