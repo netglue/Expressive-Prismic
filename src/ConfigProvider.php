@@ -111,16 +111,8 @@ class ConfigProvider
                 'error_handler' => [
                     'template_404'   => 'error::404',
                     'template_error' => 'error::error',
-                    // Switch layout for 404's and Exceptions?
-                    'layout'         => null,
                     'bookmark_404'   => null,
                     'bookmark_error' => null,
-                ],
-
-                'templates' => [
-                    'map' => [
-                        'prismic::fallback-error' => __DIR__ . '/../templates/fallback-error.phtml',
-                    ],
                 ],
 
                 /**

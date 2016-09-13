@@ -32,6 +32,10 @@ class PrismicTemplate
         $template = $request->getAttribute('template');
         $document = $request->getAttribute(Prismic\Document::class);
 
+        if (!$document && $next) {
+            return $next($request, $response);
+        }
+
         $view = [
             'document' => $document,
             'linkResolver' => $this->linkResolver,
