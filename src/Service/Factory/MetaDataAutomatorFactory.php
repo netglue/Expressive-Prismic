@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace ExpressivePrismic\Middleware\Factory;
+namespace ExpressivePrismic\Service\Factory;
 
 use Interop\Container\ContainerInterface;
-use ExpressivePrismic\Middleware\MetaDataAutomator;
+use ExpressivePrismic\Service\MetaDataAutomator;
 use Zend\View\HelperPluginManager;
 
 class MetaDataAutomatorFactory
@@ -15,10 +15,9 @@ class MetaDataAutomatorFactory
         if (!$container->has(HelperPluginManager::class)) {
             throw new \RuntimeException('The Zend\View\HelperPluginManager cannot be located in the container');
         }
-        $helpers   = $container->get(HelperPluginManager::class);
-
-        $config = $container->get('config');
-        $config = isset($config['prismic']['head']) ? $config['prismic']['head'] : [];
+        $helpers = $container->get(HelperPluginManager::class);
+        $config  = $container->get('config');
+        $config  = isset($config['prismic']['head']) ? $config['prismic']['head'] : [];
 
         return new MetaDataAutomator($helpers, $config);
     }

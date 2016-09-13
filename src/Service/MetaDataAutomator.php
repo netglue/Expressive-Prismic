@@ -1,8 +1,7 @@
 <?php
-namespace ExpressivePrismic\Middleware;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+namespace ExpressivePrismic\Service;
+
 use Prismic;
 use Zend\View\HelperPluginManager;
 
@@ -11,31 +10,34 @@ use ExpressivePrismic\View\HeadTitleExtractor;
 use ExpressivePrismic\View\TwitterCardExtractor;
 use ExpressivePrismic\View\OpenGraphExtractor;
 
+
+/**
+ * A Service to extract information from a Document and apply it to Zend View Helpers
+ */
 class MetaDataAutomator
 {
 
+    /**
+     * @var HelperPluginManager
+     */
     private $helpers;
+
+    /**
+     * @var array
+     */
     private $options;
 
+    /**
+     * @param HelperPluginManager $helpers
+     * @param array $options
+     */
     public function __construct(HelperPluginManager $helpers, array $options = [])
     {
         $this->helpers = $helpers;
         $this->options = $options;
     }
 
-    public function __invoke(Request $request, Response $response, callable $next = null) : Response
-    {
-        if ($document = $request->getAttribute(Prismic\Document::class)) {
-            $this->applyMeta($document);
-        }
-
-        if ($next) {
-            return $next($request, $response);
-        }
-        return $response;
-    }
-
-    private function applyMeta(Prismic\Document $document)
+    public function apply(Prismic\Document $document)
     {
         $this->applyMetaTags($document);
         $this->applyHeadTitle($document);
@@ -107,4 +109,5 @@ class MetaDataAutomator
         // Revert to doctype originally set
         $doctype($dt);
     }
+
 }

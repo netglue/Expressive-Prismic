@@ -22,10 +22,12 @@ class ConfigProvider
                     LinkResolver::class                    => Factory\LinkResolverFactory::class,
                     // Mapping Route Parameters
                     Service\RouteParams::class             => Service\Factory\RouteParamsFactory::class,
+                    Service\MetaDataAutomator::class                => Service\Factory\MetaDataAutomatorFactory::class,
+
                     // Middleware
                     Middleware\PrismicTemplate::class      => Middleware\Factory\PrismicTemplateFactory::class,
                     Middleware\DocumentResolver::class     => Middleware\Factory\DocumentResolverFactory::class,
-                    Middleware\MetaDataAutomator::class    => Middleware\Factory\MetaDataAutomatorFactory::class,
+                    Middleware\MetaDataAutomatorMiddleware::class   => Middleware\Factory\MetaDataAutomatorMiddlewareFactory::class,
                     Middleware\ApiCacheBust::class         => Middleware\Factory\ApiCacheBustFactory::class,
                     Middleware\SetCanonical::class         => Middleware\Factory\SetCanonicalFactory::class,
                     Middleware\PreviewInitiator::class     => Middleware\Factory\PreviewInitiatorFactory::class,
