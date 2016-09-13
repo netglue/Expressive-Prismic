@@ -36,6 +36,7 @@ class ConfigProvider
                 'invokables' => [
                     // An instance used to track the current document for the request
                     Service\CurrentDocument::class         => Service\CurrentDocument::class,
+                    Middleware\NormalizeNotFound::class    => Middleware\NormalizeNotFound::class,
                 ],
                 'aliases' => [
                     Prismic\LinkResolver::class         => LinkResolver::class,
