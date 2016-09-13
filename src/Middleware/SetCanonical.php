@@ -13,6 +13,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\View\HelperPluginManager;
 use Prismic;
+use Zend\Expressive\Helper\ServerUrlHelper;
 
 class SetCanonical
 {
@@ -27,16 +28,22 @@ class SetCanonical
      */
     private $helpers;
 
-    public function __construct(Prismic\LinkResolver $resolver, HelperPluginManager $helpers)
+    /**
+     * @var ServerUrlHelper
+     */
+    private $serverUrl;
+
+    public function __construct(Prismic\LinkResolver $resolver, HelperPluginManager $helpers, ServerUrlHelper $serverUrl)
     {
         $this->linkResolver = $resolver;
         $this->helpers = $helpers;
+        $this->serverUrl = $serverUrl;
     }
 
     public function __invoke(Request $request, Response $response, callable $next = null) : Response
     {
         if ($document = $request->getAttribute(Prismic\Document::class)) {
-            $canonical = $this->linkResolver->resolveDocument($document);
+            $canonical = $this->serverUrl->generate($this->linkResolver->resolveDocument($document));
 
             $helper = $this->helpers->get('headLink');
             $helper([

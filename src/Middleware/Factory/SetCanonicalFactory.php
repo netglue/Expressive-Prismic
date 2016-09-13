@@ -7,6 +7,7 @@ use Interop\Container\ContainerInterface;
 use ExpressivePrismic\Middleware\SetCanonical;
 use Zend\View\HelperPluginManager;
 use Prismic\LinkResolver;
+use Zend\Expressive\Helper\ServerUrlHelper;
 
 class SetCanonicalFactory
 {
@@ -18,8 +19,9 @@ class SetCanonicalFactory
         }
         $helpers    = $container->get(HelperPluginManager::class);
         $resolver   = $container->get(LinkResolver::class);
+        $serverUrl  = $container->get(ServerUrlHelper::class);
 
-        return new SetCanonical($resolver, $helpers);
+        return new SetCanonical($resolver, $helpers, $serverUrl);
     }
 
 }
