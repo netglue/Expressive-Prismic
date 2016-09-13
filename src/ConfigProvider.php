@@ -32,6 +32,7 @@ class ConfigProvider
                     Middleware\SetCanonical::class         => Middleware\Factory\SetCanonicalFactory::class,
                     Middleware\PreviewInitiator::class     => Middleware\Factory\PreviewInitiatorFactory::class,
                     Middleware\InjectPreviewScript::class  => Middleware\Factory\InjectPreviewScriptFactory::class,
+                    Middleware\ErrorHandler::class                  => Middleware\Factory\ErrorHandlerFactory::class,
                 ],
                 'invokables' => [
                     // An instance used to track the current document for the request
