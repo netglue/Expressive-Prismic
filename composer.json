@@ -20,7 +20,7 @@
         }
     },
     "require": {
-        "prismic/php-sdk": "^2.0",
+        "prismic/php-sdk": "^3.0",
         "zendframework/zend-expressive": "^1.0",
         "zendframework/zend-stdlib": "^3.0",
         "zendframework/zend-expressive-helpers": "^2.0",
