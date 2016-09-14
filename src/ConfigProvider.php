@@ -22,14 +22,11 @@ class ConfigProvider
                     LinkResolver::class                             => Factory\LinkResolverFactory::class,
                     // Mapping Route Parameters
                     Service\RouteParams::class                      => Service\Factory\RouteParamsFactory::class,
-                    Service\MetaDataAutomator::class                => Service\Factory\MetaDataAutomatorFactory::class,
 
                     // Middleware
                     Middleware\PrismicTemplate::class               => Middleware\Factory\PrismicTemplateFactory::class,
                     Middleware\DocumentResolver::class              => Middleware\Factory\DocumentResolverFactory::class,
-                    Middleware\MetaDataAutomatorMiddleware::class   => Middleware\Factory\MetaDataAutomatorMiddlewareFactory::class,
                     Middleware\ApiCacheBust::class                  => Middleware\Factory\ApiCacheBustFactory::class,
-                    Middleware\SetCanonical::class                  => Middleware\Factory\SetCanonicalFactory::class,
                     Middleware\PreviewInitiator::class              => Middleware\Factory\PreviewInitiatorFactory::class,
                     Middleware\InjectPreviewScript::class           => Middleware\Factory\InjectPreviewScriptFactory::class,
                     Middleware\ErrorHandler::class                  => Middleware\Factory\ErrorHandlerFactory::class,
@@ -136,51 +133,6 @@ class ConfigProvider
                     //'bookmark' => 'prismic-id',
                     //'uid'      => 'prismic-uid',
                     //'type'     => 'prismic-type',
-                ],
-
-                /**
-                 * Automatic but naive retrieval of various head meta tags and elements
-                 */
-                'head' => [
-                    /**
-                     * A map where <meta> name -> document property, without the type prefix
-                     * ie. to achieve <meta name="description" content="foo">, you would set
-                     * 'description' => 'my_property', not 'my_type.my_property'
-                     *
-                     * Acceptable meta tags can be found in ExpressivePrismic\View\MetaDataExtractor
-                     */
-                    'meta_data_map' => [
-                        // For example…
-                        //'description' => 'meta_description',
-                        //'keywords' => 'meta_keywords',
-                        //'robots' => 'meta_robots',
-                    ],
-                    /**
-                     * Setting the head title is a little more flexible,
-                     * You can provide an array of document properties to search in order of preference
-                     */
-                    'title_search' => [
-                        // For example…
-                        // 'head_title',
-                        // 'meta_title',
-                        // 'title'
-                        // etc…
-                    ],
-                    /**
-                     * As with normal meta tags, but specific to Twitter Cards
-                     */
-                    'twitter_map' => [
-                        // 'twitter:card' => 'my_card_type_property',
-                        // 'twitter:title' => 'twitter_title',
-                    ],
-                    /**
-                     * Open Graph
-                     */
-                    'og_map' => [
-                        // 'og:title' => 'my_title_property',
-                        // etc…
-                    ],
-
                 ],
 
             ],
