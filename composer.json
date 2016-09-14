@@ -25,5 +25,8 @@
         "zendframework/zend-stdlib": "^3.0",
         "zendframework/zend-expressive-helpers": "^2.0",
         "zendframework/zend-http": "^2.5"
+    },
+    "suggest": {
+        "zendframework/zend-paginator": "Zend\\Paginator component to paginate results from the Prismic api"
     }
 }
