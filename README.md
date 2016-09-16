@@ -4,7 +4,15 @@
 
 This module/library's purpose is to ease development of content driven websites using prismic.io's content API as a backend service.
 
-If you haven't heard of Prismic before, you can [find out about it here](https://prismic.io). 
+If you haven't heard of Prismic before, you can [find out about it here](https://prismic.io).
+
+Mostly, this library for Zend Expressive, is very 'Zendy', in that some of the really useful stuff like view helpers are for Zend\View and there's not equivalents if you're happier with Twig/Plates/Blade etc. It'd be great to have equivalents, but personally, I tend to use Zend\View so it's my first port of call…
+
+## Work in progress
+
+This module is intended to provide the most basic requirements for working with Prismic, but there's another module in progress that provides more view helpers, ready to go full-text search and a bunch of other more opinionated stuff called `expressive-prismic-defaults`. It's the kind of stuff we use when [we're making customer websites](https://netglue.uk)…
+
+
 
 ## Basic Configuration
 
@@ -77,13 +85,6 @@ Normally, to save youself some effort, you'd have a template that's capable of r
 ### URL Helper `$this->prismicUrl()`
 
 ### Fragment Helper `$this->fragment()`
-
-## Document Meta
-
-Assuming you're using Prismic to make web pages, you'll likely be setting various on-page SEO elements using the CMS as well as OpenGraph data, Twitter Cards, Structured Data perhaps too.
-
-There are a few Opt-In tools to automate this process for you, but currently they are mostly coupled to `Zend\View` 
-
 
 ## CMS Managed Error Pages for Production
 
