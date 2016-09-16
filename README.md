@@ -10,7 +10,7 @@ Mostly, this library for Zend Expressive, is very 'Zendy', in that some of the r
 
 ## Work in progress
 
-This module is intended to provide the most basic requirements for working with Prismic, but there's another module in progress that provides more view helpers, ready to go full-text search and a bunch of other more opinionated stuff called `expressive-prismic-defaults`. It's the kind of stuff we use when [we're making customer websites](https://netglue.uk)…
+This module is intended to provide the most basic requirements for working with Prismic, but there's another module in progress that provides more view helpers, ready to go full-text search and a bunch of other more opinionated stuff called `expressive-prismic-defaults`. You [can find it here](https://github.com/netglue/Expressive-Prismic-Defaults). It's the kind of stuff we use when [we're making customer websites](https://netglue.uk)…
 
 
 
