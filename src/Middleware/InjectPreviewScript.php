@@ -9,6 +9,11 @@ use Zend\Http\Header\SetCookie;
 use Zend\Diactoros\Response\RedirectResponse;
 use Zend\View\HelperPluginManager;
 
+/**
+ * Class InjectPreviewScript
+ *
+ * @package ExpressivePrismic\Middleware
+ */
 class InjectPreviewScript
 {
 
@@ -32,6 +37,14 @@ class InjectPreviewScript
      */
     private $apiEndpoint;
 
+    /**
+     * InjectPreviewScript constructor.
+     *
+     * @param HelperPluginManager $helpers
+     * @param string              $toolbarScript
+     * @param string              $editScript
+     * @param string              $apiEndpoint
+     */
     public function __construct(HelperPluginManager $helpers, string $toolbarScript, string $editScript, string $apiEndpoint)
     {
         $this->helpers       = $helpers;
@@ -40,6 +53,12 @@ class InjectPreviewScript
         $this->apiEndpoint   = $apiEndpoint;
     }
 
+    /**
+     * @param Request       $request
+     * @param Response      $response
+     * @param callable|null $next
+     * @return Response
+     */
     public function __invoke(Request $request, Response $response, callable $next = null) : Response
     {
         /**
@@ -52,7 +71,7 @@ class InjectPreviewScript
          * so we need to check both name variants. Shit.
          */
         $cookieNames = [
-            str_replace(['.',' '], '_', Prismic\Api::PREVIEW_COOKIE) => '',
+            str_replace(['.', ' '], '_', Prismic\Api::PREVIEW_COOKIE) => '',
             Prismic\Api::PREVIEW_COOKIE => '',
         ];
         $value = current(array_intersect_key($request->getCookieParams(), $cookieNames));
@@ -65,6 +84,7 @@ class InjectPreviewScript
         if ($next) {
             return $next($request, $response);
         }
+
         return $response;
     }
 }

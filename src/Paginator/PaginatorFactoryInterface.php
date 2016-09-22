@@ -3,6 +3,12 @@
 namespace ExpressivePrismic\Paginator;
 
 use Prismic\SearchForm;
+
+/**
+ * Interface PaginatorFactoryInterface
+ *
+ * @package ExpressivePrismic\Paginator
+ */
 interface PaginatorFactoryInterface
 {
 

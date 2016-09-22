@@ -1,11 +1,16 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ExpressivePrismic\View\Helper;
 
 use Prismic;
 use Prismic\Document;
 use Prismic\Fragment\Link\LinkInterface;
 
+/**
+ * Prismic Document/Link Url View Helper
+ *
+ * @package ExpressivePrismic\View\Helper
+ */
 class Url
 {
     /**
@@ -19,7 +24,7 @@ class Url
     private $resolver;
 
     /**
-     * @param Prismic\Api $api
+     * @param Prismic\Api          $api
      * @param Prismic\LinkResolver $resolver
      */
     public function __construct(Prismic\Api $api, Prismic\LinkResolver $resolver)

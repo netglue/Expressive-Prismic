@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ExpressivePrismic;
 
 use Prismic;
@@ -9,6 +9,11 @@ use Zend\Expressive\Helper\UrlHelper;
 use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
 use ExpressivePrismic\Service\RouteParams;
 
+/**
+ * Prismic LinkResolver Implementation
+ *
+ * @package ExpressivePrismic
+ */
 class LinkResolver extends Prismic\LinkResolver
 {
 
@@ -32,14 +37,20 @@ class LinkResolver extends Prismic\LinkResolver
      */
     private $urlHelper;
 
-
-
+    /**
+     * LinkResolver constructor.
+     *
+     * @param Prismic\Api $api
+     * @param RouteParams $params
+     * @param array       $routeConfig
+     * @param UrlHelper   $urlHelper
+     */
     public function __construct(Prismic\Api $api, RouteParams $params, array $routeConfig, UrlHelper $urlHelper)
     {
-        $this->api = $api;
+        $this->api         = $api;
         $this->routeParams = $params;
         $this->routeConfig = $routeConfig;
-        $this->urlHelper = $urlHelper;
+        $this->urlHelper   = $urlHelper;
     }
 
     /**
@@ -53,7 +64,6 @@ class LinkResolver extends Prismic\LinkResolver
         }
 
         if ($link instanceof DocumentLink) {
-
             // Is the link broken?
             if ($link->isBroken()) {
                 return null;
@@ -78,6 +88,19 @@ class LinkResolver extends Prismic\LinkResolver
     }
 
     /**
+     * Return a bookmark name if it corresponds to the document id in $link
+     * @param DocumentLink $link
+     * @return string|null
+     */
+    public function getBookmarkNameWithLink(DocumentLink $link)
+    {
+        $bookmarks = array_flip($this->api->bookmarks());
+        $id = $link->getId();
+
+        return isset($bookmarks[$id]) ? $bookmarks[$id] : null;
+    }
+
+    /**
      * The most generic route would reference only the id
      *
      * @param DocumentLink $link
@@ -85,7 +108,7 @@ class LinkResolver extends Prismic\LinkResolver
      */
     protected function tryResolveAsId(DocumentLink $link)
     {
-        $routes = array_filter($this->routeConfig, function($route) {
+        $routes = array_filter($this->routeConfig, function ($route) {
             $rp = $this->routeParams;
             if (!isset($route['options']['defaults'])) {
                 return false;
@@ -101,12 +124,14 @@ class LinkResolver extends Prismic\LinkResolver
             if (isset($route['options']['defaults'][$rp->getBookmark()])) {
                 return false;
             }
+
             return true;
         });
         foreach ($routes as $route) {
             try {
                 return $this->urlHelper->generate($route['name'], $this->getRouteParams($link));
-            } catch (RouterException $e) { }
+            } catch (RouterException $e) {
+            }
         }
 
         return null;
@@ -128,13 +153,13 @@ class LinkResolver extends Prismic\LinkResolver
         $uidParam  = $this->routeParams->getUid();
         $routes    = $this->findRoutesByType($link->getType());
 
-        $uidRoutes = array_filter($routes, function($route) use ($uidParam) {
+        $uidRoutes = array_filter($routes, function ($route) use ($uidParam) {
             return isset($route['options']['defaults'])
                    &&
                    array_key_exists($uidParam, $route['options']['defaults']);
         });
 
-        $idRoutes  = array_filter($routes, function($route) use ($idParam) {
+        $idRoutes  = array_filter($routes, function ($route) use ($idParam) {
             return isset($route['options']['defaults'])
                    &&
                    array_key_exists($idParam, $route['options']['defaults']);
@@ -145,13 +170,15 @@ class LinkResolver extends Prismic\LinkResolver
         foreach ($uidRoutes as $route) {
             try {
                 return $this->urlHelper->generate($route['name'], $params);
-            } catch (RouterException $e) { }
+            } catch (RouterException $e) {
+            }
         }
 
         foreach ($idRoutes as $route) {
             try {
                 return $this->urlHelper->generate($route['name'], $params);
-            } catch (RouterException $e) { }
+            } catch (RouterException $e) {
+            }
         }
 
         return null;
@@ -188,7 +215,8 @@ class LinkResolver extends Prismic\LinkResolver
     protected function findRoutesByType(string $type) : array
     {
         $search = $this->routeParams->getType();
-        return array_filter($this->routeConfig, function($route) use ($search, $type) {
+
+        return array_filter($this->routeConfig, function ($route) use ($search, $type) {
             return isset($route['options']['defaults'][$search])
                    &&
                    ($route['options']['defaults'][$search] === $type);
@@ -226,6 +254,7 @@ class LinkResolver extends Prismic\LinkResolver
         $params[$this->routeParams->getUid()]      = $link->getUid();
         $params[$this->routeParams->getType()]     = $link->getType();
         $params[$this->routeParams->getBookmark()] = $this->getBookmarkNameWithLink($link);
+        
         return $params;
     }
 
@@ -256,18 +285,6 @@ class LinkResolver extends Prismic\LinkResolver
             $document->getFragments(),
             false
         );
-    }
-
-    /**
-     * Return a bookmark name if it corresponds to the document id in $link
-     * @param DocumentLink $link
-     * @return string|null
-     */
-    public function getBookmarkNameWithLink(DocumentLink $link)
-    {
-        $bookmarks = array_flip($this->api->bookmarks());
-        $id = $link->getId();
-        return isset($bookmarks[$id]) ? $bookmarks[$id] : null;
     }
 
 }
