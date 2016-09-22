@@ -1,10 +1,15 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace ExpressivePrismic\Service;
 
 use Prismic\Document;
 
+/**
+ * A registry of sorts to store what's considered to be the current document
+ *
+ * @package ExpressivePrismic\Service
+ */
 class CurrentDocument
 {
 

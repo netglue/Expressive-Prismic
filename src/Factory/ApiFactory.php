@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace ExpressivePrismic\Factory;
 
@@ -7,9 +7,20 @@ use Interop\Container\ContainerInterface;
 use Prismic\Api;
 use Zend\Session;
 
+/**
+ * Factory for the Prismic\Api
+ *
+ * @package ExpressivePrismic\Factory
+ */
 class ApiFactory
 {
 
+    /**
+     * @param ContainerInterface $container
+     * @param string             $requestedName
+     * @param array|null         $options
+     * @return Api
+     */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null) : Api
     {
         if (!$container->has('config')) {

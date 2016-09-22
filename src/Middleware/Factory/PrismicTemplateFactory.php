@@ -15,8 +15,7 @@ class PrismicTemplateFactory
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null) : PrismicTemplate
     {
         $renderer = $container->get(TemplateRendererInterface::class);
-        $helpers = $container->get(\Zend\View\HelperPluginManager::class);
         $linkResolver = $container->get(LinkResolver::class);
-        return new PrismicTemplate($renderer, $helpers, $linkResolver);
+        return new PrismicTemplate($renderer, $linkResolver);
     }
 }

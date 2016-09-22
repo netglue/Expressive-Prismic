@@ -16,14 +16,12 @@ class PrismicTemplate
      */
     private $renderer;
 
-    private $helpers;
 
     private $linkResolver;
 
-    public function __construct(TemplateRendererInterface $renderer, $helperManager, $linkResolver)
+    public function __construct(TemplateRendererInterface $renderer, $linkResolver)
     {
         $this->renderer = $renderer;
-        $this->helpers = $helperManager;
         $this->linkResolver = $linkResolver;
     }
 

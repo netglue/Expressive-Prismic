@@ -3,6 +3,7 @@
 namespace ExpressivePrismic\Middleware;
 
 use Prismic;
+use ExpressivePrismic\Service\CurrentDocument;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Request;
 use Zend\Diactoros\Response;
@@ -26,7 +27,7 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
         $this->routeResult = $this->createMock(RouteResult::class);
         $request = new ServerRequest;
         $this->request = $request->withAttribute(RouteResult::class, $this->routeResult);
-        $this->resolver = new DocumentResolver($this->api, new RouteParams);
+        $this->resolver = new DocumentResolver($this->api, new RouteParams, new CurrentDocument);
     }
 
     /**
@@ -35,7 +36,7 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceptionIsThrownWhenNoRouteResultIsPresent()
     {
-        $resolver = new DocumentResolver($this->api, new RouteParams);
+        $resolver = new DocumentResolver($this->api, new RouteParams, new CurrentDocument);
         $resolver(new ServerRequest, new Response);
     }
 

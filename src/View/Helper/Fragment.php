@@ -5,6 +5,11 @@ namespace ExpressivePrismic\View\Helper;
 use Prismic;
 use ExpressivePrismic\Service\CurrentDocument;
 
+/**
+ * Fragment View Helper
+ *
+ * @package ExpressivePrismic\View\Helper
+ */
 class Fragment
 {
 
@@ -18,37 +23,59 @@ class Fragment
      */
     private $linkResolver;
 
+    /**
+     * Fragment constructor.
+     *
+     * @param CurrentDocument      $documentRegistry
+     * @param Prismic\LinkResolver $linkResolver
+     */
     public function __construct(CurrentDocument $documentRegistry, Prismic\LinkResolver $linkResolver)
     {
         $this->documentRegistry = $documentRegistry;
         $this->linkResolver     = $linkResolver;
     }
 
+    /**
+     * @return self
+     */
     public function __invoke() : Fragment
     {
         return $this;
     }
 
     /**
+     * @param  string $name
      * @return Prismic\Fragment\FragmentInterface|null
      */
-    public function get($name)
+    public function get(string $name)
     {
         return $this->requireDocument()->get($this->name($name));
     }
 
-    public function asHtml($name)
+    /**
+     * @param string $name
+     * @return string|null
+     */
+    public function asHtml(string $name)
     {
         if ($frag = $this->get($name)) {
             return $frag->asHtml($this->linkResolver);
         }
+
+        return null;
     }
 
-    public function asText($name)
+    /**
+     * @param string $name
+     * @return string|null
+     */
+    public function asText(string $name)
     {
         if ($frag = $this->get($name)) {
             return $frag->asText();
         }
+
+        return null;
     }
 
     /**
@@ -70,6 +97,7 @@ class Fragment
         if (!$d) {
             throw new \RuntimeException('No prismic document has been set in the document registry');
         }
+
         return $d;
     }
 
@@ -91,6 +119,7 @@ class Fragment
                 $type
             ));
         }
+        
         return sprintf('%s.%s', $type, $name);
     }
 

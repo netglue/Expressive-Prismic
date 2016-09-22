@@ -6,8 +6,8 @@ use Prismic;
 use Prismic\Fragment\Link\LinkInterface;
 use Prismic\Fragment\Link\DocumentLink;
 use Zend\Expressive\Helper\UrlHelper;
-use ExpressivePrismic\Service\RouteParams;
 use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
+use ExpressivePrismic\Service\RouteParams;
 
 class LinkResolver extends Prismic\LinkResolver
 {
@@ -43,12 +43,13 @@ class LinkResolver extends Prismic\LinkResolver
     }
 
     /**
+     * @param LinkInterface $link
      * @return string|null
      */
     public function resolve($link)
     {
         if (!$link instanceof LinkInterface) {
-            return;
+            return null;
         }
 
         if ($link instanceof DocumentLink) {
@@ -107,6 +108,8 @@ class LinkResolver extends Prismic\LinkResolver
                 return $this->urlHelper->generate($route['name'], $this->getRouteParams($link));
             } catch (RouterException $e) { }
         }
+
+        return null;
     }
 
     /**
@@ -207,6 +210,8 @@ class LinkResolver extends Prismic\LinkResolver
                 return $name;
             }
         }
+
+        return null;
     }
 
     /**
@@ -224,6 +229,10 @@ class LinkResolver extends Prismic\LinkResolver
         return $params;
     }
 
+    /**
+     * @param Prismic\Document $document
+     * @return null|string
+     */
     protected function getBookmarkNameWithDocument(Prismic\Document $document)
     {
         return $this->getBookmarkNameWithLink($this->asLink($document));
@@ -232,7 +241,7 @@ class LinkResolver extends Prismic\LinkResolver
     /**
      * This method convert a document into document link
      *
-     * @param Document $document The document
+     * @param Prismic\Document $document The document
      *
      * @return DocumentLink The document link
      */

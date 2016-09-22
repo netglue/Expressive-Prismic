@@ -126,7 +126,7 @@ class ConfigProvider
                  * Determines the parameter names we look for inroutes to identify
                  * a document.
                  * Set these in local config to override the defaults:
-                 * @see ExpressivePrismic\Service\RouteParams
+                 * @see Service\RouteParams
                  */
                 'route_params' => [
                     //'id'       => 'prismic-bookmark',

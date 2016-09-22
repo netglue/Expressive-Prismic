@@ -36,7 +36,7 @@ class Url
      *
      * $target can also be a document, or a Prismic\LinkInterface instance
      *
-     * @param string|Document|LinkInterface
+     * @param string|Document|LinkInterface $target
      * @return string|null
      */
     public function __invoke($target)

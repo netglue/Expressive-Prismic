@@ -11,6 +11,11 @@ use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Exception\PageNotFoundException;
 use Throwable;
 
+/**
+ * Class ErrorHandler
+ *
+ * @package ExpressivePrismic\Middleware
+ */
 class ErrorHandler
 {
 
@@ -52,15 +57,25 @@ class ErrorHandler
     private $bookmarkError;
 
 
-
+    /**
+     * ErrorHandler constructor.
+     *
+     * @param Prismic\Api               $api
+     * @param TemplateRendererInterface $renderer
+     * @param CurrentDocument           $documentRegistry
+     * @param string                    $bookmark404
+     * @param string                    $bookmarkError
+     * @param string                    $template404
+     * @param string                    $templateError
+     */
     public function __construct(
         Prismic\Api $api,
         TemplateRendererInterface $renderer,
         CurrentDocument $documentRegistry,
-        $bookmark404,
-        $bookmarkError,
-        $template404 = 'error::404',
-        $templateError = 'error::error'
+        string $bookmark404,
+        string $bookmarkError,
+        string $template404 = 'error::404',
+        string $templateError = 'error::error'
     ) {
 
         $this->api              = $api;
@@ -75,10 +90,10 @@ class ErrorHandler
     /**
      * The signature for error middleware is ($error, $request, $response, $next)
      *
-     * @param mixed $error
-     * @param Request $request
-     * @param Response $response
-     * @param null|callable $next
+     * @param  mixed         $error
+     * @param  Request       $request
+     * @param  Response      $response
+     * @param  null|callable $next
      * @return Response
      */
     public function __invoke(Throwable $error, Request $request, Response $response, callable $next = null) : Response
@@ -91,7 +106,7 @@ class ErrorHandler
             return $this->render500($error, $request, $response);
         }
 
-        if($next) {
+        if ($next) {
             return $next($request, $response);
         }
 
@@ -101,9 +116,9 @@ class ErrorHandler
     /**
      * Render an error or exception to a template using a bookmarked Prismic document
      *
-     * @param mixed $error
-     * @param Request $request
-     * @param Response $response
+     * @param  mixed    $error
+     * @param  Request  $request
+     * @param  Response $response
      * @return Response
      */
     protected function render500(Throwable $error, Request $request, Response $response)
@@ -130,8 +145,8 @@ class ErrorHandler
     /**
      * Create a 404 response with a bookmarked Prismic document
      *
-     * @param Request $request
-     * @param Response $response
+     * @param  Request  $request
+     * @param  Response $response
      * @return Response
      */
     private function render404(Request $request, Response $response)

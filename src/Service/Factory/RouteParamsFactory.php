@@ -5,7 +5,6 @@ namespace ExpressivePrismic\Service\Factory;
 
 use Interop\Container\ContainerInterface;
 
-use Prismic;
 use ExpressivePrismic\Service\RouteParams;
 
 class RouteParamsFactory

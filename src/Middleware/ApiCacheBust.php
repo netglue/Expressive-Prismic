@@ -1,11 +1,17 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ExpressivePrismic\Middleware;
+
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
 use Prismic;
 
+/**
+ * Middleware for busting the Prismic cache in receipt of a webhook
+ *
+ * @package ExpressivePrismic\Middleware
+ */
 class ApiCacheBust
 {
     /**
@@ -13,12 +19,22 @@ class ApiCacheBust
      */
     private $api;
 
-
+    /**
+     * ApiCacheBust constructor.
+     *
+     * @param Prismic\Api $api
+     */
     public function __construct(Prismic\Api $api)
     {
         $this->api = $api;
     }
 
+    /**
+     * @param Request       $request
+     * @param Response      $response
+     * @param callable|null $next
+     * @return Response
+     */
     public function __invoke(Request $request, Response $response, callable $next = null) : Response
     {
 
@@ -50,15 +66,23 @@ class ApiCacheBust
             'error' => false,
             'message' => 'Payload Received',
         ];
+
         return new JsonResponse($data, 200);
     }
 
-    private function jsonError($message, $code)
+    /**
+     * Return a JSON Response in error conditions with the given message and status code
+     * @param string $message
+     * @param int    $code
+     * @return JsonResponse
+     */
+    private function jsonError(string $message, int $code) : JsonResponse
     {
         $data = [
             'error' => true,
             'message' => $message,
         ];
+
         return new JsonResponse($data, $code);
     }
 }

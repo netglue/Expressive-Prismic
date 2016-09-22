@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace ExpressivePrismic\Middleware\Factory;
 
@@ -9,9 +9,20 @@ use ExpressivePrismic\Service\CurrentDocument;
 use Prismic;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
+/**
+ * Class ErrorHandlerFactory
+ *
+ * @package ExpressivePrismic\Middleware\Factory
+ */
 class ErrorHandlerFactory
 {
 
+    /**
+     * @param ContainerInterface $container
+     * @param string             $requestedName
+     * @param array|null         $options
+     * @return ErrorHandler
+     */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null) : ErrorHandler
     {
         $api             = $container->get(Prismic\Api::class);
@@ -19,6 +30,7 @@ class ErrorHandlerFactory
         $renderer        = $container->get(TemplateRendererInterface::class);
         $options         = $config['prismic']['error_handler'];
         $currentDocument = $container->get(CurrentDocument::class);
+        
         return new ErrorHandler(
             $api,
             $renderer,

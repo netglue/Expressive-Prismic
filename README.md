@@ -57,7 +57,7 @@ So, assuming the above, to define a route to a bookmarked document, you would co
         ],
     ],
 
-Normally, to save youself some effort, you'd have a template that's capable of rendering perhaps any page of a given type such as a 'case-study' type. Let's say you want the url `/case-studies/{case-study-uid}`, then you'd define a route like this:
+Normally, to save yourself some effort, you'd have a template that's capable of rendering perhaps any page of a given type such as a 'case-study' type. Let's say you want the url `/case-studies/{case-study-uid}`, then you'd define a route like this:
     
     'routes' => [
         'case-studies' => [

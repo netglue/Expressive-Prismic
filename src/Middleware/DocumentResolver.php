@@ -9,6 +9,13 @@ use Zend\Expressive\Router\RouteResult;
 use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Service\RouteParams;
 
+/**
+ * DocumentResolver Middleware.
+ *
+ * Tries to resolve the current CMS document based on the matched route/request
+ *
+ * @package ExpressivePrismic\Middleware
+ */
 class DocumentResolver
 {
 
@@ -27,6 +34,13 @@ class DocumentResolver
      */
     private $documentRegistry;
 
+    /**
+     * DocumentResolver constructor.
+     *
+     * @param Prismic\Api     $api
+     * @param RouteParams     $params
+     * @param CurrentDocument $documentRegistry
+     */
     public function __construct(Prismic\Api $api, RouteParams $params, CurrentDocument $documentRegistry)
     {
         $this->api              = $api;
@@ -34,6 +48,13 @@ class DocumentResolver
         $this->documentRegistry = $documentRegistry;
     }
 
+    /**
+     * @param Request       $request
+     * @param Response      $response
+     * @param callable|null $next
+     * @return Response
+     * @throws \RuntimeException if no route has been matched
+     */
     public function __invoke(Request $request, Response $response, callable $next = null) : Response
     {
         // Get hold of the matched route (RouteResult) so we can inspect and resolve a document
@@ -69,6 +90,7 @@ class DocumentResolver
         if ($next) {
             return $next($request, $response);
         }
+
         return $response;
     }
 
@@ -87,6 +109,8 @@ class DocumentResolver
                 return $this->api->getByID($id);
             }
         }
+
+        return null;
     }
 
     /**
@@ -101,6 +125,8 @@ class DocumentResolver
         if ($id) {
             return $this->api->getByID($id);
         }
+
+        return null;
     }
 
     /**
@@ -115,8 +141,9 @@ class DocumentResolver
         $search = $this->routeParams->getType();
         $type   = isset($params[$search]) && !empty($params[$search]) ? $params[$search] : null;
         if (!$type || !$uid) {
-            return;
+            return null;
         }
+        
         return $this->api->getByUID($type, $uid);
     }
 }
