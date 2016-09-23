@@ -1,9 +1,14 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace ExpressivePrismic;
 use Prismic;
 
+/**
+ * Class ConfigProvider
+ *
+ * @package ExpressivePrismic
+ */
 class ConfigProvider
 {
 

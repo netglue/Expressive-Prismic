@@ -1,12 +1,18 @@
 <?php
+/**
+ * This file is part of the Expressive Prismic Package
+ * Copyright 2016 Net Glue Ltd (https://netglue.uk).
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
 
 namespace ExpressivePrismic\Middleware;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
-use Zend\Http\Header\SetCookie;
-use Zend\Diactoros\Response\RedirectResponse;
 use Zend\View\HelperPluginManager;
 
 /**
@@ -45,12 +51,16 @@ class InjectPreviewScript
      * @param string              $editScript
      * @param string              $apiEndpoint
      */
-    public function __construct(HelperPluginManager $helpers, string $toolbarScript, string $editScript, string $apiEndpoint)
-    {
-        $this->helpers       = $helpers;
+    public function __construct(
+        HelperPluginManager $helpers,
+        string $toolbarScript,
+        string $editScript,
+        string $apiEndpoint
+    ) {
+        $this->helpers = $helpers;
         $this->toolbarScript = $toolbarScript;
-        $this->editScript    = $editScript;
-        $this->apiEndpoint   = $apiEndpoint;
+        $this->editScript = $editScript;
+        $this->apiEndpoint = $apiEndpoint;
     }
 
     /**
@@ -72,7 +82,7 @@ class InjectPreviewScript
          */
         $cookieNames = [
             str_replace(['.', ' '], '_', Prismic\Api::PREVIEW_COOKIE) => '',
-            Prismic\Api::PREVIEW_COOKIE => '',
+            Prismic\Api::PREVIEW_COOKIE                               => '',
         ];
         $value = current(array_intersect_key($request->getCookieParams(), $cookieNames));
         if (!empty($value)) {
