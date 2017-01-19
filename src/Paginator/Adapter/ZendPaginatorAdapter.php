@@ -5,7 +5,7 @@ namespace ExpressivePrismic\Paginator\Adapter;
 use Prismic\SearchForm;
 use Zend\Paginator\Adapter\AdapterInterface;
 
-class ZendPaginatorAdapter implements AdapterInterface,
+class ZendPaginatorAdapter implements AdapterInterface
 {
     /**
      * ArrayAdapter
