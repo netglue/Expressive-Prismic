@@ -52,8 +52,18 @@ class ErrorHandler
      */
     private $templateError;
 
+    /**
+     * Document bookmark for 404 errors
+     *
+     * @var string
+     */
     private $bookmark404;
 
+    /**
+     * Document bookmark for server errors
+     *
+     * @var string
+     */
     private $bookmarkError;
 
 
