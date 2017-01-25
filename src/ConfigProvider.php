@@ -35,6 +35,7 @@ class ConfigProvider
                     Middleware\PreviewInitiator::class              => Middleware\Factory\PreviewInitiatorFactory::class,
                     Middleware\InjectPreviewScript::class           => Middleware\Factory\InjectPreviewScriptFactory::class,
                     Middleware\ErrorHandler::class                  => Middleware\Factory\ErrorHandlerFactory::class,
+                    Middleware\FinalHandler::class                  => Middleware\Factory\FinalHandlerFactory::class,
                 ],
                 'invokables' => [
                     // An instance used to track the current document for the request
@@ -113,6 +114,8 @@ class ConfigProvider
                 'error_handler' => [
                     'template_404'   => 'error::404',
                     'template_error' => 'error::error',
+                    'template_fallback' => 'error::prismic-fallback',
+                    'layout_fallback' => 'layout::error-fallback',
                     'bookmark_404'   => null,
                     'bookmark_error' => null,
                 ],
@@ -140,6 +143,13 @@ class ConfigProvider
                     //'type'     => 'prismic-type',
                 ],
 
+            ],
+
+            'templates' => [
+                'map' => [
+                    'layout::error-fallback'  => __DIR__ . '/../templates/fallback-error-layout.phtml',
+                    'error::prismic-fallback' => __DIR__ . '/../templates/fallback-error.phtml',
+                ],
             ],
         ];
     }
