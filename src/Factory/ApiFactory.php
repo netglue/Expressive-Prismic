@@ -44,9 +44,10 @@ class ApiFactory
         }
 
         // Retrieve a dedicated cache instance that implements Prismic's Cache Interface
+        $cache = isset($config['cache']) ? $container->get($config['cache']) : null;
 
         // Use either the configured token, or a preview token retrieved from the session
 
-        return Api::get($url, $token, null, null, $ttl);
+        return Api::get($url, $token, null, $cache, $ttl);
     }
 }
