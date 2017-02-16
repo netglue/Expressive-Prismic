@@ -36,7 +36,7 @@ class InjectPreviewScript
     /**
      * @var string
      */
-    private $editScript;
+    private $endpointScript;
 
     /**
      * @var string
@@ -48,18 +48,18 @@ class InjectPreviewScript
      *
      * @param HelperPluginManager $helpers
      * @param string              $toolbarScript
-     * @param string              $editScript
+     * @param string              $endpointScript
      * @param string              $apiEndpoint
      */
     public function __construct(
         HelperPluginManager $helpers,
         string $toolbarScript,
-        string $editScript,
+        string $endpointScript,
         string $apiEndpoint
     ) {
         $this->helpers = $helpers;
         $this->toolbarScript = $toolbarScript;
-        $this->editScript = $editScript;
+        $this->endpointScript = $endpointScript;
         $this->apiEndpoint = $apiEndpoint;
     }
 
@@ -81,13 +81,15 @@ class InjectPreviewScript
          * so we need to check both name variants. Shit.
          */
         $cookieNames = [
-            str_replace(['.', ' '], '_', Prismic\Api::PREVIEW_COOKIE) => '',
-            Prismic\Api::PREVIEW_COOKIE                               => '',
+            str_replace(['.', ' '], '_', Prismic\Api::PREVIEW_COOKIE)     => '',
+            Prismic\Api::PREVIEW_COOKIE                                   => '',
+            Prismic\Api::EXPERIMENTS_COOKIE                               => '',
+            str_replace(['.', ' '], '_', Prismic\Api::EXPERIMENTS_COOKIE) => '',
         ];
         $value = current(array_intersect_key($request->getCookieParams(), $cookieNames));
         if (!empty($value)) {
             $helper = $this->helpers->get('inlineScript');
-            $helper->appendScript(sprintf($this->editScript, $this->apiEndpoint));
+            $helper->appendScript(sprintf($this->endpointScript, $this->apiEndpoint));
             $helper->appendFile($this->toolbarScript);
         }
 

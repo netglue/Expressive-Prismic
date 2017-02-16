@@ -128,7 +128,7 @@ class ConfigProvider
                 /**
                  * Format of edit button initialisation script
                  */
-                'editScript' => 'window.prismic = { endpoint: \'%s\' };',
+                'endpointScript' => 'prismic = { endpoint: \'%s\' };',
 
                 /**
                  * Determines the parameter names we look for inroutes to identify

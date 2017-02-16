@@ -22,7 +22,7 @@ class InjectPreviewScriptFactory
         return new InjectPreviewScript(
             $helpers,
             $config['prismic']['toolbarScript'],
-            $config['prismic']['editScript'],
+            $config['prismic']['endpointScript'],
             $config['prismic']['api']['url']
         );
     }
