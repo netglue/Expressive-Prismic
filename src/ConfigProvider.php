@@ -33,6 +33,7 @@ class ConfigProvider
                     Middleware\DocumentResolver::class              => Middleware\Factory\DocumentResolverFactory::class,
                     Middleware\ApiCacheBust::class                  => Middleware\Factory\ApiCacheBustFactory::class,
                     Middleware\PreviewInitiator::class              => Middleware\Factory\PreviewInitiatorFactory::class,
+                    Middleware\ExperimentInitiator::class           => Middleware\Factory\ExperimentInitiatorFactory::class,
                     Middleware\InjectPreviewScript::class           => Middleware\Factory\InjectPreviewScriptFactory::class,
                     Middleware\ErrorHandler::class                  => Middleware\Factory\ErrorHandlerFactory::class,
                     Middleware\FinalHandler::class                  => Middleware\Factory\FinalHandlerFactory::class,
