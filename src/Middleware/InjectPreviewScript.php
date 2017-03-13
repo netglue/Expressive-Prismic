@@ -83,8 +83,6 @@ class InjectPreviewScript
         $cookieNames = [
             str_replace(['.', ' '], '_', Prismic\Api::PREVIEW_COOKIE)     => '',
             Prismic\Api::PREVIEW_COOKIE                                   => '',
-            Prismic\Api::EXPERIMENTS_COOKIE                               => '',
-            str_replace(['.', ' '], '_', Prismic\Api::EXPERIMENTS_COOKIE) => '',
         ];
         $value = current(array_intersect_key($request->getCookieParams(), $cookieNames));
         if (!empty($value)) {
