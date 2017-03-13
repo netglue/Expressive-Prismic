@@ -123,13 +123,21 @@ class ConfigProvider
 
                 /**
                  * URL of the Prismic toolbar Javascript
+                 * This JS File renders the toolbar when in preview mode and is also
+                 * responsible for setting experiment cookies too
                  */
                 'toolbarScript' => '//static.cdn.prismic.io/prismic.min.js',
 
                 /**
-                 * Format of edit button initialisation script
+                 * This 'endpoint script' is injected by the experiment initiator or the
+                 * preview initiator, or both and it let's the main Prismic.io JS file know
+                 * which endpoint to use. As there's a chance it may end up in the source twice,
+                 * check for the global prismic object before initialising it.
+                 *
+                 * It's in printf format and there should be 1 variable interpolated which is
+                 * the url of the repository's endpoint, i.e. $config['prismic']['api']['url']
                  */
-                'endpointScript' => 'prismic = { endpoint: \'%s\' };',
+                'endpointScript' => 'var prismic = window.prismic || {};  prismic.endpoint = \'%s\';',
 
                 /**
                  * Determines the parameter names we look for inroutes to identify
