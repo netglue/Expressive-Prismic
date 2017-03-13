@@ -52,7 +52,9 @@ class ExperimentInitiator
 
     public function __invoke(Request $request, Response $response, callable $next = null) : Response
     {
-
+        /**
+         * Prismic is only capable of one experiment at a time
+         */
         $experiments = $this->api->getExperiments();
         $experiment  = $experiments ? $experiments->getCurrent() : null;
 
@@ -68,7 +70,7 @@ class ExperimentInitiator
         $helper->appendScript(sprintf($this->endpointScript, $this->apiEndpoint));
 
         /**
-         * Inject Google Analytics Experiments Api with the running experiments Google ID
+         * Inject Google Analytics Experiments Api with the running experiment's Google ID
          */
         $helper->appendFile(sprintf(
             '//www.google-analytics.com/cx/api.js?experiment=%s',
