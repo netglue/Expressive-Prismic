@@ -83,7 +83,7 @@ class ExperimentInitiator
         /**
          * Call the startExperiment method on global prismic object
          */
-        $helper->appendScript(sprintf('$(function() { prismic.startExperiment("%s"); });', $experiment->getGoogleId()));
+        $helper->appendScript(sprintf('$(function() { prismic.startExperiment("%s", cxApi); });', $experiment->getGoogleId()));
 
         return $next($request, $response);
     }
