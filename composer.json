@@ -21,13 +21,13 @@
     },
     "require": {
         "prismic/php-sdk": "^3.0",
-        "zendframework/zend-expressive": "^1.0",
+        "zendframework/zend-expressive": "^2.0",
         "zendframework/zend-stdlib": "^3.0",
-        "zendframework/zend-expressive-helpers": "^2.0",
+        "zendframework/zend-expressive-helpers": "^4.0",
         "zendframework/zend-http": "^2.5"
     },
     "require-dev" : {
-        "phpunit/phpunit": "5.5.5"
+        "phpunit/phpunit": "^5.5"
     },
     "suggest": {
         "zendframework/zend-paginator": "Zend\\Paginator component to paginate results from the Prismic api"

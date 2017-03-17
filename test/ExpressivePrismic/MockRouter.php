@@ -26,7 +26,7 @@ class MockRouter implements RouterInterface
 
     }
 
-    public function generateUri($name, array $substitutions = [])
+    public function generateUri($name, array $substitutions = [], array $options = [])
     {
 
 
