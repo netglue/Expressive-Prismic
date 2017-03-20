@@ -8,6 +8,7 @@ use Prismic\Fragment\Link\DocumentLink;
 use Zend\Expressive\Helper\UrlHelper;
 use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
 use ExpressivePrismic\Service\RouteParams;
+use Zend\Expressive\Application;
 
 /**
  * Prismic LinkResolver Implementation
@@ -28,29 +29,29 @@ class LinkResolver extends Prismic\LinkResolver
     private $routeParams;
 
     /**
-     * @var array
-     */
-    private $routeConfig;
-
-    /**
      * @var UrlHelper
      */
     private $urlHelper;
 
     /**
+     * @var Application
+     */
+    private $app;
+
+    /**
      * LinkResolver constructor.
      *
-     * @param Prismic\Api $api
-     * @param RouteParams $params
-     * @param array       $routeConfig
-     * @param UrlHelper   $urlHelper
+     * @param Prismic\Api $api        Api is used for querying the available bookmarks
+     * @param RouteParams $params     This object is all about knowing what route parameter names to look for
+     * @param UrlHelper   $urlHelper  This helper generates the actual URLs
+     * @param Application $app        The app is needed to retrieve the configured routes
      */
-    public function __construct(Prismic\Api $api, RouteParams $params, array $routeConfig, UrlHelper $urlHelper)
+    public function __construct(Prismic\Api $api, RouteParams $params, UrlHelper $urlHelper, Application $app)
     {
         $this->api         = $api;
         $this->routeParams = $params;
-        $this->routeConfig = $routeConfig;
         $this->urlHelper   = $urlHelper;
+        $this->app         = $app;
     }
 
     /**
@@ -108,20 +109,21 @@ class LinkResolver extends Prismic\LinkResolver
      */
     protected function tryResolveAsId(DocumentLink $link)
     {
-        $routes = array_filter($this->routeConfig, function ($route) {
+        $routes = array_filter($this->app->getRoutes(), function ($route) {
             $rp = $this->routeParams;
-            if (!isset($route['options']['defaults'])) {
+            $options = $route->getOptions();
+            if (!isset($options['defaults'])) {
                 return false;
             }
-            if (!array_key_exists($rp->getId(), $route['options']['defaults'])) {
+            if (!array_key_exists($rp->getId(), $options['defaults'])) {
                 return false;
             }
             // If ID & Type are available, it means the route previously didn't match
-            if (isset($route['options']['defaults'][$rp->getType()])) {
+            if (isset($options['defaults'][$rp->getType()])) {
                 return false;
             }
             // Same with bookmark.
-            if (isset($route['options']['defaults'][$rp->getBookmark()])) {
+            if (isset($options['defaults'][$rp->getBookmark()])) {
                 return false;
             }
 
@@ -129,7 +131,7 @@ class LinkResolver extends Prismic\LinkResolver
         });
         foreach ($routes as $route) {
             try {
-                return $this->urlHelper->generate($route['name'], $this->getRouteParams($link));
+                return $this->urlHelper->generate($route->getName(), $this->getRouteParams($link));
             } catch (RouterException $e) {
             }
         }
@@ -149,34 +151,9 @@ class LinkResolver extends Prismic\LinkResolver
      */
     protected function tryResolveAsType(DocumentLink $link)
     {
-        $idParam   = $this->routeParams->getId();
-        $uidParam  = $this->routeParams->getUid();
-        $routes    = $this->findRoutesByType($link->getType());
-
-        $uidRoutes = array_filter($routes, function ($route) use ($uidParam) {
-            return isset($route['options']['defaults'])
-                   &&
-                   array_key_exists($uidParam, $route['options']['defaults']);
-        });
-
-        $idRoutes  = array_filter($routes, function ($route) use ($idParam) {
-            return isset($route['options']['defaults'])
-                   &&
-                   array_key_exists($idParam, $route['options']['defaults']);
-        });
-
-        $params = $this->getRouteParams($link);
-
-        foreach ($uidRoutes as $route) {
+        foreach ($this->findRoutesByType($link->getType()) as $route) {
             try {
-                return $this->urlHelper->generate($route['name'], $params);
-            } catch (RouterException $e) {
-            }
-        }
-
-        foreach ($idRoutes as $route) {
-            try {
-                return $this->urlHelper->generate($route['name'], $params);
+                return $this->urlHelper->generate($route->getName(), $this->getRouteParams($link));
             } catch (RouterException $e) {
             }
         }
@@ -199,12 +176,12 @@ class LinkResolver extends Prismic\LinkResolver
         if (!$bookmark) {
             return null;
         }
-        $route = $this->findRouteNameWithBookmark($bookmark);
-        if (!$route) {
+        $routeName = $this->findRouteNameWithBookmark($bookmark);
+        if (!$routeName) {
             return null;
         }
 
-        return $this->urlHelper->generate($route, $this->getRouteParams($link));
+        return $this->urlHelper->generate($routeName, $this->getRouteParams($link));
     }
 
     /**
@@ -216,10 +193,11 @@ class LinkResolver extends Prismic\LinkResolver
     {
         $search = $this->routeParams->getType();
 
-        return array_filter($this->routeConfig, function ($route) use ($search, $type) {
-            return isset($route['options']['defaults'][$search])
+        return array_filter($this->app->getRoutes(), function ($route) use ($search, $type) {
+            $options = $route->getOptions();
+            return isset($options['defaults'][$search])
                    &&
-                   ($route['options']['defaults'][$search] === $type);
+                   ($options['defaults'][$search] === $type);
         });
     }
 
@@ -230,12 +208,12 @@ class LinkResolver extends Prismic\LinkResolver
     protected function findRouteNameWithBookmark(string $bookmark)
     {
         $search = $this->routeParams->getBookmark();
-        foreach ($this->routeConfig as $route) {
-            $param = isset($route['options']['defaults'][$search]) ? $route['options']['defaults'][$search] : null;
-            $name = isset($route['name']) ? $route['name'] : null;
+        foreach ($this->app->getRoutes() as $route) {
+            $options = $route->getOptions();
+            $param = isset($options['defaults'][$search]) ? $options['defaults'][$search] : null;
             if ($param === $bookmark) {
                 // Route name might be null, but we won't be able to assemble a route without the name anyway
-                return $name;
+                return $route->getName();
             }
         }
 
@@ -254,7 +232,7 @@ class LinkResolver extends Prismic\LinkResolver
         $params[$this->routeParams->getUid()]      = $link->getUid();
         $params[$this->routeParams->getType()]     = $link->getType();
         $params[$this->routeParams->getBookmark()] = $this->getBookmarkNameWithLink($link);
-        
+
         return $params;
     }
 

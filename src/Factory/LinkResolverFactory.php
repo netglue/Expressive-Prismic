@@ -8,6 +8,7 @@ use Prismic;
 use ExpressivePrismic\LinkResolver;
 use ExpressivePrismic\Service\RouteParams;
 use Zend\Expressive\Helper\UrlHelper;
+use Zend\Expressive\Application;
 
 /**
  * Class LinkResolverFactory
@@ -27,9 +28,9 @@ class LinkResolverFactory
     {
         $api       = $container->get(Prismic\Api::class);
         $params    = $container->get(RouteParams::class);
-        $config    = $container->get('config');
         $urlHelper = $container->get(UrlHelper::class);
-        
-        return new LinkResolver($api, $params, $config['routes'], $urlHelper);
+        $app       = $container->get(Application::class);
+
+        return new LinkResolver($api, $params, $urlHelper, $app);
     }
 }
