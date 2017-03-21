@@ -20,13 +20,19 @@ class ApiCacheBust
     private $api;
 
     /**
+     * @var string
+     */
+    private $expectedSecret;
+
+    /**
      * ApiCacheBust constructor.
      *
      * @param Prismic\Api $api
      */
-    public function __construct(Prismic\Api $api)
+    public function __construct(Prismic\Api $api, string $expectedSecret)
     {
         $this->api = $api;
+        $this->expectedSecret = $expectedSecret;
     }
 
     /**
@@ -50,9 +56,8 @@ class ApiCacheBust
             return $this->jsonError('Invalid payload', 400);
         }
 
-        $expectedSecret = $request->getAttribute('expectedSecret');
 
-        if (!isset($json['secret']) || $json['secret'] !== $expectedSecret) {
+        if (!isset($json['secret']) || $json['secret'] !== $this->expectedSecret) {
             return $this->jsonError('Invalid payload', 400);
         }
 

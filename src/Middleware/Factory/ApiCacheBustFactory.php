@@ -24,8 +24,10 @@ class ApiCacheBustFactory
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null) : ApiCacheBust
     {
         $api = $container->get(Prismic\Api::class);
+        $config = $container->get('config');
+        $secret = isset($config['prismic']['webhook_secret']) ? $config['prismic']['webhook_secret'] : null;
 
-        return new ApiCacheBust($api);
+        return new ApiCacheBust($api, $secret);
     }
 
 }
