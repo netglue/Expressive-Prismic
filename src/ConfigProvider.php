@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace ExpressivePrismic;
 use Prismic;
+use Zend\Expressive\Application;
 
 /**
  * Class ConfigProvider
@@ -52,6 +53,11 @@ class ConfigProvider
                      */
                     Prismic\LinkResolver::class            => LinkResolver::class,
                 ],
+                'delegators' => [
+                    Application::class => [
+                        Factory\PipelineAndRoutesDelegator::class,
+                    ],
+                ],
             ],
 
             /**
@@ -68,35 +74,6 @@ class ConfigProvider
                 ],
             ],
 
-            'routes' => [
-                'prismic-cache-webhook' => [
-                    'name' => 'prismic-webhook-cache-bust',
-                    'path' => '/prismicio-cache-webhook',
-                    'allowed_methods' => ['POST'],
-                    'middleware' => [
-                        Middleware\ApiCacheBust::class,
-                    ],
-                    'options' => [
-                        'defaults' => [
-                            'expectedSecret' => null,
-                        ],
-                    ],
-                ],
-                'prismic-preview' => [
-                    'name' => 'prismic-preview',
-                    'path' => '/prismic-preview',
-                    'allowed_methods' => ['GET'],
-                    'middleware' => [
-                        Middleware\PreviewInitiator::class,
-                    ],
-                    'options' => [
-                        'defaults' => [
-                            'expectedSecret' => null,
-                        ],
-                    ],
-                ],
-            ],
-
             'prismic' => [
                 // Api Connection Params
                 'api' => [
@@ -107,6 +84,9 @@ class ConfigProvider
                     // Api Cache TTL in seconds. Set to 0 to cache forever (recommended)
                     'ttl' => null,
                 ],
+
+                // Webhook Shared Secret
+                'webhook_secret' => null,
 
                 /**
                  * Error Handler configuration for content managed
