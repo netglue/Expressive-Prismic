@@ -8,6 +8,9 @@ use ExpressivePrismic\Middleware\ErrorHandler;
 use ExpressivePrismic\Service\CurrentDocument;
 use Prismic;
 use Zend\Expressive\Template\TemplateRendererInterface;
+use ExpressivePrismic\Middleware;
+
+use Zend\Stratigility\MiddlewarePipe;
 
 /**
  * Class ErrorHandlerFactory
@@ -30,15 +33,25 @@ class ErrorHandlerFactory
         $renderer        = $container->get(TemplateRendererInterface::class);
         $options         = $config['prismic']['error_handler'];
         $currentDocument = $container->get(CurrentDocument::class);
-        
+
+        $middleware = $config['prismic']['error_handler']['middleware'];
+
+        $pipe = new MiddlewarePipe;
+        foreach ($middleware as $name) {
+            $pipe->pipe($container->get($name));
+        }
+
         return new ErrorHandler(
+            $pipe,
             $api,
             $renderer,
             $currentDocument,
             $options['bookmark_404'],
             $options['bookmark_error'],
             $options['template_404'],
-            $options['template_error']
+            $options['template_error'],
+            $options['layout_fallback'],
+            $options['template_fallback']
         );
     }
 }
