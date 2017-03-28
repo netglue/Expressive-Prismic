@@ -2,6 +2,8 @@
 declare(strict_types = 1);
 namespace ExpressivePrismic\Middleware;
 
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
@@ -12,7 +14,7 @@ use Prismic;
  *
  * @package ExpressivePrismic\Middleware
  */
-class ApiCacheBust
+class ApiCacheBust implements MiddlewareInterface
 {
     /**
      * @var Prismic\Api
@@ -36,14 +38,12 @@ class ApiCacheBust
     }
 
     /**
-     * @param Request       $request
-     * @param Response      $response
-     * @param callable|null $next
+     * @param  Request           $request
+     * @param  DelegateInterface $delegate
      * @return Response
      */
-    public function __invoke(Request $request, Response $response, callable $next = null) : Response
+    public function process(Request $request, DelegateInterface $delegate)
     {
-
         $body = (string) $request->getBody();
 
         if (empty($body)) {

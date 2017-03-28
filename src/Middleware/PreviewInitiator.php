@@ -2,13 +2,15 @@
 
 namespace ExpressivePrismic\Middleware;
 
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
 use Zend\Http\Header\SetCookie;
 use Zend\Diactoros\Response\RedirectResponse;
 
-class PreviewInitiator
+class PreviewInitiator implements MiddlewareInterface
 {
 
     /**
@@ -27,12 +29,17 @@ class PreviewInitiator
         $this->linkResolver = $linkResolver;
     }
 
-    public function __invoke(Request $request, Response $response, callable $next = null) : Response
+    /**
+     * @param  Request           $request
+     * @param  DelegateInterface $delegate
+     * @return Response
+     */
+    public function process(Request $request, DelegateInterface $delegate)
     {
         $query = $request->getQueryParams();
         if (!isset($query['token']) || empty($query['token'])) {
             // Pass through in order to raise a 404
-            return $next($request, $response);
+            return $delegate->process($request);
         }
 
         $token = urldecode($query['token']);

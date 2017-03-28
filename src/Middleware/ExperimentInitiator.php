@@ -2,13 +2,15 @@
 
 namespace ExpressivePrismic\Middleware;
 
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
 use Zend\Http\Header\SetCookie;
 use Zend\View\HelperPluginManager;
 
-class ExperimentInitiator
+class ExperimentInitiator implements MiddlewareInterface
 {
 
     /**
@@ -50,7 +52,13 @@ class ExperimentInitiator
         $this->endpointScript = $endpointScript;
     }
 
-    public function __invoke(Request $request, Response $response, callable $next = null) : Response
+    /**
+     * @param  Request           $request
+     * @param  DelegateInterface $delegate
+     * @return Response
+     * @throws \RuntimeException if no route has been matched
+     */
+    public function process(Request $request, DelegateInterface $delegate) : Response
     {
         /**
          * Prismic is only capable of one experiment at a time
@@ -59,7 +67,7 @@ class ExperimentInitiator
         $experiment  = $experiments ? $experiments->getCurrent() : null;
 
         if (!$experiment) {
-            return $next($request, $response);
+            return $delegate->process($request);
         }
 
         $helper = $this->helpers->get('inlineScript');
@@ -87,6 +95,6 @@ class ExperimentInitiator
          */
         $helper->appendScript(sprintf('$(function() { prismic.startExperiment("%s", cxApi); });', $experiment->getGoogleId()));
 
-        return $next($request, $response);
+        return $delegate->process($request);
     }
 }

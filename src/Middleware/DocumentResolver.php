@@ -2,12 +2,15 @@
 
 namespace ExpressivePrismic\Middleware;
 
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
 use Zend\Expressive\Router\RouteResult;
 use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Service\RouteParams;
+use ExpressivePrismic\Exception\PageNotFoundException;
 
 /**
  * DocumentResolver Middleware.
@@ -16,7 +19,7 @@ use ExpressivePrismic\Service\RouteParams;
  *
  * @package ExpressivePrismic\Middleware
  */
-class DocumentResolver
+class DocumentResolver implements MiddlewareInterface
 {
 
     /**
@@ -49,13 +52,12 @@ class DocumentResolver
     }
 
     /**
-     * @param Request       $request
-     * @param Response      $response
-     * @param callable|null $next
+     * @param  Request           $request
+     * @param  DelegateInterface $delegate
      * @return Response
      * @throws \RuntimeException if no route has been matched
      */
-    public function __invoke(Request $request, Response $response, callable $next = null) : Response
+    public function process(Request $request, DelegateInterface $delegate)
     {
         // Get hold of the matched route (RouteResult) so we can inspect and resolve a document
         $routeResult = $request->getAttribute(RouteResult::class);
@@ -82,16 +84,16 @@ class DocumentResolver
             $document = $this->resolveWithId($routeResult);
         }
 
+        if (!$document) {
+            PageNotFoundException::throw404();
+        }
+
         if ($document) {
             $this->documentRegistry->setDocument($document);
             $request = $request->withAttribute(Prismic\Document::class, $document);
         }
 
-        if ($next) {
-            return $next($request, $response);
-        }
-
-        return $response;
+        return $delegate->process($request);
     }
 
     /**
@@ -143,7 +145,7 @@ class DocumentResolver
         if (!$type || !$uid) {
             return null;
         }
-        
+
         return $this->api->getByUID($type, $uid);
     }
 }

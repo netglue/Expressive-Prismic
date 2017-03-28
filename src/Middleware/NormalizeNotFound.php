@@ -2,6 +2,8 @@
 
 namespace ExpressivePrismic\Middleware;
 
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use ExpressivePrismic\Exception\PageNotFoundException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -12,16 +14,15 @@ use Zend\Expressive\Router\RouteResult;
  *
  * @package ExpressivePrismic\Middleware
  */
-class NormalizeNotFound
+class NormalizeNotFound implements MiddlewareInterface
 {
 
     /**
-     * @param Request       $request
-     * @param Response      $response
-     * @param callable|null $next
+     * @param  Request           $request
+     * @param  DelegateInterface $delegate
      * @return Response
      */
-    public function __invoke(Request $request, Response $response, callable $next = null) : Response
+    public function process(Request $request, DelegateInterface $delegate)
     {
         /**
          * It's relatively pointless to inspect the response status code
@@ -38,7 +39,7 @@ class NormalizeNotFound
             PageNotFoundException::throw404();
         }
 
-        return $next($request, $response);
+        return $delegate->process($request);
     }
 
 }
