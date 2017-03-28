@@ -5,91 +5,65 @@ namespace ExpressivePrismic;
 use Prismic;
 use Prismic\Fragment\Link;
 use Zend\Expressive\Helper\UrlHelper;
+use Bootstrap;
+use Zend\Expressive\Router\RouterInterface;
+use Zend\Expressive\Router\Route;
+
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\TextResponse;
 
 class LinkResolverTest extends \PHPUnit_Framework_TestCase
 {
 
-    private $api;
-    private $routeParams;
-    private $router;
-    private $urlHelper;
-    private $routesConfig;
+    private $app;
+
+
+    public static function setUpBeforeClass()
+    {
+        $bootstrap         = Bootstrap::getInstance();
+        $app = $bootstrap->app;
+        $middleware = new TestMiddleware;
+        $app->route('/bookmarked-route', $middleware, ['GET'], 'matchingBookmark')
+            ->setOptions([
+                'defaults' => [
+                    'prismic-bookmark' => 'bookmarkName',
+                ],
+            ]);
+
+
+
+        $app->route('/match-type-with-id/{prismic-id}', $middleware, ['GET'], 'matchTypeAndId')
+            ->setOptions([
+                'defaults' => [
+                    'prismic-type' => 'MyType',
+                ],
+            ]);
+
+        $app->route('/match-type-with-uid/{prismic-uid}', $middleware, ['GET'], 'matchTypeAndUid')
+            ->setOptions([
+                'defaults' => [
+                    'prismic-type' => 'MyOtherType',
+                ],
+            ]);
+    }
 
     public function setUp()
     {
-        $this->api = $this->createMock(Prismic\Api::class);
-        $this->routeParams = new Service\RouteParams([
-            'id' => 'id',
-            'bookmark' => 'bookmark',
-            'uid' => 'uid',
-            'type' => 'type',
-        ]);
-        $this->routesConfig = [
-            'matchingBookmark' => [
-                'name' => 'matchingBookmark',
-                'options' => [
-                    'defaults' => [
-                        'bookmark' => 'bookmarkName',
-                    ],
-                ],
-            ],
-            'bookmarkUnknown' => [
-                'name' => 'bookmarkUnknown',
-                'options' => [
-                    'defaults' => [
-                        'bookmark' => 'bookmarkNotKnownInTheApi',
-                    ],
-                ],
-            ],
-            'matchingTypeUid' => [
-                'name' => 'matchingTypeUid',
-                'options' => [
-                    'defaults' => [
-                        'uid' => null,
-                        'type' => 'MyType',
-                    ],
-                ],
-            ],
-            'nonMatchingTypeId' => [
-                'name' => 'nonMatchingTypeId',
-                'options' => [
-                    'defaults' => [
-                        'id' => null,
-                        'type' => 'MyType',
-                    ],
-                ],
-            ],
-            'matchingTypeId' => [
-                'name' => 'matchingTypeId',
-                'options' => [
-                    'defaults' => [
-                        'id' => null,
-                        'type' => 'MyOtherType',
-                    ],
-                ],
-            ],
-            'matchingId' => [
-                'name' => 'matchingId',
-                'options' => [
-                    'defaults' => [
-                        'id' => '',
-                    ],
-                ],
-            ],
-            'someStaticRoute' => [
-                'name' => 'someStaticRoute',
-            ],
-        ];
+        $bootstrap         = Bootstrap::getInstance();
+        $urlHelper         = $bootstrap->container->get(UrlHelper::class);
+        $api               = $this->createMock(Prismic\Api::class);
+        $routeParams       = $bootstrap->container->get(Service\RouteParams::class);
+        $app = $this->app  = $bootstrap->app;
 
-        $this->router = new MockRouter(array_fill_keys(array_keys($this->routesConfig), '/expectedUrl'));
-        $this->urlHelper = new UrlHelper($this->router);
-        $this->resolver = new LinkResolver($this->api, $this->routeParams, $this->routesConfig, $this->urlHelper);
+        $this->resolver    = new LinkResolver($api, $routeParams, $urlHelper, $app);
 
-        $this->api->method('bookmarks')
-                  ->willReturn([
-                    'bookmarkName' => 'bookmarkedDocumentId',
-                    'unroutedBookmark' => 'unroutedId',
-                  ]);
+        $api->method('bookmarks')
+            ->willReturn([
+              'bookmarkName' => 'bookmarkedDocumentId',
+              'unroutedBookmark' => 'unroutedId',
+            ]);
     }
 
     public function testNonLinkReturnsNull()
@@ -105,7 +79,7 @@ class LinkResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testBrokenLinkReturnsNull()
     {
-        $link = new Link\DocumentLink('foo', 'foo', 'foo', ['foo'], 'foo', [], true);
+        $link = new Link\DocumentLink('foo', 'foo', 'foo', ['foo'], 'foo', 'en', [], true);
         $this->assertNull($this->resolver->resolve($link));
     }
 
@@ -113,39 +87,60 @@ class LinkResolverTest extends \PHPUnit_Framework_TestCase
     {
         $documentId = 'bookmarkedDocumentId';
 
-        $link = new Link\DocumentLink($documentId, 'docUid', 'docType', [], 'foo', [], false);
+        $link = new Link\DocumentLink($documentId, 'docUid', 'docType', [], 'foo', 'lang', [], false);
 
         $url = $this->resolver->resolve($link);
-        $data = json_decode($url, true);
-
-        $this->assertSame($documentId, $data['params']['id']);
-        $this->assertSame('docUid', $data['params']['uid']);
-        $this->assertSame('docType', $data['params']['type']);
-
-        $link = new Link\DocumentLink('notBookmarkedId', 'docUid', 'docType', [], 'foo', [], false);
-        $this->assertMatchedGenericIdRoute($this->resolver->resolve($link));
-
-        $link = new Link\DocumentLink('unroutedId', 'docUid', 'docType', [], 'foo', [], false);
-        $this->assertMatchedGenericIdRoute($this->resolver->resolve($link));
+        $this->assertSame('/bookmarked-route', $url);
     }
 
-    public function assertMatchedGenericIdRoute($url)
+    public function testUnroutableLinkResolvesToNull()
     {
-        $data = json_decode($url, true);
-        $this->assertSame('matchingId', $data['routeName']);
+        $link = new Link\DocumentLink('notBookmarkedId', 'docUid', 'docType', [], 'foo', 'lang', [], false);
+        $url = $this->resolver->resolve($link);
+        $this->assertNull($url);
     }
 
-    public function testTypedLinkIsResolved()
+    public function testGenericIdOnlyRouteResolves()
     {
-        $link = new Link\DocumentLink('foo', 'MyUid', 'MyType', [], 'foo', [], false);
-        $url = $this->resolver->resolve($link);
-        $data = json_decode($url, true);
-        $this->assertSame('matchingTypeUid', $data['routeName']);
+        // Add route here so that we can test for not matching any route previously
+        $this->app->route('/match-id/{prismic-id}', new TestMiddleware, ['GET'], 'matchGenericId')
+            ->setOptions([
+                'defaults' => [
+                    'prismic-id' => null,
+                ],
+            ]);
 
-        $link = new Link\DocumentLink('foo', 'MyUid', 'MyOtherType', [], 'foo', [], false);
+        $link = new Link\DocumentLink('notBookmarkedId', 'docUid', 'docType', [], 'foo', 'lang', [], false);
         $url = $this->resolver->resolve($link);
-        $data = json_decode($url, true);
-        $this->assertSame('matchingTypeId', $data['routeName']);
+        $this->assertSame('/match-id/notBookmarkedId', $url);
+
+        $link = new Link\DocumentLink('unroutedId', 'docUid', 'docType', [], 'foo', 'lang', [], false);
+        $url = $this->resolver->resolve($link);
+        $this->assertSame('/match-id/unroutedId', $url);
     }
 
+    public function testTypedLinkWithIdIsResolved()
+    {
+        $link = new Link\DocumentLink('foo', 'MyUid', 'MyType', [], 'foo', 'lang', [], false);
+        $url = $this->resolver->resolve($link);
+        $this->assertSame('/match-type-with-id/foo', $url);
+    }
+
+    public function testTypedLinkWithUidIsResolved()
+    {
+        $link = new Link\DocumentLink('foo', 'MyUid', 'MyOtherType', [], 'foo', 'lang', [], false);
+        $url = $this->resolver->resolve($link);
+        $this->assertSame('/match-type-with-uid/MyUid', $url);
+    }
+
+
+
+}
+
+class TestMiddleware implements MiddlewareInterface
+{
+    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
+    {
+        return new TextResponse('Response');
+    }
 }

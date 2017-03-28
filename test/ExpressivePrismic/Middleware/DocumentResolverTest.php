@@ -13,6 +13,10 @@ use Zend\Expressive\Router\RouteResult;
 use ExpressivePrismic\Middleware\DocumentResolver;
 use ExpressivePrismic\Service\RouteParams;
 
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Message\ResponseInterface;
+
 class DocumentResolverTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -20,6 +24,8 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
     private $routeResult;
     private $request;
     private $resolver;
+    private $document;
+    private $docRegistry;
 
     public function setUp()
     {
@@ -27,7 +33,10 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
         $this->routeResult = $this->createMock(RouteResult::class);
         $request = new ServerRequest;
         $this->request = $request->withAttribute(RouteResult::class, $this->routeResult);
-        $this->resolver = new DocumentResolver($this->api, new RouteParams, new CurrentDocument);
+        $this->docRegistry = new CurrentDocument;
+        $this->resolver = new DocumentResolver($this->api, new RouteParams, $this->docRegistry);
+
+        $this->document = new Prismic\Document('id', 'uid', 'type', 'href', ['tag'], ['slugs'], 'lang', ['alternateLang'], [/*$fragments*/], '{"json":"data"}');
     }
 
     /**
@@ -37,7 +46,7 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
     public function testExceptionIsThrownWhenNoRouteResultIsPresent()
     {
         $resolver = new DocumentResolver($this->api, new RouteParams, new CurrentDocument);
-        $resolver(new ServerRequest, new Response);
+        $resolver->process(new ServerRequest, new DelegateMock);
     }
 
     public function testResolveWithBookmark()
@@ -54,14 +63,11 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
 
         $this->api
              ->method('getByID')
-             ->willReturn(new Prismic\Document('foo', 'foo', 'foo', 'foo', [], [], [], '{}'));
+             ->willReturn($this->document);
 
-        $next = function($request, $response) {
-            $this->assertInstanceOf(Prismic\Document::class, $request->getAttribute(Prismic\Document::class));
-            return $response;
-        };
-
-        $response = $this->resolver->__invoke($this->request, new Response, $next);
+        $delegate = new DelegateMock;
+        $this->resolver->process($this->request, $delegate);
+        $this->assertInstanceOf(Prismic\Document::class, $delegate->request->getAttribute(Prismic\Document::class));
     }
 
     public function testResolveWithId()
@@ -73,14 +79,13 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
              ]);
         $this->api
              ->method('getByID')
-             ->willReturn(new Prismic\Document('foo', 'foo', 'foo', 'foo', [], [], [], '{}'));
+             ->willReturn($this->document);
 
-        $next = function($request, $response) {
-            $this->assertInstanceOf(Prismic\Document::class, $request->getAttribute(Prismic\Document::class));
-            return $response;
-        };
-
-        $response = $this->resolver->__invoke($this->request, new Response, $next);
+        $delegate = new DelegateMock;
+        $this->assertFalse($this->docRegistry->hasDocument());
+        $this->resolver->process($this->request, $delegate);
+        $this->assertInstanceOf(Prismic\Document::class, $delegate->request->getAttribute(Prismic\Document::class));
+        $this->assertInstanceOf(Prismic\Document::class, $this->docRegistry->getDocument());
     }
 
     public function testResolveWithUid()
@@ -93,30 +98,32 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
              ]);
         $this->api
              ->method('getByUID')
-             ->willReturn(new Prismic\Document('foo', 'foo', 'foo', 'foo', [], [], [], '{}'));
+             ->willReturn($this->document);
 
-        $next = function($request, $response) {
-            $this->assertInstanceOf(Prismic\Document::class, $request->getAttribute(Prismic\Document::class));
-            return $response;
-        };
-
-        $response = $this->resolver->__invoke($this->request, new Response, $next);
+        $delegate = new DelegateMock;
+        $this->resolver->process($this->request, $delegate);
+        $this->assertInstanceOf(Prismic\Document::class, $delegate->request->getAttribute(Prismic\Document::class));
     }
 
-    public function testPassthroughWithNoMatch()
+    /**
+     * @expectedException ExpressivePrismic\Exception\PageNotFoundException
+     */
+    public function test404ThrownWithNoMatch()
     {
-        $next = function($request, $response) {
-            $this->assertNull($request->getAttribute(Prismic\Document::class));
-            return $response;
-        };
-        $response = $this->resolver->__invoke($this->request, new Response, $next);
+        $delegate = new DelegateMock;
+        $this->resolver->process($this->request, $delegate);
     }
 
-    public function testPassThroughWithNoNext()
+
+}
+
+class DelegateMock implements DelegateInterface
+{
+    public $request;
+
+    public function process(ServerRequestInterface $request)
     {
-        $inResponse = new Response;
-        $this->assertSame($inResponse, $this->resolver->__invoke($this->request, $inResponse));
-
+        $this->request = $request;
+        return new Response\TextResponse('foo');
     }
-
 }

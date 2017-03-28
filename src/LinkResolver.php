@@ -242,27 +242,7 @@ class LinkResolver extends Prismic\LinkResolver
      */
     protected function getBookmarkNameWithDocument(Prismic\Document $document)
     {
-        return $this->getBookmarkNameWithLink($this->asLink($document));
-    }
-
-    /**
-     * This method convert a document into document link
-     *
-     * @param Prismic\Document $document The document
-     *
-     * @return DocumentLink The document link
-     */
-    protected function asLink($document)
-    {
-        return new DocumentLink(
-            $document->getId(),
-            $document->getUid(),
-            $document->getType(),
-            $document->getTags(),
-            $document->getSlug(),
-            $document->getFragments(),
-            false
-        );
+        return $this->getBookmarkNameWithLink($document->asDocumentLink());
     }
 
 }
