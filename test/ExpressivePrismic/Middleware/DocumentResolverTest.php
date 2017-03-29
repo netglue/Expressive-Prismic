@@ -117,13 +117,3 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
 
 }
 
-class DelegateMock implements DelegateInterface
-{
-    public $request;
-
-    public function process(ServerRequestInterface $request)
-    {
-        $this->request = $request;
-        return new Response\TextResponse('foo');
-    }
-}
