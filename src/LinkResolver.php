@@ -195,9 +195,12 @@ class LinkResolver extends Prismic\LinkResolver
 
         return array_filter($this->app->getRoutes(), function ($route) use ($search, $type) {
             $options = $route->getOptions();
-            return isset($options['defaults'][$search])
-                   &&
-                   ($options['defaults'][$search] === $type);
+            if (isset($options['defaults'][$search])) {
+                $match = $options['defaults'][$search];
+                return $match === $type ||
+                       (is_array($match) && in_array($type, $match, true));
+            }
+            return false;
         });
     }
 

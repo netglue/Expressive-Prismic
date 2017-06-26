@@ -47,6 +47,13 @@ class LinkResolverTest extends \PHPUnit_Framework_TestCase
                     'prismic-type' => 'MyOtherType',
                 ],
             ]);
+
+        $app->route('/{prismic-type}/{prismic-uid}', $middleware, ['GET'], 'matchArrayOfTypes')
+            ->setOptions([
+                'defaults' => [
+                    'prismic-type' => ['Type1', 'Type2', 'Type3'],
+                ],
+            ]);
     }
 
     public function setUp()
@@ -131,6 +138,17 @@ class LinkResolverTest extends \PHPUnit_Framework_TestCase
         $link = new Link\DocumentLink('foo', 'MyUid', 'MyOtherType', [], 'foo', 'lang', [], false);
         $url = $this->resolver->resolve($link);
         $this->assertSame('/match-type-with-uid/MyUid', $url);
+    }
+
+    public function testTypedLinksAreMatchedInArray()
+    {
+        $link = new Link\DocumentLink('foo', 'MyUid', 'Type1', [], 'foo', 'lang', [], false);
+        $url = $this->resolver->resolve($link);
+        $this->assertSame('/Type1/MyUid', $url);
+
+        $link = new Link\DocumentLink('foo', 'MyUid', 'Type2', [], 'foo', 'lang', [], false);
+        $url = $this->resolver->resolve($link);
+        $this->assertSame('/Type2/MyUid', $url);
     }
 
 
