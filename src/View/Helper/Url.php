@@ -30,6 +30,7 @@ class Url
     public function __construct(Prismic\Api $api, Prismic\LinkResolver $resolver)
     {
         $this->resolver = $resolver;
+        $this->api = $api;
     }
 
     /**
