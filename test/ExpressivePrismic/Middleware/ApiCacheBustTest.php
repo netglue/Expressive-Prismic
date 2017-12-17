@@ -1,48 +1,65 @@
 <?php
+declare(strict_types=1);
 
-namespace ExpressivePrismic\Middleware;
+namespace ExpressivePrismicTest\Middleware;
 
+// Infra
+use ExpressivePrismicTest\TestCase;
+use Prophecy\Argument;
+
+// SUT
+use ExpressivePrismic\Middleware\ApiCacheBust;
+
+// Deps
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Zend\Diactoros\Response\JsonResponse;
 use Prismic;
 
-use Zend\Diactoros\ServerRequest;
-use Zend\Diactoros\Request;
-
-class ApiCacheBustTest extends \PHPUnit_Framework_TestCase
+class ApiCacheBustTest extends TestCase
 {
 
-    private $secret = 'secret';
+    private $cache;
     private $api;
-    private $middleware;
     private $delegate;
+    private $request;
 
     public function setUp()
     {
-        $this->api = $this->createMock(Prismic\Api::class);
-        $this->api->method('getCache')->willReturn(Prismic\Api::defaultCache());
-        $this->middleware = new ApiCacheBust($this->api, $this->secret);
-        $this->delegate = new DelegateMock;
+        $this->cache    = $this->prophesize(Prismic\Cache\CacheInterface::class);
+        $this->api      = $this->prophesize(Prismic\Api::class);
+        $this->delegate = $this->prophesize(DelegateInterface::class);
+        $this->request  = $this->prophesize(Request::class);
+    }
+
+    public function getMiddleware(string $expectedSecret = 'foo')
+    {
+        return new ApiCacheBust(
+            $this->api->reveal(),
+            $expectedSecret
+        );
     }
 
     public function testEmptyRequestBodyIsError()
     {
-        $response = $this->middleware->process(new ServerRequest, $this->delegate);
-        $this->assertSame(400, $response->getStatusCode());
-        $json = json_decode($response->getBody(), true);
-        $this->assertTrue($json['error']);
-        $this->assertInternalType('string', $json['message']);
-    }
+        $this->request->getBody()->willReturn(null);
 
-    private function requestWithBody(string $body)
-    {
-        $request = new ServerRequest([], [], '/', 'POST', 'php://memory');
-        $request->getBody()->write($body);
-        return $request;
+        $middleware = $this->getMiddleware();
+
+        $response = $middleware->process(
+            $this->request->reveal(),
+            $this->delegate->reveal()
+        );
+
+        $this->assertJsonResponseIsError($response, 400);
     }
 
     private function assertJsonResponseIsError($response, $expectedCode = 400)
     {
         $this->assertSame($expectedCode, $response->getStatusCode());
-        $json = json_decode($response->getBody(), true);
+        $json = json_decode((string)$response->getBody(), true);
         $this->assertTrue($json['error']);
         $this->assertInternalType('string', $json['message']);
     }
@@ -50,50 +67,68 @@ class ApiCacheBustTest extends \PHPUnit_Framework_TestCase
     private function assertJsonResponseIsSuccess($response)
     {
         $this->assertSame(200, $response->getStatusCode());
-        $json = json_decode($response->getBody(), true);
+        $json = json_decode((string)$response->getBody(), true);
         $this->assertFalse($json['error']);
         $this->assertInternalType('string', $json['message']);
     }
 
     public function testInvalidJsonIsError()
     {
-        $response = $this->middleware->process($this->requestWithBody('Some Text'), $this->delegate);
+        $this->request->getBody()->willReturn('foo');
+        $middleware = $this->getMiddleware();
+        $response = $middleware->process(
+            $this->request->reveal(),
+            $this->delegate->reveal()
+        );
+
         $this->assertJsonResponseIsError($response, 400);
     }
 
     public function testMissingSecretIsError()
     {
-        $response = $this->middleware->process($this->requestWithBody('{"json" : "foo"}'), $this->delegate);
+        $this->request->getBody()->willReturn('{"json" : "foo"}');
+        $middleware = $this->getMiddleware();
+        $response = $middleware->process(
+            $this->request->reveal(),
+            $this->delegate->reveal()
+        );
         $this->assertJsonResponseIsError($response, 400);
     }
 
     public function testIncorrectSecretIsError()
     {
-        $response = $this->middleware->process($this->requestWithBody('{"secret" : "wrong"}'), $this->delegate);
+        $this->request->getBody()->willReturn('{"secret" : "wrong"}');
+        $middleware = $this->getMiddleware();
+        $response = $middleware->process(
+            $this->request->reveal(),
+            $this->delegate->reveal()
+        );
         $this->assertJsonResponseIsError($response, 400);
     }
 
     public function testCorrectSecretIsSuccess()
     {
-        $response = $this->middleware->process($this->requestWithBody('{"secret" : "secret"}'), $this->delegate);
+        $this->request->getBody()->willReturn('{"secret" : "wrong"}');
+        $middleware = $this->getMiddleware('wrong');
+        $response = $middleware->process(
+            $this->request->reveal(),
+            $this->delegate->reveal()
+        );
         $this->assertJsonResponseIsSuccess($response);
     }
 
     public function testCacheIsCleanedWithApiUpdate()
     {
-        $cache = $this->api->getCache();
-        $cache->set('foo', 'foo');
-        $this->assertTrue($cache->has('foo'));
+        $this->cache->clear()->shouldBeCalled();
+        $this->api->getCache()->willReturn($this->cache->reveal());
 
-        $body = json_encode([
-            'secret' => $this->secret,
-            'type' => 'api-update'
-        ]);
-
-        $response = $this->middleware->process($this->requestWithBody($body), $this->delegate);
+        $this->request->getBody()->willReturn('{"secret" : "wrong", "type":"api-update"}');
+        $middleware = $this->getMiddleware('wrong');
+        $response = $middleware->process(
+            $this->request->reveal(),
+            $this->delegate->reveal()
+        );
         $this->assertJsonResponseIsSuccess($response);
-
-        $this->assertFalse($cache->has('foo'));
 
     }
 

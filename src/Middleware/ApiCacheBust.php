@@ -9,11 +9,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
 use Prismic;
 
-/**
- * Middleware for busting the Prismic cache in receipt of a webhook
- *
- * @package ExpressivePrismic\Middleware
- */
 class ApiCacheBust implements MiddlewareInterface
 {
     /**
@@ -26,22 +21,12 @@ class ApiCacheBust implements MiddlewareInterface
      */
     private $expectedSecret;
 
-    /**
-     * ApiCacheBust constructor.
-     *
-     * @param Prismic\Api $api
-     */
     public function __construct(Prismic\Api $api, string $expectedSecret)
     {
         $this->api = $api;
         $this->expectedSecret = $expectedSecret;
     }
 
-    /**
-     * @param  Request           $request
-     * @param  DelegateInterface $delegate
-     * @return Response
-     */
     public function process(Request $request, DelegateInterface $delegate)
     {
         $body = (string) $request->getBody();
@@ -77,9 +62,6 @@ class ApiCacheBust implements MiddlewareInterface
 
     /**
      * Return a JSON Response in error conditions with the given message and status code
-     * @param string $message
-     * @param int    $code
-     * @return JsonResponse
      */
     private function jsonError(string $message, int $code) : JsonResponse
     {
