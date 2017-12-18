@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace ExpressivePrismic\View\Helper;
 
 use Prismic;
 use ExpressivePrismic\Service\CurrentDocument;
-
+use ExpressivePrismic\Exception;
 /**
  * Fragment View Helper
  *
@@ -95,7 +96,7 @@ class Fragment
     {
         $d = $this->getDocument();
         if (!$d) {
-            throw new \RuntimeException('No prismic document has been set in the document registry');
+            throw new Exception\RuntimeException('No prismic document has been set in the document registry');
         }
 
         return $d;
@@ -113,13 +114,13 @@ class Fragment
             return $name;
         }
         if (strpos($name, '.') !== false) {
-            throw new \RuntimeException(sprintf(
+            throw new Exception\RuntimeException(sprintf(
                 'Found a dot in the fragment name [%s] but does not match configured mask/type of %s',
                 $name,
                 $type
             ));
         }
-        
+
         return sprintf('%s.%s', $type, $name);
     }
 

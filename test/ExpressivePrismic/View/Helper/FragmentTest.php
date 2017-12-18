@@ -1,102 +1,127 @@
 <?php
-namespace ExpressivePrismic\View\Helper;
-use ExpressivePrismicTest\TestCase;
+declare(strict_types=1);
 
-use ExpressivePrismic\Service;
-use Zend\Expressive\Helper\UrlHelper;
-use Bootstrap;
-use Prismic;
-use ExpressivePrismic\LinkResolver;
+namespace ExpressivePrismicTest\View\Helper;
+
+// Infra
+use ExpressivePrismicTest\TestCase;
+use Prophecy\Argument;
+
+// SUT
+use ExpressivePrismic\View\Helper\Fragment;
+
+// Deps
+use ExpressivePrismic\Service\CurrentDocument;
+use Prismic\LinkResolver;
+use Prismic\Document;
+use Prismic\Fragment\Text;
 
 class FragmentTest extends TestCase
 {
 
-    private $helper;
-
-    private $linkResolver;
-
-    private $currentDocRegistry;
+    private $resolver;
+    private $docRegistry;
+    private $doc;
 
     public function setUp()
     {
-        $bootstrap         = Bootstrap::getInstance();
-        $urlHelper         = $bootstrap->container->get(UrlHelper::class);
-        $api               = $this->createMock(Prismic\Api::class);
-        $routeParams       = $bootstrap->container->get(Service\RouteParams::class);
-        $app = $this->app  = $bootstrap->app;
+        $this->resolver = $this->prophesize(LinkResolver::class);
+        $this->docRegistry = $this->prophesize(CurrentDocument::class);
+        $this->doc = $this->prophesize(Document::class);
+    }
 
-        $this->linkResolver    = new LinkResolver($api, $routeParams, $urlHelper, $app);
-
-        $this->currentDocRegistry = new Service\CurrentDocument;
-
-        $this->helper = new Fragment($this->currentDocRegistry, $this->linkResolver);
+    private function getHelper()
+    {
+        return new Fragment(
+            $this->docRegistry->reveal(),
+            $this->resolver->reveal()
+        );
     }
 
     public function testInvokeReturnsSelf()
     {
-        $this->assertSame($this->helper, ($this->helper)());
-    }
-
-    public function setCurrentDocument()
-    {
-        $json = file_get_contents( __DIR__ . '/../../../fixtures/document.json');
-        $document = Prismic\Document::parse(json_decode($json));
-        $this->currentDocRegistry->setDocument($document);
+        $helper = $this->getHelper();
+        $this->assertSame($helper, ($helper)());
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException ExpressivePrismic\Exception\RuntimeException
      * @expectedExceptionMessage No prismic document has been set in the document registry
      */
-    public function testGetThrowsExceptionWhenDocumentUnset()
+    public function testExceptionThrownWhenNoDocumentIsAvailable()
     {
-        $frag = $this->helper->get('plain_text_field');
+        $this->docRegistry->getDocument()->willReturn(null);
+        $helper = $this->getHelper();
+        $helper->get('foo');
     }
 
-    public function testGetReturnsFragmentWithUnqualifiedName()
+    private function setCurrentDocument()
     {
-        $this->setCurrentDocument();
-        $frag = $this->helper->get('plain_text_field');
-        $this->assertInstanceOf(Prismic\Fragment\FragmentInterface::class, $frag);
+        $this->doc->getType()->willReturn('mytype');
+        $this->docRegistry->getDocument()->willReturn(
+            $this->doc->reveal()
+        );
     }
 
-    public function testGetReturnsFragmentWithQualifiedName()
+    public function testGetReturnsFragmentWithUnqualifiedOrQualifiedName()
     {
+        $frag = $this->prophesize(Text::class);
+        $frag = $frag->reveal();
+
+        $this->doc->get('mytype.myfrag')->willReturn($frag);
         $this->setCurrentDocument();
-        $frag = $this->helper->get('article.plain_text_field');
-        $this->assertInstanceOf(Prismic\Fragment\FragmentInterface::class, $frag);
+        $helper = $this->getHelper();
+
+        $this->assertSame($frag, $helper->get('myfrag'));
+        $this->assertSame($frag, $helper->get('mytype.myfrag'));
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException ExpressivePrismic\Exception\RuntimeException
      * @expectedExceptionMessage Found a dot in the fragment name
      */
     public function testExceptionThrownAccessingIncorrectQualifiedFragmentName()
     {
         $this->setCurrentDocument();
-        $frag = $this->helper->get('wrong.plain_text_field');
+        $helper = $this->getHelper();
+        $helper->get('wrong.myfrag');
     }
 
     public function testAsTextReturnsExpectedValue()
     {
+        $frag = $this->prophesize(Text::class);
+        $frag->asText()->willReturn('Example Text');
+        $frag = $frag->reveal();
+
+        $this->doc->get('mytype.myfrag')->willReturn($frag);
         $this->setCurrentDocument();
-        $text = $this->helper->asText('plain_text_field');
-        $this->assertSame('Plain Text Value', $text);
+        $helper = $this->getHelper();
+
+        $this->assertSame('Example Text', $helper->asText('myfrag'));
     }
 
     public function testAsHtmlReturnsExpectedValue()
     {
+        $frag = $this->prophesize(Text::class);
+        $frag->asHtml($this->resolver->reveal())->willReturn('Example HTML');
+        $frag = $frag->reveal();
+
+        $this->doc->get('mytype.myfrag')->willReturn($frag);
         $this->setCurrentDocument();
-        $text = $this->helper->asHtml('plain_text_field');
-        $this->assertSame('Plain Text Value', strip_tags($text));
+        $helper = $this->getHelper();
+
+        $this->assertSame('Example HTML', $helper->asHtml('myfrag'));
     }
 
     public function testAccessorsReturnNullForUnknownFragmentName()
     {
+        $this->doc->get('mytype.myfrag')->willReturn(null);
         $this->setCurrentDocument();
-        $this->assertNull($this->helper->get('unknown'));
-        $this->assertNull($this->helper->asText('unknown'));
-        $this->assertNull($this->helper->asHtml('unknown'));
+        $helper = $this->getHelper();
+
+        $this->assertNull($helper->get('myfrag'));
+        $this->assertNull($helper->asText('myfrag'));
+        $this->assertNull($helper->asHtml('myfrag'));
     }
 
 }
