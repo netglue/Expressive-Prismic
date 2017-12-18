@@ -57,27 +57,17 @@ class ErrorResponseGenerator implements DelegateInterface
 
     public function __invoke($error, Request $request, Response $response) : Response
     {
-        $document = $this->locateErrorDocument();
-
-        if ($document) {
+        try {
+            $document = $this->locateErrorDocument();
             $this->documentRegistry->setDocument($document);
             $request = $request->withAttribute(Prismic\Document::class, $document);
             $request = $request->withAttribute('template', $this->template);
-
-            try {
-                $response = $this->pipe->process($request, $this);
-                $response = $response->withStatus(Utils::getStatusCode($error, $response));
-                return $response;
-            } catch (\Throwable $e) {
-                /**
-                 * An exception was thrown render the error page (FFS)
-                 */
-            }
+            $response = $this->pipe->process($request, $this);
+            $response = $response->withStatus(Utils::getStatusCode($error, $response));
+            return $response;
+        } catch (\Throwable $e) {
+            return $this->process($request);
         }
-        /**
-         * Return a plain response as there's not much else we can do
-         */
-        return $this->generateFallbackResponse();
     }
 
     /**
@@ -95,15 +85,19 @@ class ErrorResponseGenerator implements DelegateInterface
         return $this->generateFallbackResponse();
     }
 
-    private function locateErrorDocument() :? Prismic\Document
+    /**
+     * Locating the error document successfully is not optional.
+     * It must succeed or an exception is thrown
+     */
+    private function locateErrorDocument() : Prismic\Document
     {
         $id = $this->api->bookmark($this->bookmark);
         if (!$id) {
-            return null;
+            throw new Exception\RuntimeException('Cannot generate CMS driven Error page. Error document bookmark does not reference a valid document ID');
         }
         $document = $this->api->getByID($id);
         if (!$document) {
-            throw new \RuntimeException('Cannot generate CMS driven Error page. Error document cannot be resolved');
+            throw new Exception\RuntimeException('Cannot generate CMS driven Error page. Error document cannot be resolved');
         }
         return $document;
     }
