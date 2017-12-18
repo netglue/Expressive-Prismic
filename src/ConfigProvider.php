@@ -66,6 +66,8 @@ class ConfigProvider
                 // Injects javascript to display the preview toolbar
                 Middleware\InjectPreviewScript::class           => Middleware\Factory\InjectPreviewScriptFactory::class,
 
+                // The Pipeline that runs when an error occurs
+                Middleware\ErrorHandlerPipe::class              => Middleware\Factory\ErrorHandlerPipeFactory::class,
                 // Provides an error handler that can render pretty 404's and server errors
                 Middleware\ErrorHandler::class                  => Middleware\Factory\ErrorHandlerFactory::class,
             ],
