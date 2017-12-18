@@ -5,7 +5,6 @@ namespace ExpressivePrismic\Factory;
 
 use Psr\Container\ContainerInterface;
 use Zend\Expressive\Application;
-use Zend\Expressive\Router\Route;
 use ExpressivePrismic\Middleware;
 
 class PipelineAndRoutesDelegator
@@ -29,7 +28,7 @@ class PipelineAndRoutesDelegator
         /**
          * Webhook Cache Bust
          */
-        $app->route('/prismicio-cache-webhook', [Middleware\ApiCacheBust::class], ['POST'], 'prismic-webhook-cache-bust');
+        $app->route('/prismicio-cache-webhook', [Middleware\WebhookMiddlewarePipe::class], ['POST'], 'prismic-webhook-cache-bust');
 
         return $app;
     }
