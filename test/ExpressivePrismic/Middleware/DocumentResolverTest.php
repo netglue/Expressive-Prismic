@@ -1,108 +1,170 @@
 <?php
+declare(strict_types=1);
 
-namespace ExpressivePrismic\Middleware;
+namespace ExpressivePrismicTest\Middleware;
 
-use Prismic;
-use ExpressivePrismic\Service\CurrentDocument;
-use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Request;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequest;
-use Zend\Expressive\Router\RouteResult;
+// Infra
+use ExpressivePrismicTest\TestCase;
+use Prophecy\Argument;
 
+// SUT
 use ExpressivePrismic\Middleware\DocumentResolver;
-use ExpressivePrismic\Service\RouteParams;
+
+// Deps
 
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Prismic;
+use Zend\Expressive\Router\RouteResult;
+use ExpressivePrismic\Service\CurrentDocument;
+use ExpressivePrismic\Service\RouteParams;
+use ExpressivePrismic\Exception\PageNotFoundException;
 
-class DocumentResolverTest extends \PHPUnit_Framework_TestCase
+class DocumentResolverTest extends TestCase
 {
 
+
     private $api;
-    private $routeResult;
-    private $request;
-    private $resolver;
-    private $document;
+    private $routeParams;
     private $docRegistry;
+    private $routeResult;
+    private $delegate;
+    private $request;
+    private $document;
 
     public function setUp()
     {
-        $this->api = $this->createMock(Prismic\Api::class);
-        $this->routeResult = $this->createMock(RouteResult::class);
-        $request = new ServerRequest;
-        $this->request = $request->withAttribute(RouteResult::class, $this->routeResult);
-        $this->docRegistry = new CurrentDocument;
-        $this->resolver = new DocumentResolver($this->api, new RouteParams, $this->docRegistry);
+        $this->api         = $this->prophesize(Prismic\Api::class);
+        $this->routeParams = new RouteParams([]);
+        $this->docRegistry = $this->prophesize(CurrentDocument::class);
+        $this->delegate    = $this->prophesize(DelegateInterface::class);
+        $this->request     = $this->prophesize(Request::class);
+        $this->routeResult = $this->prophesize(RouteResult::class);
+        $this->document    = $this->prophesize(Prismic\Document::class);
+    }
 
-        $this->document = new Prismic\Document('id', 'uid', 'type', 'href', ['tag'], ['slugs'], 'lang', ['alternateLang'], [/*$fragments*/], '{"json":"data"}');
+    public function getMiddleware()
+    {
+        return new DocumentResolver(
+            $this->api->reveal(),
+            $this->routeParams,
+            $this->docRegistry->reveal()
+        );
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException ExpressivePrismic\Exception\RuntimeException
      * @expectedExceptionMessage No route has yet been matched
      */
     public function testExceptionIsThrownWhenNoRouteResultIsPresent()
     {
-        $resolver = new DocumentResolver($this->api, new RouteParams, new CurrentDocument);
-        $resolver->process(new ServerRequest, new DelegateMock);
+        $this->request->getAttribute(RouteResult::class)->willReturn(null);
+        $middleware = $this->getMiddleware();
+        $middleware->process(
+            $this->request->reveal(),
+            $this->delegate->reveal()
+        );
     }
 
     public function testResolveWithBookmark()
     {
         $this->routeResult
-             ->method('getMatchedParams')
-             ->willReturn([
+            ->getMatchedParams()
+            ->willReturn([
                 'prismic-bookmark' => 'test',
              ]);
 
         $this->api
-             ->method('bookmark')
-             ->willReturn('foo');
+             ->bookmark('test')
+             ->willReturn('documentId');
+
+        $document = $this->document->reveal();
 
         $this->api
-             ->method('getByID')
-             ->willReturn($this->document);
+             ->getByID('documentId')
+             ->willReturn($document);
 
-        $delegate = new DelegateMock;
-        $this->resolver->process($this->request, $delegate);
-        $this->assertInstanceOf(Prismic\Document::class, $delegate->request->getAttribute(Prismic\Document::class));
+        $this->docRegistry->setDocument($document)->shouldBeCalled();
+
+        $anotherRequest = $this->prophesize(Request::class)->reveal();
+        $this->request->withAttribute(Prismic\Document::class, $document)->willReturn($anotherRequest);
+
+        $request = $this->request->reveal();
+
+        $this->delegate->process($anotherRequest)->shouldBeCalled();
+
+        $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
+        $middleware = $this->getMiddleware();
+        $middleware->process(
+            $request,
+            $this->delegate->reveal()
+        );
     }
 
     public function testResolveWithId()
     {
         $this->routeResult
-             ->method('getMatchedParams')
-             ->willReturn([
-                'prismic-id' => 'test',
+            ->getMatchedParams()
+            ->willReturn([
+                'prismic-id' => 'some-id',
              ]);
-        $this->api
-             ->method('getByID')
-             ->willReturn($this->document);
 
-        $delegate = new DelegateMock;
-        $this->assertFalse($this->docRegistry->hasDocument());
-        $this->resolver->process($this->request, $delegate);
-        $this->assertInstanceOf(Prismic\Document::class, $delegate->request->getAttribute(Prismic\Document::class));
-        $this->assertInstanceOf(Prismic\Document::class, $this->docRegistry->getDocument());
+        $document = $this->document->reveal();
+
+        $this->api
+             ->getByID('some-id')
+             ->willReturn($document);
+
+        $this->docRegistry->setDocument($document)->shouldBeCalled();
+
+        $anotherRequest = $this->prophesize(Request::class)->reveal();
+        $this->request->withAttribute(Prismic\Document::class, $document)->willReturn($anotherRequest);
+
+        $request = $this->request->reveal();
+
+        $this->delegate->process($anotherRequest)->shouldBeCalled();
+
+        $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
+        $middleware = $this->getMiddleware();
+        $middleware->process(
+            $request,
+            $this->delegate->reveal()
+        );
     }
 
     public function testResolveWithUid()
     {
         $this->routeResult
-             ->method('getMatchedParams')
-             ->willReturn([
-                'prismic-uid'  => 'test',
-                'prismic-type' => 'test',
+            ->getMatchedParams()
+            ->willReturn([
+                'prismic-uid' => 'some-uid',
+                'prismic-type' => 'some-type',
              ]);
-        $this->api
-             ->method('getByUID')
-             ->willReturn($this->document);
 
-        $delegate = new DelegateMock;
-        $this->resolver->process($this->request, $delegate);
-        $this->assertInstanceOf(Prismic\Document::class, $delegate->request->getAttribute(Prismic\Document::class));
+        $document = $this->document->reveal();
+
+        $this->api
+             ->getByUID('some-type', 'some-uid')
+             ->willReturn($document);
+
+        $this->docRegistry->setDocument($document)->shouldBeCalled();
+
+        $anotherRequest = $this->prophesize(Request::class)->reveal();
+        $this->request->withAttribute(Prismic\Document::class, $document)->willReturn($anotherRequest);
+
+        $request = $this->request->reveal();
+
+        $this->delegate->process($anotherRequest)->shouldBeCalled();
+
+        $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
+        $middleware = $this->getMiddleware();
+        $middleware->process(
+            $request,
+            $this->delegate->reveal()
+        );
+
     }
 
     /**
@@ -110,8 +172,19 @@ class DocumentResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function test404ThrownWithNoMatch()
     {
-        $delegate = new DelegateMock;
-        $this->resolver->process($this->request, $delegate);
+        $this->routeResult
+            ->getMatchedParams()
+            ->willReturn([]);
+
+        $this->docRegistry->setDocument()->shouldNotBeCalled();
+        $this->delegate->process()->shouldNotBeCalled();
+
+        $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
+        $middleware = $this->getMiddleware();
+        $middleware->process(
+            $this->request->reveal(),
+            $this->delegate->reveal()
+        );
     }
 
 

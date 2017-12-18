@@ -3,19 +3,19 @@ declare(strict_types=1);
 
 namespace ExpressivePrismic\Middleware\Factory;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 use Zend\Expressive\Template\TemplateRendererInterface;
 use ExpressivePrismic\Middleware\PrismicTemplate;
-use ExpressivePrismic\LinkResolver;
+use Prismic\LinkResolver;
 
 class PrismicTemplateFactory
 {
-
-    public function __invoke(ContainerInterface $container, $requestedName, array $options = null) : PrismicTemplate
+    public function __invoke(ContainerInterface $container) : PrismicTemplate
     {
-        $renderer = $container->get(TemplateRendererInterface::class);
-        $linkResolver = $container->get(LinkResolver::class);
-        return new PrismicTemplate($renderer, $linkResolver);
+        return new PrismicTemplate(
+            $container->get(TemplateRendererInterface::class),
+            $container->get(LinkResolver::class)
+        );
     }
 }

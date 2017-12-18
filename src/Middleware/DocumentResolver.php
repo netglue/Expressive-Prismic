@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace ExpressivePrismic\Middleware;
 
@@ -10,7 +11,7 @@ use Prismic;
 use Zend\Expressive\Router\RouteResult;
 use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Service\RouteParams;
-use ExpressivePrismic\Exception\PageNotFoundException;
+use ExpressivePrismic\Exception;
 
 /**
  * DocumentResolver Middleware.
@@ -37,13 +38,6 @@ class DocumentResolver implements MiddlewareInterface
      */
     private $documentRegistry;
 
-    /**
-     * DocumentResolver constructor.
-     *
-     * @param Prismic\Api     $api
-     * @param RouteParams     $params
-     * @param CurrentDocument $documentRegistry
-     */
     public function __construct(Prismic\Api $api, RouteParams $params, CurrentDocument $documentRegistry)
     {
         $this->api              = $api;
@@ -51,19 +45,13 @@ class DocumentResolver implements MiddlewareInterface
         $this->documentRegistry = $documentRegistry;
     }
 
-    /**
-     * @param  Request           $request
-     * @param  DelegateInterface $delegate
-     * @return Response
-     * @throws \RuntimeException if no route has been matched
-     */
     public function process(Request $request, DelegateInterface $delegate)
     {
         // Get hold of the matched route (RouteResult) so we can inspect and resolve a document
         $routeResult = $request->getAttribute(RouteResult::class);
 
         if (!$routeResult) {
-            throw new \RuntimeException('No route has yet been matched so it\'s not possible to resolve a document');
+            throw new Exception\RuntimeException('No route has yet been matched so it\'s not possible to resolve a document');
         }
 
         /**
@@ -85,7 +73,7 @@ class DocumentResolver implements MiddlewareInterface
         }
 
         if (!$document) {
-            PageNotFoundException::throw404();
+            Exception\PageNotFoundException::throw404();
         }
 
         if ($document) {

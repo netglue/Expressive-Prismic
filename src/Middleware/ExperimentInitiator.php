@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace ExpressivePrismic\Middleware;
 
@@ -12,6 +13,10 @@ use Zend\View\HelperPluginManager;
 
 class ExperimentInitiator implements MiddlewareInterface
 {
+
+    const GOOGLE_JS_URL = '//www.google-analytics.com/cx/api.js?experiment=%s';
+
+    const START_EXPERIMENT_JS = '$(function() { prismic.startExperiment("%s", cxApi); });';
 
     /**
      * @var Prismic\Api
@@ -41,9 +46,9 @@ class ExperimentInitiator implements MiddlewareInterface
     public function __construct(
         Prismic\Api $api,
         HelperPluginManager $helpers,
-        string $apiEndpoint,
+        string $toolbarScript,
         string $endpointScript,
-        string $toolbarScript
+        string $apiEndpoint
     ) {
         $this->api = $api;
         $this->helpers = $helpers;
@@ -52,13 +57,7 @@ class ExperimentInitiator implements MiddlewareInterface
         $this->endpointScript = $endpointScript;
     }
 
-    /**
-     * @param  Request           $request
-     * @param  DelegateInterface $delegate
-     * @return Response
-     * @throws \RuntimeException if no route has been matched
-     */
-    public function process(Request $request, DelegateInterface $delegate) : Response
+    public function process(Request $request, DelegateInterface $delegate)
     {
         /**
          * Prismic is only capable of one experiment at a time
@@ -81,7 +80,7 @@ class ExperimentInitiator implements MiddlewareInterface
          * Inject Google Analytics Experiments Api with the running experiment's Google ID
          */
         $helper->appendFile(sprintf(
-            '//www.google-analytics.com/cx/api.js?experiment=%s',
+            self::GOOGLE_JS_URL,
             $experiment->getGoogleId()
         ));
 
@@ -93,7 +92,10 @@ class ExperimentInitiator implements MiddlewareInterface
         /**
          * Call the startExperiment method on global prismic object
          */
-        $helper->appendScript(sprintf('$(function() { prismic.startExperiment("%s", cxApi); });', $experiment->getGoogleId()));
+        $helper->appendScript(sprintf(
+            self::START_EXPERIMENT_JS,
+            $experiment->getGoogleId()
+        ));
 
         return $delegate->process($request);
     }

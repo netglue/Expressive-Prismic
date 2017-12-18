@@ -31,6 +31,11 @@ class InjectPreviewScript implements MiddlewareInterface
     private $helpers;
 
     /**
+     * @var Prismic\Api
+     */
+    private $api;
+
+    /**
      * @var string
      */
     private $toolbarScript;
@@ -45,20 +50,14 @@ class InjectPreviewScript implements MiddlewareInterface
      */
     private $apiEndpoint;
 
-    /**
-     * InjectPreviewScript constructor.
-     *
-     * @param HelperPluginManager $helpers
-     * @param string              $toolbarScript
-     * @param string              $endpointScript
-     * @param string              $apiEndpoint
-     */
     public function __construct(
+        Prismic\Api $api,
         HelperPluginManager $helpers,
         string $toolbarScript,
         string $endpointScript,
         string $apiEndpoint
     ) {
+        $this->api = $api;
         $this->helpers = $helpers;
         $this->toolbarScript = $toolbarScript;
         $this->endpointScript = $endpointScript;
@@ -66,27 +65,11 @@ class InjectPreviewScript implements MiddlewareInterface
     }
 
     /**
-     * @param  Request           $request
-     * @param  DelegateInterface $delegate
      * @return Response
      */
     public function process(Request $request, DelegateInterface $delegate)
     {
-        /**
-         * Check for the existence of the Preview Cookie
-         *
-         * Note. The Prismic cookies, generally contain dots. PHP replaces dots
-         * and spaces with the underscore, so we need to do the same to
-         * match the cookie name on the incoming request, but, it depends whether
-         * the cookie data is extracted from $_COOKIE, or $_SERVER['HTTP_COOKIE']
-         * so we need to check both name variants. Shit.
-         */
-        $cookieNames = [
-            str_replace(['.', ' '], '_', Prismic\Api::PREVIEW_COOKIE)     => '',
-            Prismic\Api::PREVIEW_COOKIE                                   => '',
-        ];
-        $value = current(array_intersect_key($request->getCookieParams(), $cookieNames));
-        if (!empty($value)) {
+        if ($this->api->inPreview()) {
             $helper = $this->helpers->get('inlineScript');
             $helper->appendScript(sprintf($this->endpointScript, $this->apiEndpoint));
             $helper->appendFile($this->toolbarScript);
