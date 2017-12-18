@@ -4,22 +4,24 @@ declare(strict_types = 1);
 namespace ExpressivePrismic\Factory;
 
 use Psr\Container\ContainerInterface;
-use Prismic;
+use Prismic\Api;
 use ExpressivePrismic\LinkResolver;
+use ExpressivePrismic\RouteMatcher;
 use ExpressivePrismic\Service\RouteParams;
 use Zend\Expressive\Helper\UrlHelper;
-use Zend\Expressive\Application;
 
 class LinkResolverFactory
 {
 
     public function __invoke(ContainerInterface $container) : LinkResolver
     {
-        $api       = $container->get(Prismic\Api::class);
-        $params    = $container->get(RouteParams::class);
-        $urlHelper = $container->get(UrlHelper::class);
-        $app       = $container->get(Application::class);
+        $api = $container->get(Api::class);
 
-        return new LinkResolver($api, $params, $urlHelper, $app);
+        return new LinkResolver(
+            $api->bookmarks(),
+            $container->get(RouteParams::class),
+            $container->get(UrlHelper::class),
+            $container->get(RouteMatcher::class)
+        );
     }
 }

@@ -41,8 +41,12 @@ class ConfigProvider
                 // Api Instance
                 Prismic\Api::class                              => Factory\ApiFactory::class,
 
+
                 // Default Link Resolver
                 LinkResolver::class                             => Factory\LinkResolverFactory::class,
+
+                // Helper class that helps match the configured routes with properties of prismic documents
+                RouteMatcher::class                             => Factory\RouteMatcherFactory::class,
 
                 // Mapping Route Parameters
                 Service\RouteParams::class                      => Service\Factory\RouteParamsFactory::class,

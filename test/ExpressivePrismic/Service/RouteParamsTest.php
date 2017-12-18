@@ -16,6 +16,10 @@ class RouteParamsTest extends TestCase
     {
         $params = new RouteParams([]);
         $this->assertSame('prismic-bookmark', $params->getBookmark());
+        $this->assertSame('prismic-uid', $params->getUid());
+        $this->assertSame('prismic-id', $params->getId());
+        $this->assertSame('prismic-type', $params->getType());
+        $this->assertSame('prismic-lang', $params->getLang());
     }
 
     public function testConstructWithValuesReturnsExpected()
@@ -25,12 +29,14 @@ class RouteParamsTest extends TestCase
             'uid' => 'bar',
             'id' => 'baz',
             'type' => 'bat',
+            'lang' => 'wiz',
         ]);
 
         $this->assertSame('foo', $params->getBookmark());
         $this->assertSame('bar', $params->getUid());
         $this->assertSame('baz', $params->getId());
         $this->assertSame('bat', $params->getType());
+        $this->assertSame('wiz', $params->getLang());
     }
 
 }

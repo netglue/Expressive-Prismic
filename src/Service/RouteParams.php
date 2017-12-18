@@ -34,6 +34,11 @@ class RouteParams extends AbstractOptions
     private $type     = 'prismic-type';
 
     /**
+     * @var string
+     */
+    private $lang     = 'prismic-lang';
+
+    /**
      * @param string $bookmark
      */
     public function setBookmark(string $bookmark)
@@ -95,5 +100,21 @@ class RouteParams extends AbstractOptions
     public function getType() : string
     {
         return $this->type;
+    }
+
+    /**
+     * @param string $lang
+     */
+    public function setLang(string $lang)
+    {
+        $this->lang = $lang;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLang() : string
+    {
+        return $this->lang;
     }
 }

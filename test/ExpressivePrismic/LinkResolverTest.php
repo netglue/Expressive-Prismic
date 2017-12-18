@@ -3,97 +3,65 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest;
 
-use Prismic;
-use Prismic\Fragment\Link;
-use Zend\Expressive\Helper\UrlHelper;
-use Bootstrap;
-use Zend\Expressive\Router\RouterInterface;
-use Zend\Expressive\Router\Route;
-use ExpressivePrismic\Service\RouteParams;
+// Infra
+use ExpressivePrismicTest\TestCase;
+use Prophecy\Argument;
+
+// SUT
 use ExpressivePrismic\LinkResolver;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Zend\Diactoros\Response\TextResponse;
+// Deps
+use Prismic;
+use Prismic\Fragment\Link\LinkInterface;
+use Prismic\Fragment\Link\DocumentLink;
+use Prismic\Fragment\Link\WebLink;
+use Zend\Expressive\Helper\UrlHelper;
+use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
+use ExpressivePrismic\Service\RouteParams;
+use Zend\Expressive\Application;
 
-use PHPUnit\Framework\TestCase;
+
 
 class LinkResolverTest extends TestCase
 {
 
+    private $url;
+    private $api;
     private $app;
-
-
-    public static function setUpBeforeClass()
-    {
-        $bootstrap         = Bootstrap::getInstance();
-        $app = $bootstrap->app;
-        $middleware = new TestMiddleware;
-        $app->route('/bookmarked-route', $middleware, ['GET'], 'matchingBookmark')
-            ->setOptions([
-                'defaults' => [
-                    'prismic-bookmark' => 'bookmarkName',
-                ],
-            ]);
-
-
-
-        $app->route('/match-type-with-id/{prismic-id}', $middleware, ['GET'], 'matchTypeAndId')
-            ->setOptions([
-                'defaults' => [
-                    'prismic-type' => 'MyType',
-                ],
-            ]);
-
-        $app->route('/match-type-with-uid/{prismic-uid}', $middleware, ['GET'], 'matchTypeAndUid')
-            ->setOptions([
-                'defaults' => [
-                    'prismic-type' => 'MyOtherType',
-                ],
-            ]);
-
-        $app->route('/{prismic-type}/{prismic-uid}', $middleware, ['GET'], 'matchArrayOfTypes')
-            ->setOptions([
-                'defaults' => [
-                    'prismic-type' => ['Type1', 'Type2', 'Type3'],
-                ],
-            ]);
-    }
 
     public function setUp()
     {
-        $bootstrap         = Bootstrap::getInstance();
-        $urlHelper         = $bootstrap->container->get(UrlHelper::class);
-        $api               = $this->createMock(Prismic\Api::class);
-        $routeParams       = $bootstrap->container->get(RouteParams::class);
-        $app = $this->app  = $bootstrap->app;
+        $this->url = $this->prophesize(UrlHelper::class);
+        $this->api = $this->prophesize(Prismic\Api::class);
+        $this->app = $this->prophesize(Application::class);
+    }
 
-        $this->resolver    = new LinkResolver($api, $routeParams, $urlHelper, $app);
-
-        $api->method('bookmarks')
-            ->willReturn([
-              'bookmarkName' => 'bookmarkedDocumentId',
-              'unroutedBookmark' => 'unroutedId',
-            ]);
+    public function getResolver()
+    {
+        return new LinkResolver(
+            $this->api->reveal(),
+            new RouteParams,
+            $this->url->reveal(),
+            $this->app->reveal()
+        );
     }
 
     public function testNonLinkReturnsNull()
     {
-        $this->assertNull($this->resolver->resolve('foo'));
+        $this->assertNull($this->getResolver()->resolve('foo'));
     }
 
     public function testWebLinkReturnsUrl()
     {
-        $link = new Link\WebLink('http://example.com');
-        $this->assertSame('http://example.com', $this->resolver->resolve($link));
+        $link = new WebLink('http://example.com');
+        $this->assertSame('http://example.com', $this->getResolver()->resolve($link));
     }
 
     public function testBrokenLinkReturnsNull()
     {
-        $link = new Link\DocumentLink('foo', 'foo', 'foo', ['foo'], 'foo', 'en', [], true);
-        $this->assertNull($this->resolver->resolve($link));
+        $link = $this->prophesize(DocumentLink::class());
+        $link->isBroken()->willReturn(true);
+        $this->assertNull($this->getResolver()->resolve($link));
     }
 
     public function testBookmarkedLinkIsResolved()
