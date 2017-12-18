@@ -5,6 +5,7 @@ namespace ExpressivePrismic;
 use Prismic;
 use Zend\Expressive\Application;
 
+use Zend\Expressive\Middleware\NotFoundHandler;
 /**
  * Class ConfigProvider
  *
@@ -66,6 +67,11 @@ class ConfigProvider
                 // Injects javascript to display the preview toolbar
                 Middleware\InjectPreviewScript::class           => Middleware\Factory\InjectPreviewScriptFactory::class,
 
+                // Middleware that sets Request Attributes with the bookmarked 404 document when a 404 is in process
+                Middleware\NotFoundSetup::class => Middleware\Factory\NotFoundSetupFactory::class,
+
+                // The Pipeline that runs as the outermost middleware for rendering 404 errors
+                Middleware\NotFoundPipe::class => Middleware\Factory\NotFoundPipeFactory::class,
                 // The Pipeline that runs when an error occurs
                 Middleware\ErrorHandlerPipe::class              => Middleware\Factory\ErrorHandlerPipeFactory::class,
                 // Provides an error handler that can render pretty 404's and server errors
@@ -86,6 +92,11 @@ class ConfigProvider
                  * with their own implementation and retain the use of everything else
                  */
                 Prismic\LinkResolver::class            => LinkResolver::class,
+
+                /**
+                 * Replace the shipped NotFoundHandler with a custom pipeline to render 404 errors from the CMS
+                 */
+                NotFoundHandler::class => Middleware\NotFoundPipe::class,
             ],
             'delegators' => [
                 Application::class => [
@@ -155,14 +166,36 @@ class ConfigProvider
              * error pages in production
              */
             'error_handler' => [
-                // The names of 2 templates to render for 404's and 500 errors
+
+                /**
+                 * A Pipeline is constructed that attempts to render a 404 document
+                 * stored in the prismic API. The default config replaces the 404
+                 * handler provided by Zend with this pipline, so it's theoretically
+                 * zero config, except we need to know which bookmark to get from the api
+                 * and the template used to render the doc.
+                 *
+                 * You can also modify the pipeline to inject your own middleware,
+                 * either by adding elements to the middleware array, or by using a
+                 * delegator factory.
+                 */
+                'bookmark_404'      => null,
                 'template_404'      => 'error::404',
+                'middleware_404'    => [
+                    Middleware\InjectPreviewScript::class,
+                    Middleware\ExperimentInitiator::class,
+                    Middleware\NotFoundSetup::class,
+                    Middleware\PrismicTemplate::class,
+                ],
+                /**
+                 * If the error document cannot be loaded, you have the choice to have an exception
+                 * thrown, or to continue with the normal 404 rendering process available in Expressive
+                 */
+                'render_404_fallback' => false, // false = throw exceptions
                 'template_error'    => 'error::error',
                 // The layout and template to render when an exception is thrown trying to render the error documents
                 'template_fallback' => 'error::prismic-fallback',
                 'layout_fallback'   => 'layout::error-fallback',
                 // The bookmarks for the Prismic.io documents used to render the 404 and 500 errors
-                'bookmark_404'      => null,
                 'bookmark_error'    => null,
                 // Used to create the middleware Pipe that the error requests goes through prior to rendering
                 'middleware' => [
