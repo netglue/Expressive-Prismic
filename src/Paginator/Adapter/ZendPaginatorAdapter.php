@@ -43,7 +43,7 @@ class ZendPaginatorAdapter implements AdapterInterface
     {
         $page = 1;
         if($offset > 0) {
-            $page = ($offset / $itemCountPerPage) + 1;
+            $page = floor($offset / $itemCountPerPage) + 1;
         }
 
         $response = $this->form->pageSize($itemCountPerPage)->page($page)->submit();
