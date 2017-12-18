@@ -72,10 +72,6 @@ class DocumentResolver implements MiddlewareInterface
             $document = $this->resolveWithId($routeResult);
         }
 
-        if (!$document) {
-            Exception\PageNotFoundException::throw404();
-        }
-
         if ($document) {
             $this->documentRegistry->setDocument($document);
             $request = $request->withAttribute(Prismic\Document::class, $document);

@@ -167,19 +167,18 @@ class DocumentResolverTest extends TestCase
 
     }
 
-    /**
-     * @expectedException ExpressivePrismic\Exception\PageNotFoundException
-     */
-    public function test404ThrownWithNoMatch()
+    public function testDelegateProcessesWhenTheresNoDocument()
     {
         $this->routeResult
             ->getMatchedParams()
             ->willReturn([]);
 
         $this->docRegistry->setDocument()->shouldNotBeCalled();
-        $this->delegate->process()->shouldNotBeCalled();
-
+        $this->request->withAttribute()->shouldNotBeCalled();
         $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
+        $this->delegate->process(Argument::type(Request::class))->shouldBeCalled();
+
+
         $middleware = $this->getMiddleware();
         $middleware->process(
             $this->request->reveal(),
