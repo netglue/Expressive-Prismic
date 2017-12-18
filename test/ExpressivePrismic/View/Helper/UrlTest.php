@@ -1,10 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace ExpressivePrismic\View\Helper;
-use ExpressivePrismicTest\TestCase;
+namespace ExpressivePrismicTest\View\Helper;
 
+// Infra
+use ExpressivePrismicTest\TestCase;
+use Prophecy\Argument;
+
+// SUT
 use ExpressivePrismic\View\Helper\Url;
+
+// Deps
 use Prismic;
 
 class UrlTest extends TestCase

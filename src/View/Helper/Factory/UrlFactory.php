@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace ExpressivePrismic\View\Helper\Factory;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 use Prismic;
 use ExpressivePrismic\View\Helper\Url;
@@ -11,11 +11,12 @@ use ExpressivePrismic\View\Helper\Url;
 class UrlFactory
 {
 
-    public function __invoke(ContainerInterface $container, $requestedName, array $options = null) : Url
+    public function __invoke(ContainerInterface $container) : Url
     {
-        $api      = $container->get(Prismic\Api::class);
-        $resolver = $container->get(Prismic\LinkResolver::class);
-        return new Url($api, $resolver);
+        return new Url(
+            $container->get(Prismic\Api::class),
+            $container->get(Prismic\LinkResolver::class)
+        );
     }
 
 }
