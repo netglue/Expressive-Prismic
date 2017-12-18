@@ -3,34 +3,22 @@ declare(strict_types = 1);
 
 namespace ExpressivePrismic\Factory;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Prismic\Api;
-use Zend\Session;
-
-/**
- * Factory for the Prismic\Api
- *
- * @package ExpressivePrismic\Factory
- */
+use ExpressivePrismic\Exception;
 class ApiFactory
 {
 
-    /**
-     * @param ContainerInterface $container
-     * @param string             $requestedName
-     * @param array|null         $options
-     * @return Api
-     */
-    public function __invoke(ContainerInterface $container, $requestedName, array $options = null) : Api
+    public function __invoke(ContainerInterface $container) : Api
     {
         if (!$container->has('config')) {
-            throw new \RuntimeException('No configuration can be found in the DI Container');
+            throw new Exception\RuntimeException('No configuration can be found in the DI Container');
         }
 
         $config = $container->get('config');
 
         if (!isset($config['prismic']['api'])) {
-            throw new \RuntimeException('No Prismic API configuration can be found');
+            throw new Exception\RuntimeException('No Prismic API configuration can be found');
         }
 
         $config = $config['prismic']['api'];
@@ -40,14 +28,16 @@ class ApiFactory
         $ttl   = isset($config['ttl'])   ? $config['ttl']   : null;
 
         if (!$url) {
-            throw new \RuntimeException('Prismic API endpoint URL must be specified in [prismic][api][url]');
+            throw new Exception\RuntimeException('Prismic API endpoint URL must be specified in [prismic][api][url]');
         }
 
         // Retrieve a dedicated cache instance that implements Prismic's Cache Interface
         $cache = isset($config['cache']) ? $container->get($config['cache']) : null;
 
-        // Use either the configured token, or a preview token retrieved from the session
-
-        return Api::get($url, $token, null, $cache, $ttl);
+        try {
+            return Api::get($url, $token, null, $cache, $ttl);
+        } catch (\Exception $e) {
+            throw new Exception\RuntimeException('Exception thrown creating API instance. Have you provided a valid API URL?', 0, null);
+        }
     }
 }
