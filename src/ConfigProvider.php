@@ -6,6 +6,8 @@ use Prismic;
 use Zend\Expressive\Application;
 
 use Zend\Expressive\Middleware\NotFoundHandler;
+use Zend\Expressive\Middleware\ErrorResponseGenerator;
+
 /**
  * Class ConfigProvider
  *
@@ -72,10 +74,11 @@ class ConfigProvider
 
                 // The Pipeline that runs as the outermost middleware for rendering 404 errors
                 Middleware\NotFoundPipe::class => Middleware\Factory\NotFoundPipeFactory::class,
-                // The Pipeline that runs when an error occurs
+
+                // Custom error response generator intended to replace the default in Zend Expressive
+                Middleware\ErrorResponseGenerator::class => Middleware\Factory\ErrorResponseGeneratorFactory::class,
+                // The Pipeline that runs when an error (exception) occurs
                 Middleware\ErrorHandlerPipe::class              => Middleware\Factory\ErrorHandlerPipeFactory::class,
-                // Provides an error handler that can render pretty 404's and server errors
-                Middleware\ErrorHandler::class                  => Middleware\Factory\ErrorHandlerFactory::class,
             ],
             'invokables' => [
                 // An instance used to track the current document for the request
@@ -97,6 +100,11 @@ class ConfigProvider
                  * Replace the shipped NotFoundHandler with a custom pipeline to render 404 errors from the CMS
                  */
                 NotFoundHandler::class => Middleware\NotFoundPipe::class,
+
+                /**
+                 * Replace the shipped ErrorResponseGenerator with our own in order to render 500 errors from the CMS
+                 */
+                ErrorResponseGenerator::class => Middleware\ErrorResponseGenerator::class,
             ],
             'delegators' => [
                 Application::class => [
@@ -191,17 +199,23 @@ class ConfigProvider
                  * thrown, or to continue with the normal 404 rendering process available in Expressive
                  */
                 'render_404_fallback' => false, // false = throw exceptions
+
+                'bookmark_error'    => null,
                 'template_error'    => 'error::error',
+                'middleware' => [
+                    Middleware\InjectPreviewScript::class,
+                    Middleware\ExperimentInitiator::class,
+                    Middleware\PrismicTemplate::class,
+                ],
+
+
+                // The names of 2 templates to render for 404's and 500 errors
                 // The layout and template to render when an exception is thrown trying to render the error documents
                 'template_fallback' => 'error::prismic-fallback',
                 'layout_fallback'   => 'layout::error-fallback',
                 // The bookmarks for the Prismic.io documents used to render the 404 and 500 errors
-                'bookmark_error'    => null,
                 // Used to create the middleware Pipe that the error requests goes through prior to rendering
-                'middleware' => [
-                    Middleware\ExperimentInitiator::class,
-                    Middleware\InjectPreviewScript::class,
-                ],
+
             ],
 
             /**
