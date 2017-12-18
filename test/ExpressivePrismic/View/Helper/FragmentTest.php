@@ -1,5 +1,6 @@
 <?php
 namespace ExpressivePrismic\View\Helper;
+use ExpressivePrismicTest\TestCase;
 
 use ExpressivePrismic\Service;
 use Zend\Expressive\Helper\UrlHelper;
@@ -7,7 +8,7 @@ use Bootstrap;
 use Prismic;
 use ExpressivePrismic\LinkResolver;
 
-class FragmentTest extends \PHPUnit_Framework_TestCase
+class FragmentTest extends TestCase
 {
 
     private $helper;

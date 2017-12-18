@@ -1,11 +1,16 @@
 <?php
-namespace ExpressivePrismic\Service;
+declare(strict_types=1);
 
+namespace ExpressivePrismicTest\Service;
+
+// Infra
+use ExpressivePrismicTest\TestCase;
+
+// SUT
 use ExpressivePrismic\Service\RouteParams;
 
-class RouteParamsTest extends \PHPUnit_Framework_TestCase
+class RouteParamsTest extends TestCase
 {
-
 
     public function testConstructWithEmptyArrayRetainsDefaults()
     {

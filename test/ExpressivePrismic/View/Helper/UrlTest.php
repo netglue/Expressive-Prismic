@@ -2,10 +2,10 @@
 declare(strict_types=1);
 
 namespace ExpressivePrismic\View\Helper;
+use ExpressivePrismicTest\TestCase;
 
 use ExpressivePrismic\View\Helper\Url;
 use Prismic;
-use PHPUnit\Framework\TestCase;
 
 class UrlTest extends TestCase
 {

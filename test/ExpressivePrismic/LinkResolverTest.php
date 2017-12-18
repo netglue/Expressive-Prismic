@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-namespace ExpressivePrismic;
+namespace ExpressivePrismicTest;
 
 use Prismic;
 use Prismic\Fragment\Link;
@@ -8,13 +9,18 @@ use Zend\Expressive\Helper\UrlHelper;
 use Bootstrap;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Router\Route;
+use ExpressivePrismic\Service\RouteParams;
+use ExpressivePrismic\LinkResolver;
 
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use Zend\Diactoros\Response\TextResponse;
 
-class LinkResolverTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class LinkResolverTest extends TestCase
 {
 
     private $app;
@@ -61,7 +67,7 @@ class LinkResolverTest extends \PHPUnit_Framework_TestCase
         $bootstrap         = Bootstrap::getInstance();
         $urlHelper         = $bootstrap->container->get(UrlHelper::class);
         $api               = $this->createMock(Prismic\Api::class);
-        $routeParams       = $bootstrap->container->get(Service\RouteParams::class);
+        $routeParams       = $bootstrap->container->get(RouteParams::class);
         $app = $this->app  = $bootstrap->app;
 
         $this->resolver    = new LinkResolver($api, $routeParams, $urlHelper, $app);
