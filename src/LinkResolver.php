@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace ExpressivePrismic;
 
 use Prismic;
+use Prismic\Document;
 use Prismic\Fragment\Link\LinkInterface;
 use Prismic\Fragment\Link\DocumentLink;
 use Zend\Expressive\Helper\UrlHelper;
@@ -52,6 +53,10 @@ class LinkResolver extends Prismic\LinkResolver
      */
     public function resolve($link)
     {
+        if ($link instanceof Document) {
+            return $this->resolveDocument($link);
+        }
+
         if (!$link instanceof LinkInterface) {
             return null;
         }
@@ -103,10 +108,7 @@ class LinkResolver extends Prismic\LinkResolver
     {
         $route = $this->routeMatch->getTypedRoute($link->getType());
         if ($route) {
-            try {
-                return $this->urlHelper->generate($route->getName(), $this->getRouteParams($link));
-            } catch (RouterException $e) {
-            }
+            return $this->urlHelper->generate($route->getName(), $this->getRouteParams($link));
         }
         return null;
     }
