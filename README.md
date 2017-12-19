@@ -1,5 +1,8 @@
 # Zend Expressive / Prismic.io CMS Module
 
+[![Build Status](https://api.travis-ci.org/netglue/Expressive-Prismic.svg)](https://travis-ci.org/netglue/Expressive-Prismic)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/d05cb66580d760d6d45e/test_coverage)](https://codeclimate.com/github/netglue/Expressive-Prismic/test_coverage)
+
 ## Introduction
 
 This module/library's purpose is to ease development of content driven websites using prismic.io's content API as a backend service.
