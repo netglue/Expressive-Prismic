@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace ExpressivePrismic\Service\Factory;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use ExpressivePrismic\Service\RouteParams;
 
 /**
@@ -14,13 +14,7 @@ use ExpressivePrismic\Service\RouteParams;
 class RouteParamsFactory
 {
 
-    /**
-     * @param ContainerInterface $container
-     * @param string             $requestedName
-     * @param array|null         $options
-     * @return RouteParams
-     */
-    public function __invoke(ContainerInterface $container, $requestedName, array $options = null) : RouteParams
+    public function __invoke(ContainerInterface $container) : RouteParams
     {
         $config  = $container->get('config');
         $options = isset($config['prismic']['route_params'])
