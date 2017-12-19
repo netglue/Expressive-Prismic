@@ -23,8 +23,8 @@ class ErrorHandlerPipeFactory
 
         $configuredPipe = null;
 
-        if (isset($config['prismic']['error_handler']['middleware'])) {
-            $configuredPipe = $config['prismic']['error_handler']['middleware'];
+        if (isset($config['prismic']['error_handler']['middleware_error'])) {
+            $configuredPipe = $config['prismic']['error_handler']['middleware_error'];
         }
 
         $middleware = $configuredPipe
@@ -32,7 +32,7 @@ class ErrorHandlerPipeFactory
                     : $defaultPipe;
 
         if (!is_array($middleware)) {
-            throw new Exception\RuntimeException('Cannot create an error handler pipeline without middleware provided in config under [prismic][error_handler][middleware]');
+            throw new Exception\RuntimeException('Cannot create an error handler pipeline without middleware provided in config under [prismic][error_handler][middleware_error]');
         }
 
         $pipe = new MiddlewarePipe;

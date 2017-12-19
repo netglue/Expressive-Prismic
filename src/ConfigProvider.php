@@ -221,7 +221,7 @@ class ConfigProvider
                  * The pipe line can be overridden by providing an array of middleware here,
                  * the default is shown:
                  *
-                 * 'middleware' => [
+                 * 'middleware_error' => [
                  *     Middleware\InjectPreviewScript::class,
                  *     Middleware\ExperimentInitiator::class,
                  *     Middleware\PrismicTemplate::class,

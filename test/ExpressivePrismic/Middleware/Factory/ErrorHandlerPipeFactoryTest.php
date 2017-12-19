@@ -30,7 +30,7 @@ class ErrorHandlerPipeFactoryTest extends TestCase
         $this->container->get('config')->willReturn([
             'prismic' => [
                 'error_handler' => [
-                    'middleware' => [
+                    'middleware_error' => [
                         ApiCacheBust::class,
                     ]
                 ]
@@ -56,7 +56,7 @@ class ErrorHandlerPipeFactoryTest extends TestCase
         $this->container->get('config')->willReturn([
             'prismic' => [
                 'error_handler' => [
-                    'middleware' => 'foo'
+                    'middleware_error' => 'foo'
                 ]
             ]
         ]);
