@@ -19,6 +19,9 @@
             "ExpressivePrismicTest\\": "test/ExpressivePrismic"
         }
     },
+    "config": {
+        "sort-packages": true
+    },
     "require": {
         "php" : ">=7.1",
         "prismic/php-sdk": "^3.0",
@@ -32,7 +35,6 @@
     },
     "require-dev" : {
         "phpunit/phpunit": "^6",
-        "zendframework/zend-config-aggregator": "^0.2.0",
         "zendframework/zend-servicemanager": "^3.3",
         "zendframework/zend-expressive-fastroute": "^2.0"
     },
