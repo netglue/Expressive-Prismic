@@ -1,4 +1,4 @@
-# WIP: Zend Expressive / Prismic.io CMS Module
+# Zend Expressive / Prismic.io CMS Module
 
 ## Introduction
 
@@ -6,11 +6,9 @@ This module/library's purpose is to ease development of content driven websites 
 
 If you haven't heard of Prismic before, you can [find out about it here](https://prismic.io).
 
-Mostly, this library for Zend Expressive, is very 'Zendy', in that some of the really useful stuff like view helpers are for Zend\View and there's not equivalents if you're happier with Twig/Plates/Blade etc. It'd be great to have equivalents, but personally, I tend to use Zend\View so it's my first port of call… _(Edit: Zend\View is a requirement as the middleware for setting off experiments and previews etc use Zend's View Helpers to do the job)_
+## Requirements
 
-## Work in progress
-
-This module is intended to provide the most basic requirements for working with Prismic, but there's another module in progress that provides more view helpers, ready to go full-text search and a bunch of other more opinionated stuff called `expressive-prismic-defaults`. You [can find it here](https://github.com/netglue/Expressive-Prismic-Defaults). It's the kind of stuff we use when [we're making customer websites](https://netglue.uk)…
+This module is only suitable for Zend Expressive ^2.0 and PHP ^7.1
 
 ## Install
 
@@ -18,6 +16,10 @@ Install with composer ala `composer require netglue/expressive-prismic`
 
 This should also ask you if you want to inject the config provider too.
 
+## Tests
+
+    $ composer install
+    $ vendor/bin/phpunit
 
 ## Basic Configuration
 
@@ -34,7 +36,7 @@ This library exposes the Prismic API instance in your container as `Prismic\Api`
 
 ## Defining Routes
 
-In order to allow you to specify properties of a document to look out for during routing, you must map the route parameter names you want to use to the prismic document/api equivallent. The defaults are:
+In order to allow you to specify properties of a document to look out for during routing, you must map the route parameter names you want to use to the prismic document/api equivalent. The defaults are:
     
     'prismic' => [
         'route_params' => [
@@ -42,6 +44,7 @@ In order to allow you to specify properties of a document to look out for during
             'bookmark' => 'prismic-bookmark',
             'uid'      => 'prismic-uid',
             'type'     => 'prismic-type',
+            'lang'     => 'prismic-lang',
         ],
     ],
 
@@ -93,6 +96,8 @@ You will be able to see in `Factory\PipelineAndRoutesDelegator` that two routes 
 
 The Url of the webhook will be `/prismicio-cache-webhook` - given a valid Json payload containing a matching shared secret, the pre-configured middleware will empty the cache attached to the Prismic API instance.
 
+The webhook route points to a middleware pipe named `ExpressivePrismic\Middleware\WebhookMiddlewarePipe` so if you want to modify the pipeline to do other things, or replace it entirely, just alias that pipe to different factory or implement a delegator factory for the pipe.
+
 ## Link Resolver
 
 The Link Resolver is a concept introduced by Prismic to turn documents, or document link fragments into local urls and there's a concrete implementation in this package at `ExpressivePrismic\LinkResolver`.
@@ -107,75 +112,90 @@ There's another route that's auto-wired like the cache busting webhook for initi
 
 ### URL Helper `$this->prismicUrl()`
 
+This view helper will generate a local URL using the link resolver. It's `__invoke()` method accepts
+
+* string - Treated as a Document ID
+* \Prismic\Document
+* \Prismic\Fragment\Link\LinkInterface
+
+
 ### Fragment Helper `$this->fragment()`
+
+This view helper operates on the current resolved document and provides an easy way of rendering simple fragments to views. It does not require the fully qaulified fragment name, ie. `documentType.fragmentName` and instead you can pass it just `'fragmentName'`.
+
+`$this->fragment()->get('title');` will return the fragment object.
+
+`$this->fragment()->asText('title');` will return the text value of the fragment.
+
+`$this->fragment()->asHtml('title');` will return the HTML value of the fragment.
 
 ## CMS Managed Error Pages for Production
 
-**Error handling is not wired in by default**
+**Error handling is wired in by default**
 
-If you want to use Prismic to manage your 404's and server errors, there's a bunch of stuff you'll need to do.
+### 404 Errors
 
-### 1. Normalize 404's to Exceptions
+In the event of a 404, Expressive will execute the default 'not found delegate' which consists of a single `NotFoundHandler` middleware. This module replaces the `NotFoundHandler` with a custom middleware pipe that initialises previews and experiments, locates a bookmarked error document in the Prismic API and renders that document to a template.
 
-First of all, you need to change the default `Zend\Expressive\Middleware\NotFoundHandler` that is usually piped at the end of your middleware pipline to the provided `ExpressivePrismic\Middleware\NormalizeNotFound` - effectively all this does is throw an exception if it is reached and you'd configure your pipeline something like this:
+All you have to do to take advantage of pretty CMS managed 404s is to specify the bookmark name for the error document in your repository and specify the template name to render like this:
 
-    use ExpressivePrismic\Middleware\NormalizeNotFound;
-    
-    /**
-     * Setup middleware pipeline:
-     */
-    $app->pipe( /* Default Error Handler */);
-    $app->pipe(ServerUrlMiddleware::class);
-    
-    // ... etc ...
-    
-    // Register the dispatch middleware in the middleware pipeline
-    $app->pipeDispatchMiddleware();
-    
-    // Finally your 404 handler which should be our NormalizeNotFound middleware
-    $app->pipe(NormalizeNotFound::class);
-
-### 2. Change the Error Response Generator
-
-By default, the `ErrorResponseGenerator` will be aliased to the default templated one shipped with Expressive, or in development, you might be using the Whoops version. To change it, configure `Zend\Expressive\Middleware\ErrorResponseGenerator` to point to `ExpressivePrismic\Middleware\Factory\ErrorHandlerFactory` in your dependency config something like this:
-
-    use Zend\Expressive\Middleware\ErrorResponseGenerator;
-    use ExpressivePrismic\Middleware\Factory\ErrorHandlerFactory;
-    
     return [
-        'dependencies' => [
-            'factories' => [
-                ErrorResponseGenerator::class => ErrorHandlerFactory::class
+        'prismic' => [
+            'error_handler' => [
+                'template_404'   => 'some::template-name',
+                'bookmark_404'   => 'some-bookmark',
             ],
         ],
     ];
 
-This factory will return an instance of `ExpressivePrismic\Middleware\ErrorHandler` which simply inspects the error to see if it specifically a 404 exception, or some other kind of error and switches the template to suit not before locating the correct bookmarked prismic document from the api to use for the content of the page. There is also a fallback mechanism to render an HTML page if something goes pear-shaped whilst this is going on.
-
-### 3. Configure the Error Handler
+The pipeline is retrieved from the container using the alias `ExpressivePrismic\Middleware\NotFoundPipe` and by default, a factory is registered to return a suitable pipeline. You can override the pipeline either by changing the alias to point at your own factory which should return a `Zend\Stratigility\MiddlewarePipe` or by providing an array of middleware class names in config like this:
     
     return [
-
         'prismic' => [
             'error_handler' => [
-                // The names of 2 templates to render for 404's and 500 errors
-                'template_404'      => 'error::404',
-                'template_error'    => 'error::error',
-                // The layout and template to render when an exception is thrown trying to render the error documents
-                'template_fallback' => 'error::prismic-fallback',
-                'layout_fallback'   => 'layout::error-fallback',
-                // The bookmarks for the Prismic.io documents used to render the 404 and 500 errors
-                'bookmark_404'      => null,
-                'bookmark_error'    => null,
-                // Used to create the middleware Pipe that the error requests goes through prior to rendering
-                'middleware' => [
-                    Middleware\ExperimentInitiator::class,
-                    Middleware\InjectPreviewScript::class,
+                'middleware_404' => [
+                    \ExpressivePrismic\Middleware\InjectPreviewScript::class,
+                    \ExpressivePrismic\Middleware\ExperimentInitiator::class,
+                    \ExpressivePrismic\Middleware\NotFoundSetup::class,
+                    \\SomeOtherMiddleware-ToRun-Before-Template-Is-Rendered…
+                    \ExpressivePrismic\Middleware\PrismicTemplate::class,
                 ],
             ],
         ],
     ];
 
-When an error occurs, the request is piped through a configurable middleware pipe so you can add in exception logging middleware for example prior to rendering the page. Chuck whatever middleware you want in there by providing the name of middleware that can be retrieved from the container and have a look at the source to see how it all works.
+There is an additional config key for 404 errors that determines what should happen if the 404 document cannot be retrieved from the Prismic API. This boolean when false means that an exception will be thrown if the document cannot be resolved _(Default behaviour)_. Setting the value to true will fall back to the default 404 rendering provided by Zend Expressive.
+
+    return [
+        'prismic' => [
+            'error_handler' => [
+                'render_404_fallback' => true, // or false
+            ]
+        ]
+    ]
+
+### Exceptions
+
+Exceptions are handled in much the same way. We need to know the bookmark and template, and the pipeline can be overridden in the same way but obviously, the keys are different:
+
+    return [
+        'prismic' => [
+            'error_handler' => [
+                'template_error'   => 'some::template-name',
+                'bookmark_error'   => 'some-bookmark',
+                'middleware_error' => [
+                    \ExpressivePrismic\Middleware\InjectPreviewScript::class,
+                    \ExpressivePrismic\Middleware\ExperimentInitiator::class,
+                    \ExpressivePrismic\Middleware\PrismicTemplate::class,
+                ],
+            ],
+        ],
+    ];
+
+The fallback _(i.e. when the error document cannot be retrieved from the api)_ for exception situations is a simple plain text message stating that an error occurred. This fallback is not currently configurable to be anything more fancy.
+
+The pipeline for errors is retrieved from the container using `'ExpressivePrismic\Middleware\ErrorHandlerPipe'`.
+
+
 
 
