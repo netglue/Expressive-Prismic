@@ -51,9 +51,15 @@ class NotFoundPipeFactoryTest extends TestCase
     /**
      * @expectedException ExpressivePrismic\Exception\RuntimeException
      */
-    public function testExceptionIsThrownForEmptyPipe()
+    public function testExceptionIsThrownForInvalidPipe()
     {
-        $this->container->get('config')->willReturn([]);
+        $this->container->get('config')->willReturn([
+            'prismic' => [
+                'error_handler' => [
+                    'middleware_404' => 'foo',
+                ]
+            ]
+        ]);
         $factory = new NotFoundPipeFactory;
         $factory($this->container->reveal());
     }

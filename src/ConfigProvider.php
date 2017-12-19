@@ -210,22 +210,23 @@ class ConfigProvider
                  */
                 'render_404_fallback' => false, // false = throw exceptions
 
+                /**
+                 * The error/exception handler works in the same way as 404's
+                 * We need a bookmark and a template to render
+                 */
                 'bookmark_error'    => null,
                 'template_error'    => 'error::error',
-                'middleware' => [
-                    Middleware\InjectPreviewScript::class,
-                    Middleware\ExperimentInitiator::class,
-                    Middleware\PrismicTemplate::class,
-                ],
 
-
-                // The names of 2 templates to render for 404's and 500 errors
-                // The layout and template to render when an exception is thrown trying to render the error documents
-                'template_fallback' => 'error::prismic-fallback',
-                'layout_fallback'   => 'layout::error-fallback',
-                // The bookmarks for the Prismic.io documents used to render the 404 and 500 errors
-                // Used to create the middleware Pipe that the error requests goes through prior to rendering
-
+                /**
+                 * The pipe line can be overridden by providing an array of middleware here,
+                 * the default is shown:
+                 *
+                 * 'middleware' => [
+                 *     Middleware\InjectPreviewScript::class,
+                 *     Middleware\ExperimentInitiator::class,
+                 *     Middleware\PrismicTemplate::class,
+                 * ],
+                 */
             ],
 
             /**

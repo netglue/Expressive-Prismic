@@ -32,7 +32,7 @@ class NotFoundPipeFactory
                     ? $configuredPipe
                     : $defaultPipe;
 
-        if (!is_array($configuredPipe)) {
+        if (!is_array($middleware)) {
             throw new Exception\RuntimeException('Cannot create a 404 handler pipeline without middleware provided in config under [prismic][error_handler][middleware_404]');
         }
 
