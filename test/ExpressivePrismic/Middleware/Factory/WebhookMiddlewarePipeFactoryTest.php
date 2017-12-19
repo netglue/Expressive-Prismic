@@ -13,7 +13,9 @@ use ExpressivePrismic\Middleware\Factory\WebhookMiddlewarePipeFactory;
 // Deps
 use Psr\Container\ContainerInterface;
 use Zend\Stratigility\MiddlewarePipe;
+use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
 use ExpressivePrismic\Middleware\ApiCacheBust;
+use ExpressivePrismic\Middleware\JsonSuccess;
 
 class WebhookMiddlewarePipeFactoryTest extends TestCase
 {
@@ -29,6 +31,12 @@ class WebhookMiddlewarePipeFactoryTest extends TestCase
     {
         $this->container->get(ApiCacheBust::class)->willReturn(
             $this->prophesize(ApiCacheBust::class)->reveal()
+        );
+        $this->container->get(ValidatePrismicWebhook::class)->willReturn(
+            $this->prophesize(ValidatePrismicWebhook::class)->reveal()
+        );
+        $this->container->get(JsonSuccess::class)->willReturn(
+            $this->prophesize(JsonSuccess::class)->reveal()
         );
 
         $factory = new WebhookMiddlewarePipeFactory;

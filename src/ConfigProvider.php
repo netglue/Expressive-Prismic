@@ -62,6 +62,7 @@ class ConfigProvider
                 'ExpressivePrismic\Middleware\WebhookMiddlewarePipe' => Middleware\Factory\WebhookMiddlewarePipeFactory::class,
 
                 // Processes Webhooks from Prismic.io and busts the cache
+                Middleware\ValidatePrismicWebhook::class => Middleware\Factory\ValidatePrismicWebhookFactory::class,
                 Middleware\ApiCacheBust::class => Middleware\Factory\ApiCacheBustFactory::class,
 
                 // Processes a preview token and redirects to the page being previewed
@@ -90,6 +91,7 @@ class ConfigProvider
 
                 // Turns 404 errors into exceptions
                 Middleware\NormalizeNotFound::class    => Middleware\NormalizeNotFound::class,
+                Middleware\JsonSuccess::class    => Middleware\JsonSuccess::class,
             ],
             'aliases' => [
                 /**

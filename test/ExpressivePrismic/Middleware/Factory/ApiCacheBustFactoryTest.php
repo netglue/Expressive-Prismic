@@ -12,8 +12,9 @@ use ExpressivePrismic\Middleware\Factory\ApiCacheBustFactory;
 
 // Deps
 use Psr\Container\ContainerInterface;
-use Prismic;
+use Prismic\Api;
 use ExpressivePrismic\Middleware\ApiCacheBust;
+use Prismic\Cache\CacheInterface;
 
 class ApiCacheBustFactoryTest extends TestCase
 {
@@ -27,14 +28,13 @@ class ApiCacheBustFactoryTest extends TestCase
 
     public function testFactory()
     {
-        $this->container->get(Prismic\Api::class)->willReturn(
-            $this->prophesize(Prismic\Api::class)->reveal()
+        $api = $this->prophesize(Api::class);
+        $cache = $this->prophesize(CacheInterface::class)->reveal();
+        $api->getCache()->willReturn($cache);
+
+        $this->container->get(Api::class)->willReturn(
+            $api->reveal()
         );
-        $this->container->get('config')->willReturn([
-            'prismic' => [
-                'webhook_secret' => 'foo',
-            ],
-        ]);
 
         $factory = new ApiCacheBustFactory;
 
