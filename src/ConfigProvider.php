@@ -192,12 +192,18 @@ class ConfigProvider
                  */
                 'bookmark_404'      => null,
                 'template_404'      => 'error::404',
-                'middleware_404'    => [
-                    Middleware\InjectPreviewScript::class,
-                    Middleware\ExperimentInitiator::class,
-                    Middleware\NotFoundSetup::class,
-                    Middleware\PrismicTemplate::class,
-                ],
+                'middleware_404'    => null,
+                /**
+                 * Default Pipe
+                 *
+                 * [
+                 *     Middleware\InjectPreviewScript::class,
+                 *     Middleware\ExperimentInitiator::class,
+                 *     Middleware\NotFoundSetup::class,
+                 *     Middleware\PrismicTemplate::class,
+                 * ],
+                 */
+
                 /**
                  * If the error document cannot be loaded, you have the choice to have an exception
                  * thrown, or to continue with the normal 404 rendering process available in Expressive
