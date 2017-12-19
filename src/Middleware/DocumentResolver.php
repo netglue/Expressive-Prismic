@@ -8,6 +8,7 @@ use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
+use Prismic\Document;
 use Zend\Expressive\Router\RouteResult;
 use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Service\RouteParams;
@@ -74,17 +75,13 @@ class DocumentResolver implements MiddlewareInterface
 
         if ($document) {
             $this->documentRegistry->setDocument($document);
-            $request = $request->withAttribute(Prismic\Document::class, $document);
+            $request = $request->withAttribute(Document::class, $document);
         }
 
         return $delegate->process($request);
     }
 
-    /**
-     * @param RouteResult $routeResult
-     * @return Prismic\Document|null
-     */
-    private function resolveWithBookmark(RouteResult $routeResult)
+    private function resolveWithBookmark(RouteResult $routeResult) :? Document
     {
         $params = $routeResult->getMatchedParams();
         $search = $this->routeParams->getBookmark();
@@ -92,6 +89,7 @@ class DocumentResolver implements MiddlewareInterface
         if ($bookmark) {
             $id = $this->api->bookmark($bookmark);
             if ($id) {
+                /** @var Document|null */
                 return $this->api->getByID($id);
             }
         }
@@ -99,27 +97,20 @@ class DocumentResolver implements MiddlewareInterface
         return null;
     }
 
-    /**
-     * @param RouteResult $routeResult
-     * @return Prismic\Document|null
-     */
-    private function resolveWithId(RouteResult $routeResult)
+    private function resolveWithId(RouteResult $routeResult) :? Document
     {
         $params = $routeResult->getMatchedParams();
         $search = $this->routeParams->getId();
         $id = isset($params[$search]) && !empty($params[$search]) ? $params[$search] : null;
         if ($id) {
+            /** @var Document|null */
             return $this->api->getByID($id);
         }
 
         return null;
     }
 
-    /**
-     * @param RouteResult $routeResult
-     * @return Prismic\Document|null
-     */
-    private function resolveWithUid(RouteResult $routeResult)
+    private function resolveWithUid(RouteResult $routeResult) :? Document
     {
         $params = $routeResult->getMatchedParams();
         $search = $this->routeParams->getUid();
@@ -129,7 +120,7 @@ class DocumentResolver implements MiddlewareInterface
         if (!$type || !$uid) {
             return null;
         }
-
+        /** @var Document|null */
         return $this->api->getByUID($type, $uid);
     }
 }

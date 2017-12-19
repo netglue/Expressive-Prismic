@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace ExpressivePrismic\Paginator\Adapter;
 
 use Prismic\SearchForm;
+use Prismic\Response;
 use Zend\Paginator\Adapter\AdapterInterface;
 
 class ZendPaginatorAdapter implements AdapterInterface
@@ -46,7 +48,12 @@ class ZendPaginatorAdapter implements AdapterInterface
             $page = floor($offset / $itemCountPerPage) + 1;
         }
 
-        $response = $this->form->pageSize($itemCountPerPage)->page($page)->submit();
+        /** @var SearchForm **/
+        $form = $this->form->pageSize($itemCountPerPage);
+        /** @var SearchForm **/
+        $form = $form->page($page);
+        /** @var Response **/
+        $response = $form->submit();
 
         return $response->getResults();
     }

@@ -48,7 +48,7 @@ class Fragment
      * @param  string $name
      * @return Prismic\Fragment\FragmentInterface|null
      */
-    public function get(string $name)
+    public function get(string $name) :? Prismic\Fragment\FragmentInterface
     {
         return $this->requireDocument()->get($this->name($name));
     }
@@ -57,7 +57,7 @@ class Fragment
      * @param string $name
      * @return string|null
      */
-    public function asHtml(string $name)
+    public function asHtml(string $name) :? string
     {
         if ($frag = $this->get($name)) {
             return $frag->asHtml($this->linkResolver);
@@ -70,7 +70,7 @@ class Fragment
      * @param string $name
      * @return string|null
      */
-    public function asText(string $name)
+    public function asText(string $name) :? string
     {
         if ($frag = $this->get($name)) {
             return $frag->asText();
@@ -83,7 +83,7 @@ class Fragment
      * Get Document
      * @return Prismic\Document|null
      */
-    public function getDocument()
+    public function getDocument() :? Prismic\Document
     {
         return $this->documentRegistry->getDocument();
     }

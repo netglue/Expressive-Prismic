@@ -5,6 +5,7 @@ namespace ExpressivePrismicTest\Paginator;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 
 // SUT
 use ExpressivePrismic\Paginator\ZendPaginatorFactory;
@@ -19,6 +20,7 @@ class ZendPaginatorFactoryTest extends TestCase
 
     public function testPagerWithCorrectAdapterIsConstructed()
     {
+        /** @var ObjectProphecy|SearchForm  $form **/
         $form = $this->prophesize(SearchForm::class);
         $form->count()->shouldBeCalled();
 

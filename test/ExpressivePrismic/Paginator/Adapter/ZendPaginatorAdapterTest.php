@@ -5,6 +5,7 @@ namespace ExpressivePrismicTest\Paginator\Adapter;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 
 // SUT
 use ExpressivePrismic\Paginator\Adapter\ZendPaginatorAdapter;
@@ -31,6 +32,7 @@ class ZendPaginatorAdapterTest extends TestCase
         $response = $this->prophesize(Response::class);
         $response->getResults()->shouldBeCalled();
 
+        /** @var ObjectProphecy|SearchForm $form **/
         $form = $this->prophesize(SearchForm::class);
         $form->count()->willReturn(100);
         $form->submit()->willReturn($response->reveal());
@@ -40,6 +42,7 @@ class ZendPaginatorAdapterTest extends TestCase
         $form->page(2)->willReturn($form->reveal());
         $form->pageSize(10)->willReturn($form->reveal());
 
+        /** @var ObjectProphecy|SearchForm  $mock **/
         $mock = $form->reveal();
 
         $adapter = new ZendPaginatorAdapter($form->reveal());

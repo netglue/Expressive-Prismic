@@ -6,7 +6,6 @@ namespace ExpressivePrismic\Middleware\Factory;
 use Psr\Container\ContainerInterface;
 
 use Prismic;
-use ExpressivePrismic\Middleware\ErrorHandlerPipe;
 use ExpressivePrismic\Middleware\ErrorResponseGenerator;
 use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Exception;
@@ -24,7 +23,7 @@ class ErrorResponseGeneratorFactory
             throw new Exception\RuntimeException('No API bookmark for server errors has been proivded in the key [prismic][error_handler][bookmark_error]');
         }
         return new ErrorResponseGenerator(
-            $container->get(ErrorHandlerPipe::class),
+            $container->get('ExpressivePrismic\Middleware\ErrorHandlerPipe'),
             $container->get(Prismic\Api::class),
             $container->get(CurrentDocument::class),
             $config['prismic']['error_handler']['bookmark_error'],

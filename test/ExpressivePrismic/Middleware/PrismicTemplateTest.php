@@ -1,18 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace ExpressivePrismicTest\Middleware\Factory;
+namespace ExpressivePrismicTest\Middleware;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
 use Prophecy\Argument;
 
 // SUT
-use ExpressivePrismic\Middleware\Factory\PrismicTemplateFactory;
+use ExpressivePrismic\Middleware\PrismicTemplate;
 
 // Deps
 use Zend\Expressive\Template\TemplateRendererInterface;
-use ExpressivePrismic\Middleware\PrismicTemplate;
 use Prismic\LinkResolver;
 use Prismic\Document;
 

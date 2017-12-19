@@ -51,6 +51,7 @@ class NormalizeNotFoundTest extends TestCase
         $match = $this->prophesize(RouteResult::class)->reveal();
         $request = $this->prophesize(Request::class);
         $request->getAttribute(RouteResult::class)->willReturn($match);
+        /** @var Request **/
         $request = $request->reveal();
 
         $middleware = new NormalizeNotFound;

@@ -25,6 +25,7 @@ class ErrorResponseGeneratorTest extends TestCase
     private $api;
     private $docRegistry;
     private $request;
+    private $pipe;
 
     public function setUp()
     {

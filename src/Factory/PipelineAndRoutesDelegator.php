@@ -15,9 +15,9 @@ class PipelineAndRoutesDelegator
      * @param callable $callback Creates and returns the service.
      * @return Application
      */
-    public function __invoke(ContainerInterface $container, $serviceName, callable $callback)
+    public function __invoke(ContainerInterface $container, $serviceName, callable $callback) : Application
     {
-        /** @var $app Application */
+        /** @var Application */
         $app = $callback();
 
         /**
@@ -28,7 +28,7 @@ class PipelineAndRoutesDelegator
         /**
          * Webhook Cache Bust
          */
-        $app->route('/prismicio-cache-webhook', [Middleware\WebhookMiddlewarePipe::class], ['POST'], 'prismic-webhook-cache-bust');
+        $app->route('/prismicio-cache-webhook', ['ExpressivePrismic\Middleware\WebhookMiddlewarePipe'], ['POST'], 'prismic-webhook-cache-bust');
 
         return $app;
     }

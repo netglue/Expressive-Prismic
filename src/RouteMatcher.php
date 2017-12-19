@@ -16,17 +16,17 @@ class RouteMatcher
     private $routeParams;
 
     /**
-     * @var [Route]
+     * @var array
      */
     private $routes;
 
     /**
-     * @var [Route]
+     * @var array
      */
     private $bookmarks;
 
     /**
-     * @var [Route]
+     * @var array
      */
     private $typed;
 

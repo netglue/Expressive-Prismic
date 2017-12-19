@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExpressivePrismicTest\Factory;
+namespace ExpressivePrismicTest\Service\Factory;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
@@ -13,7 +13,7 @@ use ExpressivePrismic\Service\Factory\RouteParamsFactory;
 use Psr\Container\ContainerInterface;
 use ExpressivePrismic\Service\RouteParams;
 
-class RouteParamsFactoryFactoryTest extends TestCase
+class RouteParamsFactoryTest extends TestCase
 {
     private $container;
 

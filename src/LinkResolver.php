@@ -48,7 +48,7 @@ class LinkResolver extends Prismic\LinkResolver
     }
 
     /**
-     * @param LinkInterface $link
+     * @param LinkInterface|DocumentLink|Document $link
      * @return string|null
      */
     public function resolve($link)

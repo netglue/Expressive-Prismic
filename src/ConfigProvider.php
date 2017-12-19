@@ -39,50 +39,50 @@ class ConfigProvider
         return [
             'factories' => [
                 // Api Instance
-                Prismic\Api::class                              => Factory\ApiFactory::class,
-
+                Prismic\Api::class => Factory\ApiFactory::class,
 
                 // Default Link Resolver
-                LinkResolver::class                             => Factory\LinkResolverFactory::class,
+                LinkResolver::class => Factory\LinkResolverFactory::class,
 
                 // Helper class that helps match the configured routes with properties of prismic documents
-                RouteMatcher::class                             => Factory\RouteMatcherFactory::class,
+                RouteMatcher::class => Factory\RouteMatcherFactory::class,
 
                 // Mapping Route Parameters
-                Service\RouteParams::class                      => Service\Factory\RouteParamsFactory::class,
+                Service\RouteParams::class => Service\Factory\RouteParamsFactory::class,
 
                 // Middleware
 
                 // For rendering document based templates
-                Middleware\PrismicTemplate::class               => Middleware\Factory\PrismicTemplateFactory::class,
+                Middleware\PrismicTemplate::class => Middleware\Factory\PrismicTemplateFactory::class,
 
                 // Sets the matched document as a request attribute
-                Middleware\DocumentResolver::class              => Middleware\Factory\DocumentResolverFactory::class,
+                Middleware\DocumentResolver::class => Middleware\Factory\DocumentResolverFactory::class,
 
                 // A Midleware Pipeline containing the cache busting middleware that you can manipulate with a delegator factory
-                Middleware\WebhookMiddlewarePipe::class         => Middleware\Factory\WebhookMiddlewarePipeFactory::class,
+                'ExpressivePrismic\Middleware\WebhookMiddlewarePipe' => Middleware\Factory\WebhookMiddlewarePipeFactory::class,
+
                 // Processes Webhooks from Prismic.io and busts the cache
-                Middleware\ApiCacheBust::class                  => Middleware\Factory\ApiCacheBustFactory::class,
+                Middleware\ApiCacheBust::class => Middleware\Factory\ApiCacheBustFactory::class,
 
                 // Processes a preview token and redirects to the page being previewed
-                Middleware\PreviewInitiator::class              => Middleware\Factory\PreviewInitiatorFactory::class,
+                Middleware\PreviewInitiator::class => Middleware\Factory\PreviewInitiatorFactory::class,
 
                 // Injects javascript for running A/B tests with Prismic and Google Analytics
-                Middleware\ExperimentInitiator::class           => Middleware\Factory\ExperimentInitiatorFactory::class,
+                Middleware\ExperimentInitiator::class => Middleware\Factory\ExperimentInitiatorFactory::class,
 
                 // Injects javascript to display the preview toolbar
-                Middleware\InjectPreviewScript::class           => Middleware\Factory\InjectPreviewScriptFactory::class,
+                Middleware\InjectPreviewScript::class => Middleware\Factory\InjectPreviewScriptFactory::class,
 
                 // Middleware that sets Request Attributes with the bookmarked 404 document when a 404 is in process
                 Middleware\NotFoundSetup::class => Middleware\Factory\NotFoundSetupFactory::class,
 
                 // The Pipeline that runs as the outermost middleware for rendering 404 errors
-                Middleware\NotFoundPipe::class => Middleware\Factory\NotFoundPipeFactory::class,
+                'ExpressivePrismic\Middleware\NotFoundPipe' => Middleware\Factory\NotFoundPipeFactory::class,
 
                 // Custom error response generator intended to replace the default in Zend Expressive
                 Middleware\ErrorResponseGenerator::class => Middleware\Factory\ErrorResponseGeneratorFactory::class,
                 // The Pipeline that runs when an error (exception) occurs
-                Middleware\ErrorHandlerPipe::class              => Middleware\Factory\ErrorHandlerPipeFactory::class,
+                'ExpressivePrismic\Middleware\ErrorHandlerPipe' => Middleware\Factory\ErrorHandlerPipeFactory::class,
             ],
             'invokables' => [
                 // An instance used to track the current document for the request
@@ -103,7 +103,7 @@ class ConfigProvider
                 /**
                  * Replace the shipped NotFoundHandler with a custom pipeline to render 404 errors from the CMS
                  */
-                NotFoundHandler::class => Middleware\NotFoundPipe::class,
+                NotFoundHandler::class => 'ExpressivePrismic\Middleware\NotFoundPipe',
 
                 /**
                  * Replace the shipped ErrorResponseGenerator with our own in order to render 500 errors from the CMS
