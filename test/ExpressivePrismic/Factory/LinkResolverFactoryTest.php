@@ -14,8 +14,8 @@ use Psr\Container\ContainerInterface;
 use Prismic\Api;
 use ExpressivePrismic\LinkResolver;
 use ExpressivePrismic\Service\RouteParams;
+use ExpressivePrismic\RouteMatcher;
 use Zend\Expressive\Helper\UrlHelper;
-use Zend\Expressive\Application;
 
 class LinkResolverFactoryTest extends TestCase
 {
@@ -28,8 +28,10 @@ class LinkResolverFactoryTest extends TestCase
 
     public function testLinkResolverWillBeCreated()
     {
+        $api = $this->prophesize(Api::class);
+        $api->bookmarks()->willReturn([]);
         $this->container->get(Api::class)->willReturn(
-            $this->prophesize(Api::class)->reveal()
+            $api->reveal()
         );
         $this->container->get(RouteParams::class)->willReturn(
             $this->prophesize(RouteParams::class)->reveal()
@@ -37,8 +39,8 @@ class LinkResolverFactoryTest extends TestCase
         $this->container->get(UrlHelper::class)->willReturn(
             $this->prophesize(UrlHelper::class)->reveal()
         );
-        $this->container->get(Application::class)->willReturn(
-            $this->prophesize(Application::class)->reveal()
+        $this->container->get(RouteMatcher::class)->willReturn(
+            $this->prophesize(RouteMatcher::class)->reveal()
         );
 
         $factory = new LinkResolverFactory;
