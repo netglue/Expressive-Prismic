@@ -4,20 +4,33 @@ declare(strict_types=1);
 namespace ExpressivePrismic;
 
 use ExpressivePrismic\Exception;
+use ExpressivePrismic\Service\RouteParams;
 use Zend\Expressive\Router\Route;
 
 class RouteMatcher
 {
 
+    /**
+     * @var RouteParams
+     */
     private $routeParams;
 
+    /**
+     * @var [Route]
+     */
     private $routes;
 
+    /**
+     * @var [Route]
+     */
     private $bookmarks;
 
+    /**
+     * @var [Route]
+     */
     private $typed;
 
-    public function __construct(array $routes, Service\RouteParams $routeParams)
+    public function __construct(array $routes, RouteParams $routeParams)
     {
         $this->routeParams = $routeParams;
         $this->routes      = $routes;
@@ -40,7 +53,7 @@ class RouteMatcher
                : null;
     }
 
-    private function extractBookmarked()
+    private function extractBookmarked() : void
     {
         $search = $this->routeParams->getBookmark();
         $this->bookmarks = [];
@@ -55,7 +68,7 @@ class RouteMatcher
         }
     }
 
-    private function extractByType()
+    private function extractByType() : void
     {
         $search = $this->routeParams->getType();
         $this->typed = [];
@@ -73,16 +86,17 @@ class RouteMatcher
         }
     }
 
-    private function addTypedRoute($type, Route $route)
+    private function addTypedRoute($type, Route $route) : void
     {
-        if (is_string($type)) {
-            $type = [$type];
+        if (is_array($type)) {
+            foreach ($type as $t) {
+                $this->addTypedRoute($t, $route);
+            }
+            return;
         }
-        if (!is_array($type)) {
-            throw new Exception\InvalidArgumentException('Route type definitions for Prismic routes must be a string or an array');
+        if (!is_string($type)) {
+            throw new Exception\InvalidArgumentException('Route type definitions for Prismic routes must be a string or an array of strings');
         }
-        foreach ($type as $t) {
-            $this->typed[$t] = $route;
-        }
+        $this->typed[$type] = $route;
     }
 }
