@@ -48,8 +48,24 @@ class PreviewInitiator implements MiddlewareInterface
          * If you don't set the cookie, the Prismic Preview Icon will not show up
          * at the bottom of the page
          */
+
+        /**
+         * @todo Ideally cookie expiry would be configurable
+         */
         $expires = time() + (29 * 60);
-        $cookie = new SetCookie(Prismic\Api::PREVIEW_COOKIE, $token, $expires);
+
+        /** @var \Psr\Http\Message\UriInterface */
+        $uri = $request->getUri();
+
+        $cookie = new SetCookie(
+            Prismic\Api::PREVIEW_COOKIE,
+            $token,
+            $expires,
+            null, // $path - Can't see a use case for limiting to specific path right now
+            $uri->getHost(), // $domain
+            ($uri->getScheme() === 'https'), // $secure - true if current scheme is
+            false // $httpOnly - Nope, JS needs this cookie
+        );
 
         /**
          * Figure out URL and redirect
