@@ -250,6 +250,13 @@ class ConfigProvider
             'endpointScript' => 'var prismic = window.prismic || {};  prismic.endpoint = \'%s\';',
 
             /**
+             * This flag determines whether the JS is injected on every request or not
+             * You'd want to se this to true if you want to take advantage of the
+             * Edit Button feature of the standard JS
+             */
+            'alwaysInjectToolbar' => false,
+
+            /**
              * Determines the parameter names we look for inroutes to identify
              * a document.
              * Set these in local config to override the defaults:

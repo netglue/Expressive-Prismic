@@ -36,14 +36,15 @@ class InjectPreviewScriptTest extends TestCase
         $this->request  = $this->prophesize(Request::class);
     }
 
-    public function getMiddleware(string $expectedSecret = 'foo')
+    public function getMiddleware(bool $alwaysInject = false)
     {
         return new InjectPreviewScript(
             $this->api->reveal(),
             $this->helpers->reveal(),
             '//Some-Url-Of-Remote-JS',
             '{SOME-JS WITH REPLACEMENT OF API URL: %s}',
-            'THE_API_URL'
+            'THE_API_URL',
+            $alwaysInject
         );
     }
 
@@ -69,6 +70,19 @@ class InjectPreviewScriptTest extends TestCase
         $request = $this->request->reveal();
         $this->delegate->process($request)->shouldBeCalled();
         $middleware = $this->getMiddleware();
+        $middleware->process($request, $this->delegate->reveal());
+    }
+
+    public function testScriptIsAddedWhenAlwaysInjectIsTrue()
+    {
+        $this->api->inPreview()->willReturn(false);
+        $helper = $this->prophesize(InlineScriptStubForInjectPreview::class);
+        $helper->appendScript(Argument::any())->shouldBeCalled();
+        $helper->appendFile(Argument::any())->shouldBeCalled();
+        $this->helpers->get('inlineScript')->willReturn($helper->reveal());
+        $request = $this->request->reveal();
+        $this->delegate->process($request)->shouldBeCalled();
+        $middleware = $this->getMiddleware(true);
         $middleware->process($request, $this->delegate->reveal());
     }
 }

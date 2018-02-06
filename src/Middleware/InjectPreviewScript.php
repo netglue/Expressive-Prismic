@@ -50,18 +50,28 @@ class InjectPreviewScript implements MiddlewareInterface
      */
     private $apiEndpoint;
 
+    /**
+     * Whether to inject the toolbar script all of the time
+     *
+     * This is useful if you want the 'Edit Button' functionality when not in preview mode
+     * @var bool
+     */
+    private $alwaysInject = false;
+
     public function __construct(
         Prismic\Api $api,
         HelperPluginManager $helpers,
         string $toolbarScript,
         string $endpointScript,
-        string $apiEndpoint
+        string $apiEndpoint,
+        bool $alwaysInject = false
     ) {
         $this->api = $api;
         $this->helpers = $helpers;
         $this->toolbarScript = $toolbarScript;
         $this->endpointScript = $endpointScript;
         $this->apiEndpoint = $apiEndpoint;
+        $this->alwaysInject = $alwaysInject;
     }
 
     /**
@@ -69,7 +79,7 @@ class InjectPreviewScript implements MiddlewareInterface
      */
     public function process(Request $request, DelegateInterface $delegate)
     {
-        if ($this->api->inPreview()) {
+        if ($this->api->inPreview() || true === $this->alwaysInject) {
             $helper = $this->helpers->get('inlineScript');
             $helper->appendScript(sprintf($this->endpointScript, $this->apiEndpoint));
             $helper->appendFile($this->toolbarScript);

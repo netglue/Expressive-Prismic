@@ -36,6 +36,7 @@ class InjectPreviewScriptFactoryTest extends TestCase
                 'toolbarScript' => 'foo',
                 'endpointScript' => 'foo',
                 'api' => ['url' => 'foo'],
+                'alwaysInjectToolbar' => false,
             ],
         ]);
         $this->container->has(HelperPluginManager::class)->willReturn(true);

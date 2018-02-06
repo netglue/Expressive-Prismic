@@ -24,7 +24,8 @@ class InjectPreviewScriptFactory
             $container->get(HelperPluginManager::class),
             $config['prismic']['toolbarScript'],
             $config['prismic']['endpointScript'],
-            $config['prismic']['api']['url']
+            $config['prismic']['api']['url'],
+            $config['prismic']['alwaysInjectToolbar']
         );
     }
 
