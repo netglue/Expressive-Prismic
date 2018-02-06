@@ -61,7 +61,8 @@ class NotFoundSetup implements MiddlewareInterface
             $request = $request->withAttribute('template', $this->template);
         }
 
-        return $delegate->process($request);
+        $response = $delegate->process($request);
+        return $response->withStatus(404);
     }
 
     /**

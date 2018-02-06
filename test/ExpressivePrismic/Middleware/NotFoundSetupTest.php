@@ -18,6 +18,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\ServerRequest;
 use Prismic;
 use Zend\Diactoros\Response\RedirectResponse;
+use Zend\Diactoros\Response as ServerResponse;
 use ExpressivePrismic\Service\CurrentDocument;
 
 class NotFoundSetupTest extends TestCase
@@ -53,10 +54,11 @@ class NotFoundSetupTest extends TestCase
         $this->request->withAttribute()->shouldNotBeCalled();
         $request = $this->request->reveal();
 
-        $this->delegate->process($request)->shouldBeCalled();
+        $this->delegate->process($request)->willReturn(new ServerResponse);
 
         $middleware = $this->getMiddleware(true);
-        $middleware->process($request, $this->delegate->reveal());
+        $response = $middleware->process($request, $this->delegate->reveal());
+        $this->assertSame(404, $response->getStatusCode());
     }
 
     /**
@@ -81,10 +83,11 @@ class NotFoundSetupTest extends TestCase
         $this->request->withAttribute()->shouldNotBeCalled();
         $request = $this->request->reveal();
 
-        $this->delegate->process($request)->shouldBeCalled();
+        $this->delegate->process($request)->willReturn(new ServerResponse);
 
         $middleware = $this->getMiddleware(true);
-        $middleware->process($request, $this->delegate->reveal());
+        $response = $middleware->process($request, $this->delegate->reveal());
+        $this->assertSame(404, $response->getStatusCode());
     }
 
     /**
@@ -111,10 +114,12 @@ class NotFoundSetupTest extends TestCase
         $this->currentDoc->setDocument($doc)->shouldBeCalled();
         $this->request->withAttribute(Prismic\Document::class, $doc)->willReturn($this->request->reveal());
         $this->request->withAttribute('template', 'some-template')->willReturn($this->request->reveal());
-        $this->delegate->process($this->request->reveal())->shouldBeCalled();
+        $this->delegate->process($this->request->reveal())->willReturn(new ServerResponse);
         $middleware = $this->getMiddleware(false);
-        $middleware->process($this->request->reveal(), $this->delegate->reveal());
+        $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
+        $this->assertSame(404, $response->getStatusCode());
     }
+
 
 
 
