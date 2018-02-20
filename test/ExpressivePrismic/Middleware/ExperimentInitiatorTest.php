@@ -74,9 +74,6 @@ class ExperimentInitiatorTest extends TestCase
         // The Prismic JS Source File should be set
         $helper->appendFile('//Some-Url-Of-Remote-JS')->shouldBeCalled();
 
-        // Google Experiments should be loaded in JS
-        $helper->appendFile(sprintf(ExperimentInitiator::GOOGLE_JS_URL, 'GOOGLE_ID'))->shouldBeCalled();
-
         // The Experiment Initiation script should be injected into the helper
         $expect = sprintf(ExperimentInitiator::START_EXPERIMENT_JS, 'GOOGLE_ID');
         $helper->appendScript($expect)->shouldBeCalled();

@@ -14,9 +14,7 @@ use Zend\View\HelperPluginManager;
 class ExperimentInitiator implements MiddlewareInterface
 {
 
-    const GOOGLE_JS_URL = '//www.google-analytics.com/cx/api.js?experiment=%s';
-
-    const START_EXPERIMENT_JS = '$(function() { prismic.startExperiment("%s", cxApi); });';
+    const START_EXPERIMENT_JS = 'PrismicToolbar.startExperiment("%1$s");';
 
     /**
      * @var Prismic\Api
@@ -75,14 +73,6 @@ class ExperimentInitiator implements MiddlewareInterface
          * Inject API Endpoint into an object first so that it is available to prismic.min.js
          */
         $helper->appendScript(sprintf($this->endpointScript, $this->apiEndpoint));
-
-        /**
-         * Inject Google Analytics Experiments Api with the running experiment's Google ID
-         */
-        $helper->appendFile(sprintf(
-            self::GOOGLE_JS_URL,
-            $experiment->getGoogleId()
-        ));
 
         /**
          * Inject prismic.min.js
