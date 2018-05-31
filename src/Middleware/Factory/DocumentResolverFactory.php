@@ -26,5 +26,4 @@ class DocumentResolverFactory
 
         return new DocumentResolver($api, $params, $currentDocument);
     }
-
 }

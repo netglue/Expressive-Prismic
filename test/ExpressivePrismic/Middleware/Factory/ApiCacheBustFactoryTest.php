@@ -5,7 +5,6 @@ namespace ExpressivePrismicTest\Middleware\Factory;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
 
 // SUT
 use ExpressivePrismic\Middleware\Factory\ApiCacheBustFactory;
@@ -14,7 +13,7 @@ use ExpressivePrismic\Middleware\Factory\ApiCacheBustFactory;
 use Psr\Container\ContainerInterface;
 use Prismic\Api;
 use ExpressivePrismic\Middleware\ApiCacheBust;
-use Prismic\Cache\CacheInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
 class ApiCacheBustFactoryTest extends TestCase
 {
@@ -29,7 +28,7 @@ class ApiCacheBustFactoryTest extends TestCase
     public function testFactory()
     {
         $api = $this->prophesize(Api::class);
-        $cache = $this->prophesize(CacheInterface::class)->reveal();
+        $cache = $this->prophesize(CacheItemPoolInterface::class)->reveal();
         $api->getCache()->willReturn($cache);
 
         $this->container->get(Api::class)->willReturn(

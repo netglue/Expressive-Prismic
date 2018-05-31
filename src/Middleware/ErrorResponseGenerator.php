@@ -60,7 +60,7 @@ class ErrorResponseGenerator implements DelegateInterface
         try {
             $document = $this->locateErrorDocument();
             $this->documentRegistry->setDocument($document);
-            $request = $request->withAttribute(Prismic\Document::class, $document);
+            $request = $request->withAttribute(Prismic\DocumentInterface::class, $document);
             $request = $request->withAttribute('template', $this->template);
             $response = $this->pipe->process($request, $this);
             $response = $response->withStatus(Utils::getStatusCode($error, $response));
@@ -89,15 +89,20 @@ class ErrorResponseGenerator implements DelegateInterface
      * Locating the error document successfully is not optional.
      * It must succeed or an exception is thrown
      */
-    private function locateErrorDocument() : Prismic\Document
+    private function locateErrorDocument() : Prismic\DocumentInterface
     {
         $id = $this->api->bookmark($this->bookmark);
-        if (!$id) {
-            throw new Exception\RuntimeException('Cannot generate CMS driven Error page. Error document bookmark does not reference a valid document ID');
+        if (! $id) {
+            throw new Exception\RuntimeException(
+                'Cannot generate CMS driven Error page. '
+                . 'Error document bookmark does not reference a valid document ID'
+            );
         }
-        $document = $this->api->getByID($id);
-        if (!$document) {
-            throw new Exception\RuntimeException('Cannot generate CMS driven Error page. Error document cannot be resolved');
+        $document = $this->api->getById($id);
+        if (! $document) {
+            throw new Exception\RuntimeException(
+                'Cannot generate CMS driven Error page. Error document cannot be resolved'
+            );
         }
         return $document;
     }
@@ -106,5 +111,4 @@ class ErrorResponseGenerator implements DelegateInterface
     {
         return new TextResponse('An Unexpected Error Occurred', 500);
     }
-
 }

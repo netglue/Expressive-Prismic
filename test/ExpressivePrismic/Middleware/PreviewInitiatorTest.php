@@ -100,5 +100,4 @@ class PreviewInitiatorTest extends TestCase
         $this->assertContains('foo.com', $header);
         $this->assertContains('Secure', $header);
     }
-
 }

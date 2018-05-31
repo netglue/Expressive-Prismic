@@ -5,16 +5,16 @@ namespace ExpressivePrismic\Middleware;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Prismic\Cache\CacheInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
 class ApiCacheBust implements MiddlewareInterface
 {
     /**
-     * @var CacheInterface
+     * @var CacheItemPoolInterface
      */
     private $cache;
 
-    public function __construct(CacheInterface $cache)
+    public function __construct(CacheItemPoolInterface $cache)
     {
         $this->cache = $cache;
     }
@@ -27,5 +27,4 @@ class ApiCacheBust implements MiddlewareInterface
         }
         return $delegate->process($request);
     }
-
 }

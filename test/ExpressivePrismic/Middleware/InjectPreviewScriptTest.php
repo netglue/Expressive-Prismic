@@ -90,7 +90,10 @@ class InjectPreviewScriptTest extends TestCase
 // InlineScript uses __call which Prophecy doesn't like
 class InlineScriptStubForInjectPreview extends InlineScript
 {
-    public function appendScript($arg){}
-    public function appendFile($arg){}
+    public function appendScript($arg)
+    {
+    }
+    public function appendFile($arg)
+    {
+    }
 }
-

@@ -19,5 +19,4 @@ interface PaginatorFactoryInterface
      * @return mixed
      */
     public function getPaginator(SearchForm $form);
-
 }

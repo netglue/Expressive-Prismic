@@ -63,7 +63,7 @@ class ExperimentInitiator implements MiddlewareInterface
         $experiments = $this->api->getExperiments();
         $experiment  = $experiments ? $experiments->getCurrent() : null;
 
-        if (!$experiment) {
+        if (! $experiment) {
             return $delegate->process($request);
         }
 

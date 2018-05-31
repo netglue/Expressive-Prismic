@@ -71,23 +71,27 @@ class NotFoundSetup implements MiddlewareInterface
      * If we want to fallback to normal 404 rendering, we return null,
      * otherwise an exception is thrown if we cannot retrieve the correct document
      */
-    private function locateErrorDocument() :? Prismic\Document
+    private function locateErrorDocument() :? Prismic\DocumentInterface
     {
         $id = $this->api->bookmark($this->bookmark);
-        if (!$id) {
+        if (! $id) {
             if ($this->fallback) {
                 return null;
             }
-            throw new Exception\RuntimeException('Cannot generate CMS driven Error page. Error document bookmark does not reference a current document ID');
+            throw new Exception\RuntimeException(
+                'Cannot generate CMS driven Error page. '
+                . 'Error document bookmark does not reference a current document ID'
+            );
         }
-        $document = $this->api->getByID($id);
-        if (!$document) {
+        $document = $this->api->getById($id);
+        if (! $document) {
             if ($this->fallback) {
                 return null;
             }
-            throw new Exception\RuntimeException('Cannot generate CMS driven Error page. Error document cannot be resolved');
+            throw new Exception\RuntimeException(
+                'Cannot generate CMS driven Error page. Error document cannot be resolved'
+            );
         }
         return $document;
     }
-
 }

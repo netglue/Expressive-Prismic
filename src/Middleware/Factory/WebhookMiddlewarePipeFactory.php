@@ -21,5 +21,4 @@ class WebhookMiddlewarePipeFactory
         $pipeline->pipe($container->get(JsonSuccess::class));
         return $pipeline;
     }
-
 }

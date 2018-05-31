@@ -63,5 +63,4 @@ class ErrorHandlerPipeFactoryTest extends TestCase
         $factory = new ErrorHandlerPipeFactory;
         $factory($this->container->reveal());
     }
-
 }

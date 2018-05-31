@@ -16,11 +16,17 @@ class NotFoundSetupFactory
     public function __invoke(ContainerInterface $container) : NotFoundSetup
     {
         $config = $container->get('config');
-        if (!isset($config['prismic']['error_handler']['template_404'])) {
-            throw new Exception\RuntimeException('No template for the 404 error has been proivded in the key [prismic][error_handler][template_404]');
+        if (! isset($config['prismic']['error_handler']['template_404'])) {
+            throw new Exception\RuntimeException(
+                'No template for the 404 error has been provided in the key '
+                . '[prismic][error_handler][template_404]'
+            );
         }
-        if (!isset($config['prismic']['error_handler']['bookmark_404'])) {
-            throw new Exception\RuntimeException('No API bookmark for the 404 error has been proivded in the key [prismic][error_handler][bookmark_404]');
+        if (! isset($config['prismic']['error_handler']['bookmark_404'])) {
+            throw new Exception\RuntimeException(
+                'No API bookmark for the 404 error has been provided in the key '
+                . '[prismic][error_handler][bookmark_404]'
+            );
         }
 
         $fallback = isset($config['prismic']['error_handler']['render_404_fallback'])

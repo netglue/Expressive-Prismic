@@ -42,7 +42,7 @@ class DocumentResolverTest extends TestCase
         $this->delegate    = $this->prophesize(DelegateInterface::class);
         $this->request     = $this->prophesize(Request::class);
         $this->routeResult = $this->prophesize(RouteResult::class);
-        $this->document    = $this->prophesize(Prismic\Document::class);
+        $this->document    = $this->prophesize(Prismic\DocumentInterface::class);
     }
 
     public function getMiddleware()
@@ -55,7 +55,7 @@ class DocumentResolverTest extends TestCase
     }
 
     /**
-     * @expectedException ExpressivePrismic\Exception\RuntimeException
+     * @expectedException \ExpressivePrismic\Exception\RuntimeException
      * @expectedExceptionMessage No route has yet been matched
      */
     public function testExceptionIsThrownWhenNoRouteResultIsPresent()
@@ -83,13 +83,13 @@ class DocumentResolverTest extends TestCase
         $document = $this->document->reveal();
 
         $this->api
-             ->getByID('documentId')
+             ->getById('documentId')
              ->willReturn($document);
 
         $this->docRegistry->setDocument($document)->shouldBeCalled();
 
         $anotherRequest = $this->prophesize(Request::class)->reveal();
-        $this->request->withAttribute(Prismic\Document::class, $document)->willReturn($anotherRequest);
+        $this->request->withAttribute(Prismic\DocumentInterface::class, $document)->willReturn($anotherRequest);
 
         $request = $this->request->reveal();
 
@@ -114,13 +114,13 @@ class DocumentResolverTest extends TestCase
         $document = $this->document->reveal();
 
         $this->api
-             ->getByID('some-id')
+             ->getById('some-id')
              ->willReturn($document);
 
         $this->docRegistry->setDocument($document)->shouldBeCalled();
 
         $anotherRequest = $this->prophesize(Request::class)->reveal();
-        $this->request->withAttribute(Prismic\Document::class, $document)->willReturn($anotherRequest);
+        $this->request->withAttribute(Prismic\DocumentInterface::class, $document)->willReturn($anotherRequest);
 
         $request = $this->request->reveal();
 
@@ -146,13 +146,13 @@ class DocumentResolverTest extends TestCase
         $document = $this->document->reveal();
 
         $this->api
-             ->getByUID('some-type', 'some-uid')
+             ->getByUid('some-type', 'some-uid')
              ->willReturn($document);
 
         $this->docRegistry->setDocument($document)->shouldBeCalled();
 
         $anotherRequest = $this->prophesize(Request::class)->reveal();
-        $this->request->withAttribute(Prismic\Document::class, $document)->willReturn($anotherRequest);
+        $this->request->withAttribute(Prismic\DocumentInterface::class, $document)->willReturn($anotherRequest);
 
         $request = $this->request->reveal();
 
@@ -164,7 +164,6 @@ class DocumentResolverTest extends TestCase
             $request,
             $this->delegate->reveal()
         );
-
     }
 
     public function testDelegateProcessesWhenTheresNoDocument()
@@ -185,7 +184,4 @@ class DocumentResolverTest extends TestCase
             $this->delegate->reveal()
         );
     }
-
-
 }
-

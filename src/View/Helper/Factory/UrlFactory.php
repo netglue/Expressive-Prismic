@@ -14,9 +14,7 @@ class UrlFactory
     public function __invoke(ContainerInterface $container) : Url
     {
         return new Url(
-            $container->get(Prismic\Api::class),
-            $container->get(Prismic\LinkResolver::class)
+            $container->get(Prismic\Api::class)
         );
     }
-
 }

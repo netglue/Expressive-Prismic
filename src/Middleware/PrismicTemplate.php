@@ -43,7 +43,7 @@ class PrismicTemplate implements MiddlewareInterface
         $template = $request->getAttribute('template');
         $document = $request->getAttribute(Prismic\Document::class);
 
-        if (!$document || !$template) {
+        if (! $document || ! $template) {
             return $delegate->process($request);
         }
 
@@ -54,5 +54,4 @@ class PrismicTemplate implements MiddlewareInterface
 
         return new HtmlResponse($this->renderer->render($template, $view));
     }
-
 }

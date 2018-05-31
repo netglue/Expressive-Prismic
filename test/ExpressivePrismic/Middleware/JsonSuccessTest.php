@@ -31,7 +31,5 @@ class JsonSuccessTest extends TestCase
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertSame(200, $response->getStatusCode());
-
     }
-
 }

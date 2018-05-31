@@ -63,5 +63,4 @@ class NotFoundPipeFactoryTest extends TestCase
         $factory = new NotFoundPipeFactory;
         $factory($this->container->reveal());
     }
-
 }

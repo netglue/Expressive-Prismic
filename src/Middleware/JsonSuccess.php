@@ -19,7 +19,5 @@ class JsonSuccess implements MiddlewareInterface
         ];
 
         return new JsonResponse($data, 200);
-
     }
-
 }

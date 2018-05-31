@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace ExpressivePrismic\Service;
 
-use Prismic\Document;
+use Prismic\DocumentInterface;
 
 /**
  * A registry of sorts to store what's considered to be the current document
@@ -14,24 +14,24 @@ class CurrentDocument
 {
 
     /**
-     * @var Document|null
+     * @var DocumentInterface|null
      */
     private $document;
 
     /**
      * Set the current document
-     * @param Document $document
+     * @param DocumentInterface $document
      */
-    public function setDocument(Document $document)
+    public function setDocument(DocumentInterface $document) : void
     {
         $this->document = $document;
     }
 
     /**
      * Return the current document
-     * @return Document|null
+     * @return DocumentInterface|null
      */
-    public function getDocument()
+    public function getDocument() :? DocumentInterface
     {
         return $this->document;
     }
@@ -40,9 +40,8 @@ class CurrentDocument
      * Whether a document is set or not
      * @return bool
      */
-    public function hasDocument()
+    public function hasDocument() : bool
     {
-        return ($this->document instanceof Document);
+        return ($this->document instanceof DocumentInterface);
     }
-
 }

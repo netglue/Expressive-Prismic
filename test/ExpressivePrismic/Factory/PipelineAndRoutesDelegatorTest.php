@@ -41,7 +41,7 @@ class PipelineAndRoutesDelegatorTest extends TestCase
         $return = $factory(
             $this->container->reveal(),
             'SomeName',
-            function() use ($app) {
+            function () use ($app) {
                 return $app;
             }
         );

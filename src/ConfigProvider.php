@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 
 namespace ExpressivePrismic;
+
 use Prismic;
 use Zend\Expressive\Application;
 
@@ -58,8 +59,10 @@ class ConfigProvider
                 // Sets the matched document as a request attribute
                 Middleware\DocumentResolver::class => Middleware\Factory\DocumentResolverFactory::class,
 
-                // A Midleware Pipeline containing the cache busting middleware that you can manipulate with a delegator factory
-                'ExpressivePrismic\Middleware\WebhookMiddlewarePipe' => Middleware\Factory\WebhookMiddlewarePipeFactory::class,
+                // A Midleware Pipeline containing the cache busting middleware
+                // that you can manipulate with a delegator factory
+                'ExpressivePrismic\Middleware\WebhookMiddlewarePipe'
+                    => Middleware\Factory\WebhookMiddlewarePipeFactory::class,
 
                 // Processes Webhooks from Prismic.io and busts the cache
                 Middleware\ValidatePrismicWebhook::class => Middleware\Factory\ValidatePrismicWebhookFactory::class,
@@ -168,8 +171,6 @@ class ConfigProvider
                 'token' => null,
                 // Api Endpoint
                 'url' => null,
-                // Api Cache TTL in seconds. Set to 0 to cache forever (recommended)
-                'ttl' => null,
             ],
 
             // Webhook Shared Secret
@@ -270,5 +271,4 @@ class ConfigProvider
             ],
         ];
     }
-
 }

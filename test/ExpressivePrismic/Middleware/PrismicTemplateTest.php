@@ -56,7 +56,6 @@ class PrismicTemplateTest extends TestCase
 
         $middleware = $this->getMiddleware();
         $middleware->process($req, $this->delegate->reveal());
-
     }
 
     public function testTemplateIsRendered()
@@ -70,5 +69,4 @@ class PrismicTemplateTest extends TestCase
         $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
         $this->assertInstanceOf(HtmlResponse::class, $response);
     }
-
 }

@@ -11,7 +11,7 @@ class TestCase extends PHPUnit
     {
         $refl = new \ReflectionObject($this);
         foreach ($refl->getProperties() as $prop) {
-            if (!$prop->isStatic() && 0 !== strpos($prop->getDeclaringClass()->getName(), 'PHPUnit')) {
+            if (! $prop->isStatic() && 0 !== strpos($prop->getDeclaringClass()->getName(), 'PHPUnit')) {
                 $prop->setAccessible(true);
                 $prop->setValue($this, null);
             }

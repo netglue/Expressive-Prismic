@@ -35,11 +35,10 @@ class NormalizeNotFound implements MiddlewareInterface
          */
 
         $hasRoute = $request->getAttribute(RouteResult::class) !== null;
-        if (!$hasRoute) {
+        if (! $hasRoute) {
             PageNotFoundException::throw404();
         }
 
         return $delegate->process($request);
     }
-
 }

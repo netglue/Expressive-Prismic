@@ -15,5 +15,4 @@ class ValidatePrismicWebhookFactory
         $secret = isset($config['prismic']['webhook_secret']) ? $config['prismic']['webhook_secret'] : null;
         return new ValidatePrismicWebhook($secret);
     }
-
 }

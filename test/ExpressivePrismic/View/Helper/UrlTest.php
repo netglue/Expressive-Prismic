@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace ExpressivePrismicTest\View\Helper;
 
 // Infra
+use ExpressivePrismic\LinkResolver;
 use ExpressivePrismicTest\TestCase;
+use Prismic\Document\Fragment\Link\DocumentLink;
 use Prophecy\Argument;
 
 // SUT
@@ -16,8 +18,14 @@ use Prismic;
 class UrlTest extends TestCase
 {
 
+    /**
+     * @var Prismic\LinkResolver
+     */
     private $resolver;
 
+    /**
+     * @var Prismic\Api
+     */
     private $api;
 
     public function setUp()
@@ -37,10 +45,14 @@ class UrlTest extends TestCase
     public function testStringIdIsResolved()
     {
         $id = 'testId';
-        $doc = $this->prophesize(Prismic\Document::class)->reveal();
+        $doc = $this->prophesize(Prismic\DocumentInterface::class);
+        $link = $this->prophesize(DocumentLink::class);
+        $link->getUrl()->willReturn('/some-url');
+        $doc->asLink()->willReturn($link->reveal());
+        $this->api->getById($id)->willReturn($doc->reveal());
 
-        $this->resolver->resolveDocument($doc)->willReturn('/some-url');
-        $this->api->getByID($id)->willReturn($doc);
+
+        $this->resolver->resolve($link)->willReturn('/some-url');
 
         $helper = $this->getHelper();
 
@@ -51,29 +63,29 @@ class UrlTest extends TestCase
     {
         $id = 'testId';
 
-        $this->resolver->resolveDocument()->shouldNotBeCalled();
         $this->resolver->resolve()->shouldNotBeCalled();
 
-        $this->api->getByID($id)->willReturn(null);
+        $this->api->getById($id)->willReturn(null);
         $helper = $this->getHelper();
         $this->assertNull($helper($id));
     }
 
     public function testDocumentIsResolved()
     {
-        $doc = $this->prophesize(Prismic\Document::class)->reveal();
-        $this->resolver->resolveDocument($doc)->willReturn('/some-url');
-        $this->api->getByID()->shouldNotBeCalled();
+        $doc = $this->prophesize(Prismic\DocumentInterface::class);
+        $link = $this->prophesize(DocumentLink::class);
+        $link->getUrl()->willReturn('/some-url');
+        $doc->asLink()->willReturn($link->reveal());
+        $this->api->getById()->shouldNotBeCalled();
         $helper = $this->getHelper();
-        $this->assertSame('/some-url', $helper($doc));
+        $this->assertSame('/some-url', $helper($doc->reveal()));
     }
 
     public function testLinkIsResolved()
     {
-        $link = $this->prophesize(Prismic\Fragment\Link\LinkInterface::class)->reveal();
-        $this->resolver->resolve($link)->willReturn('/some-url');
+        $link = $this->prophesize(Prismic\Document\Fragment\LinkInterface::class);
+        $link->getUrl()->willReturn('/some-url');
         $helper = $this->getHelper();
-        $this->assertSame('/some-url', $helper($link));
+        $this->assertSame('/some-url', $helper($link->reveal()));
     }
-
 }

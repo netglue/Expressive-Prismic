@@ -37,12 +37,12 @@ class ValidatePrismicWebhook implements MiddlewareInterface
 
         $json = json_decode($body, true, 10);
 
-        if (!$json) {
+        if (! $json) {
             return $this->jsonError('Invalid payload', 400);
         }
 
 
-        if (!isset($json['secret']) || $json['secret'] !== $this->expectedSecret) {
+        if (! isset($json['secret']) || $json['secret'] !== $this->expectedSecret) {
             return $this->jsonError('Invalid payload', 400);
         }
 

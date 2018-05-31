@@ -40,5 +40,4 @@ class PreviewInitiatorFactoryTest extends TestCase
 
         $this->assertInstanceOf(PreviewInitiator::class, $middleware);
     }
-
 }

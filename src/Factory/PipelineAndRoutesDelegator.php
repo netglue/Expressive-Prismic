@@ -28,9 +28,13 @@ class PipelineAndRoutesDelegator
         /**
          * Webhook Cache Bust
          */
-        $app->route('/prismicio-cache-webhook', ['ExpressivePrismic\Middleware\WebhookMiddlewarePipe'], ['POST'], 'prismic-webhook-cache-bust');
+        $app->route(
+            '/prismicio-cache-webhook',
+            ['ExpressivePrismic\Middleware\WebhookMiddlewarePipe'],
+            ['POST'],
+            'prismic-webhook-cache-bust'
+        );
 
         return $app;
     }
-
 }

@@ -3,8 +3,8 @@ declare(strict_types = 1);
 namespace ExpressivePrismic\View\Helper;
 
 use Prismic;
-use Prismic\Document;
-use Prismic\Fragment\Link\LinkInterface;
+use Prismic\DocumentInterface;
+use Prismic\Document\Fragment\LinkInterface;
 
 /**
  * Prismic Document/Link Url View Helper
@@ -19,17 +19,10 @@ class Url
     private $api;
 
     /**
-     * @var Prismic\LinkResolver
-     */
-    private $resolver;
-
-    /**
      * @param Prismic\Api          $api
-     * @param Prismic\LinkResolver $resolver
      */
-    public function __construct(Prismic\Api $api, Prismic\LinkResolver $resolver)
+    public function __construct(Prismic\Api $api)
     {
-        $this->resolver = $resolver;
         $this->api = $api;
     }
 
@@ -42,25 +35,23 @@ class Url
      *
      * $target can also be a document, or a Prismic\LinkInterface instance
      *
-     * @param string|Document|LinkInterface $target
+     * @param string|DocumentInterface|LinkInterface $target
      * @return string|null
      */
     public function __invoke($target)
     {
         if (is_string($target)) {
-            $target = $this->api->getByID($target);
+            $target = $this->api->getById($target);
         }
 
-        if ($target instanceof Document) {
-            return $this->resolver->resolveDocument($target);
+        if ($target instanceof DocumentInterface) {
+            $target = $target->asLink();
         }
 
         if ($target instanceof LinkInterface) {
-            return $this->resolver->resolve($target);
+            return $target->getUrl();
         }
 
         return null;
     }
-
-
 }

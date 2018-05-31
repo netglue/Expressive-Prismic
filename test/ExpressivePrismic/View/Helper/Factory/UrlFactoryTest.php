@@ -5,7 +5,6 @@ namespace ExpressivePrismicTest\View\Helper\Factory;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
 
 // SUT
 use ExpressivePrismic\View\Helper\Factory\UrlFactory;
@@ -14,7 +13,6 @@ use ExpressivePrismic\View\Helper\Factory\UrlFactory;
 use Psr\Container\ContainerInterface;
 use ExpressivePrismic\View\Helper\Url;
 use Prismic\Api;
-use Prismic\LinkResolver;
 
 class UrlFactoryTest extends TestCase
 {
@@ -30,9 +28,6 @@ class UrlFactoryTest extends TestCase
     {
         $this->container->get(Api::class)->willReturn(
             $this->prophesize(Api::class)->reveal()
-        );
-        $this->container->get(LinkResolver::class)->willReturn(
-            $this->prophesize(LinkResolver::class)->reveal()
         );
 
         $factory = new UrlFactory;

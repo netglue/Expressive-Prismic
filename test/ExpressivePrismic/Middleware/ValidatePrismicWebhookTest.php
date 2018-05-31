@@ -93,7 +93,9 @@ class ValidatePrismicWebhookTest extends TestCase
     public function testCorrectSecretIsSuccess()
     {
         $this->request->getBody()->willReturn('{"secret" : "big-secret"}');
-        $this->request->withAttribute(ValidatePrismicWebhook::class,['secret'=>'big-secret'])->willReturn($this->request->reveal());
+        $this->request
+            ->withAttribute(ValidatePrismicWebhook::class, ['secret' => 'big-secret'])
+            ->willReturn($this->request->reveal());
         $this->delegate->process($this->request->reveal())->shouldBeCalled();
         $middleware = $this->getMiddleware();
         $response = $middleware->process(
@@ -102,4 +104,3 @@ class ValidatePrismicWebhookTest extends TestCase
         );
     }
 }
-

@@ -14,7 +14,7 @@ class ExperimentInitiatorFactory
 
     public function __invoke(ContainerInterface $container) : ExperimentInitiator
     {
-        if (!$container->has(HelperPluginManager::class)) {
+        if (! $container->has(HelperPluginManager::class)) {
             throw new \RuntimeException('The Zend\View\HelperPluginManager cannot be located in the container');
         }
 

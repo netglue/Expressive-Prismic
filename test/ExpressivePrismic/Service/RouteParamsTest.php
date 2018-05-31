@@ -38,5 +38,4 @@ class RouteParamsTest extends TestCase
         $this->assertSame('bat', $params->getType());
         $this->assertSame('wiz', $params->getLang());
     }
-
 }

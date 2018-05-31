@@ -62,7 +62,7 @@ class NotFoundSetupTest extends TestCase
     }
 
     /**
-     * @expectedException ExpressivePrismic\Exception\RuntimeException
+     * @expectedException \ExpressivePrismic\Exception\RuntimeException
      */
     public function testExceptionThrownForInvalidBookmark()
     {
@@ -79,7 +79,7 @@ class NotFoundSetupTest extends TestCase
     public function testDelegateContinuesForInvalidDocument()
     {
         $this->api->bookmark('some-bookmark')->willReturn('some-id');
-        $this->api->getByID('some-id')->willReturn(null);
+        $this->api->getById('some-id')->willReturn(null);
         $this->request->withAttribute()->shouldNotBeCalled();
         $request = $this->request->reveal();
 
@@ -91,12 +91,12 @@ class NotFoundSetupTest extends TestCase
     }
 
     /**
-     * @expectedException ExpressivePrismic\Exception\RuntimeException
+     * @expectedException \ExpressivePrismic\Exception\RuntimeException
      */
     public function testExceptionThrownForInvalidDocument()
     {
         $this->api->bookmark('some-bookmark')->willReturn('some-id');
-        $this->api->getByID('some-id')->willReturn(null);
+        $this->api->getById('some-id')->willReturn(null);
         $this->request->withAttribute()->shouldNotBeCalled();
         $request = $this->request->reveal();
 
@@ -108,9 +108,9 @@ class NotFoundSetupTest extends TestCase
 
     public function testSuccessfulDocumentRetrievalWillBeAddedToRequestAttrs()
     {
-        $doc = $this->prophesize(Prismic\Document::class);
+        $doc = $this->prophesize(Prismic\DocumentInterface::class);
         $this->api->bookmark('some-bookmark')->willReturn('some-id');
-        $this->api->getByID('some-id')->willReturn($doc->reveal());
+        $this->api->getById('some-id')->willReturn($doc->reveal());
         $this->currentDoc->setDocument($doc)->shouldBeCalled();
         $this->request->withAttribute(Prismic\Document::class, $doc)->willReturn($this->request->reveal());
         $this->request->withAttribute('template', 'some-template')->willReturn($this->request->reveal());
@@ -119,8 +119,4 @@ class NotFoundSetupTest extends TestCase
         $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
         $this->assertSame(404, $response->getStatusCode());
     }
-
-
-
-
 }

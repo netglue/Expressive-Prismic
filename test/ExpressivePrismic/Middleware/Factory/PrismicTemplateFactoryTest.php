@@ -41,5 +41,4 @@ class PrismicTemplateFactoryTest extends TestCase
 
         $this->assertInstanceOf(PrismicTemplate::class, $middleware);
     }
-
 }

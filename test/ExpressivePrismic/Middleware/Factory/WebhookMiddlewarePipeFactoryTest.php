@@ -45,5 +45,4 @@ class WebhookMiddlewarePipeFactoryTest extends TestCase
 
         $this->assertInstanceOf(MiddlewarePipe::class, $pipe);
     }
-
 }

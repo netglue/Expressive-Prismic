@@ -50,7 +50,5 @@ class ZendPaginatorAdapterTest extends TestCase
         $itemOffset = 11;
         $perPage = 10;
         $adapter->getItems($itemOffset, $perPage);
-
     }
-
 }

@@ -98,10 +98,6 @@ class ApiFactoryTest extends TestCase
         try {
             $factory($this->container->reveal());
         } catch (Exception\RuntimeException $e) {
-
         }
     }
-
-
-
 }

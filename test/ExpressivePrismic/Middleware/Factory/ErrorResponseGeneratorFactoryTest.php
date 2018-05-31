@@ -90,5 +90,4 @@ class ErrorResponseGeneratorFactoryTest extends TestCase
         $factory = new ErrorResponseGeneratorFactory;
         $factory($this->container->reveal());
     }
-
 }

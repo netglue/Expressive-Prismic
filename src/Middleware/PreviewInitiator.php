@@ -37,7 +37,7 @@ class PreviewInitiator implements MiddlewareInterface
     public function process(Request $request, DelegateInterface $delegate)
     {
         $query = $request->getQueryParams();
-        if (!isset($query['token']) || empty($query['token'])) {
+        if (! isset($query['token']) || empty($query['token'])) {
             // Pass through in order to raise a 404
             return $delegate->process($request);
         }

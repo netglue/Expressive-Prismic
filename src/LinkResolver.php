@@ -1,11 +1,12 @@
 <?php
 declare(strict_types = 1);
+
 namespace ExpressivePrismic;
 
 use Prismic;
 use Prismic\Document;
-use Prismic\Fragment\Link\LinkInterface;
-use Prismic\Fragment\Link\DocumentLink;
+use Prismic\Document\Fragment\LinkInterface;
+use Prismic\Document\Fragment\Link\DocumentLink;
 use Zend\Expressive\Helper\UrlHelper;
 use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
 use ExpressivePrismic\Service\RouteParams;
@@ -16,7 +17,7 @@ use Zend\Expressive\Application;
  *
  * @package ExpressivePrismic
  */
-class LinkResolver extends Prismic\LinkResolver
+class LinkResolver extends Prismic\LinkResolverAbstract
 {
 
     /**
@@ -48,37 +49,19 @@ class LinkResolver extends Prismic\LinkResolver
     }
 
     /**
-     * @param LinkInterface|DocumentLink|Document $link
-     * @return string|null
+     * @inheritdoc
      */
-    public function resolve($link)
+    protected function resolveDocumentLink(DocumentLink $link) :? string
     {
-        if ($link instanceof Document) {
-            return $this->resolveDocument($link);
+        if ($url = $this->tryResolveAsBookmark($link)) {
+            return $url;
         }
 
-        if (!$link instanceof LinkInterface) {
-            return null;
+        if ($url = $this->tryResolveAsType($link)) {
+            return $url;
         }
 
-        if ($link instanceof DocumentLink) {
-            // Is the link broken?
-            if ($link->isBroken()) {
-                return null;
-            }
-
-            if ($url = $this->tryResolveAsBookmark($link)) {
-                return $url;
-            }
-
-            if ($url = $this->tryResolveAsType($link)) {
-                return $url;
-            }
-
-            return null;
-        }
-
-        return $link->getUrl($this);
+        return null;
     }
 
     /**
@@ -86,7 +69,7 @@ class LinkResolver extends Prismic\LinkResolver
      * @param DocumentLink $link
      * @return string|null
      */
-    public function getBookmarkNameWithLink(DocumentLink $link)
+    public function getBookmarkNameWithLink(DocumentLink $link) :? string
     {
         $bookmarks = array_flip($this->bookmarks);
         $id = $link->getId();
@@ -99,14 +82,18 @@ class LinkResolver extends Prismic\LinkResolver
      *
      * In order to resolve a single document, the route must reference not only the
      * document type but also either the Uid or the Id. Routes are evaluated in FIFO
-     * order, prefering routes that match the UID over the ID
+     * order, preferring routes that match the UID over the ID
      *
      * @param DocumentLink $link
      * @return string|null
      */
-    protected function tryResolveAsType(DocumentLink $link)
+    protected function tryResolveAsType(DocumentLink $link) :? string
     {
-        $route = $this->routeMatch->getTypedRoute($link->getType());
+        $type = $link->getType();
+        if (! $type) {
+            return null;
+        }
+        $route = $this->routeMatch->getTypedRoute($type);
         if ($route) {
             return $this->urlHelper->generate($route->getName(), $this->getRouteParams($link));
         }
@@ -122,14 +109,14 @@ class LinkResolver extends Prismic\LinkResolver
      * @param DocumentLink $link
      * @return null|string
      */
-    protected function tryResolveAsBookmark(DocumentLink $link)
+    protected function tryResolveAsBookmark(DocumentLink $link) :? string
     {
         $bookmark = $this->getBookmarkNameWithLink($link);
-        if (!$bookmark) {
+        if (! $bookmark) {
             return null;
         }
         $route = $this->routeMatch->getBookmarkedRoute($bookmark);
-        if (!$route) {
+        if (! $route) {
             return null;
         }
 
@@ -152,5 +139,4 @@ class LinkResolver extends Prismic\LinkResolver
 
         return $params;
     }
-
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ExpressivePrismicTest;
 
 // Infra
-use ExpressivePrismicTest\TestCase;
 use Prophecy\Argument;
 
 // SUT
@@ -13,16 +12,14 @@ use ExpressivePrismic\LinkResolver;
 // Deps
 use Prismic;
 use Prismic\Document;
-use Prismic\Fragment\Link\LinkInterface;
-use Prismic\Fragment\Link\DocumentLink;
-use Prismic\Fragment\Link\WebLink;
+use Prismic\Document\Fragment\LinkInterface;
+use Prismic\Document\Fragment\Link\DocumentLink;
+use Prismic\Document\Fragment\Link\WebLink;
 use Zend\Expressive\Helper\UrlHelper;
 use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
 use ExpressivePrismic\Service\RouteParams;
 use ExpressivePrismic\RouteMatcher;
 use Zend\Expressive\Router\Route;
-
-
 
 class LinkResolverTest extends TestCase
 {
@@ -37,7 +34,8 @@ class LinkResolverTest extends TestCase
         $this->matcher = $this->prophesize(RouteMatcher::class);
     }
 
-    private function resolver() {
+    private function resolver()
+    {
         $bookmarks = [
             'bookmark-name' => 'document-id',
         ];
@@ -47,21 +45,6 @@ class LinkResolverTest extends TestCase
             $this->url->reveal(),
             $this->matcher->reveal()
         );
-    }
-
-    public function testResolveReturnsNullForANonLink()
-    {
-        $resolver = $this->resolver();
-        $this->assertNull($resolver->resolve('foo'));
-    }
-
-    public function testBrokenLinkReturnsNull()
-    {
-        $resolver = $this->resolver();
-        $link = $this->prophesize(DocumentLink::class);
-        $link->isBroken()->willReturn(true);
-
-        $this->assertNull($resolver->resolve($link->reveal()));
     }
 
     public function testLinkWithoutMatchingBookmarkRouteOrTypeRouteWillReturnNull()
@@ -81,35 +64,8 @@ class LinkResolverTest extends TestCase
     {
         $resolver = $this->resolver();
         $link = $this->prophesize(WebLink::class);
-        $link->getUrl($resolver)->willReturn('/nuts');
+        $link->getUrl()->willReturn('/nuts');
         $this->assertSame('/nuts', $resolver->resolve($link->reveal()));
-    }
-
-    public function testDocumentWillBeResolvedAsLink()
-    {
-        $doc = $this->prophesize(Document::class);
-        $doc->getId()->willReturn('document-id');
-        $doc->getUid()->willReturn(null);
-        $doc->getType()->willReturn('foo');
-        $doc->getTags()->willReturn([]);
-        $doc->getSlug()->willReturn('foo');
-        $doc->getLang()->willReturn(null);
-        $doc->getFragments()->willReturn([]);
-
-        $route = new Route('/foo', function(){});
-        $route->setName('RouteName');
-        $route->setOptions([
-            'defaults' => [
-                'prismic-bookmark' => 'bookmark-name'
-            ]
-        ]);
-
-
-        $this->matcher->getBookmarkedRoute('bookmark-name')->willReturn($route);
-        $this->url->generate('RouteName', Argument::type('array'))->willReturn('/foo');
-
-        $resolver = $this->resolver();
-        $this->assertSame('/foo', $resolver->resolve($doc->reveal()));
     }
 
     public function testBookmarkedLinkWithoutMatchingRouteIsTriedAsType()
@@ -135,21 +91,17 @@ class LinkResolverTest extends TestCase
         $link->getUid()->shouldBeCalled();
         $link->getLang()->shouldBeCalled();
 
-        $route = new Route('/foo', function(){});
-        $route->setName('RouteName');
-        $route->setOptions([
+        $route = $this->prophesize(Route::class);
+        $route->getName()->willReturn('RouteName');
+        $route->getOptions()->willReturn([
             'defaults' => [
                 'prismic-type' => 'mytype'
             ]
         ]);
-        $this->matcher->getTypedRoute('mytype')->willReturn($route);
+        $this->matcher->getTypedRoute('mytype')->willReturn($route->reveal());
         $this->url->generate('RouteName', Argument::type('array'))->willReturn('/foo');
 
         $resolver = $this->resolver();
         $this->assertSame('/foo', $resolver->resolve($link->reveal()));
-
     }
-
-
-
 }

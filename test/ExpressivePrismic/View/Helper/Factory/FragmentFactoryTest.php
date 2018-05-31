@@ -5,7 +5,6 @@ namespace ExpressivePrismicTest\View\Helper\Factory;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
 
 // SUT
 use ExpressivePrismic\View\Helper\Factory\FragmentFactory;
@@ -14,7 +13,6 @@ use ExpressivePrismic\View\Helper\Factory\FragmentFactory;
 use Psr\Container\ContainerInterface;
 use ExpressivePrismic\View\Helper\Fragment;
 use ExpressivePrismic\Service\CurrentDocument;
-use Prismic\LinkResolver;
 
 class FragmentFactoryTest extends TestCase
 {
@@ -30,9 +28,6 @@ class FragmentFactoryTest extends TestCase
     {
         $this->container->get(CurrentDocument::class)->willReturn(
             $this->prophesize(CurrentDocument::class)->reveal()
-        );
-        $this->container->get(LinkResolver::class)->willReturn(
-            $this->prophesize(LinkResolver::class)->reveal()
         );
 
         $factory = new FragmentFactory;

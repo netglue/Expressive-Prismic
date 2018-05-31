@@ -5,28 +5,30 @@ namespace ExpressivePrismicTest\Middleware;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
 
 // SUT
 use ExpressivePrismic\Middleware\ApiCacheBust;
 
 // Deps
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Prismic\Cache\CacheInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
 
 class ApiCacheBustTest extends TestCase
 {
 
+    /**
+     * @var CacheItemPoolInterface
+     */
     private $cache;
+
     private $delegate;
     private $request;
 
     public function setUp()
     {
-        $this->cache    = $this->prophesize(CacheInterface::class);
+        $this->cache    = $this->prophesize(CacheItemPoolInterface::class);
         $this->delegate = $this->prophesize(DelegateInterface::class);
         $this->request  = $this->prophesize(Request::class);
     }
@@ -55,7 +57,6 @@ class ApiCacheBustTest extends TestCase
             $this->request->reveal(),
             $this->delegate->reveal()
         );
-
     }
 
     public function testCacheIsNotCleanedWithoutApiUpdate()
@@ -87,8 +88,4 @@ class ApiCacheBustTest extends TestCase
             $this->delegate->reveal()
         );
     }
-
-
-
 }
-

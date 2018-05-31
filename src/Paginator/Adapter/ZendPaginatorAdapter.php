@@ -44,8 +44,8 @@ class ZendPaginatorAdapter implements AdapterInterface
     public function getItems($offset, $itemCountPerPage)
     {
         $page = 1;
-        if($offset > 0) {
-            $page = floor($offset / $itemCountPerPage) + 1;
+        if ($offset > 0) {
+            $page = (int) floor($offset / $itemCountPerPage) + 1;
         }
 
         /** @var SearchForm **/

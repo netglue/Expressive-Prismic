@@ -5,7 +5,6 @@ namespace ExpressivePrismicTest\Middleware;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
 
 // SUT
 use ExpressivePrismic\Middleware\ExperimentInitiator;
@@ -23,17 +22,27 @@ use Zend\View\HelperPluginManager;
 class ExperimentInitiatorTest extends TestCase
 {
 
+    /**
+     * @var Prismic\Api
+     */
     private $api;
+
+    /**
+     * @var Prismic\Experiments
+     */
+    private $experiments;
+
     private $helpers;
     private $delegate;
     private $request;
 
     public function setUp()
     {
-        $this->api      = $this->prophesize(Prismic\Api::class);
-        $this->helpers  = $this->prophesize(HelperPluginManager::class);
-        $this->delegate = $this->prophesize(DelegateInterface::class);
-        $this->request  = $this->prophesize(Request::class);
+        $this->api         = $this->prophesize(Prismic\Api::class);
+        $this->experiments = $this->prophesize(Prismic\Experiments::class);
+        $this->helpers     = $this->prophesize(HelperPluginManager::class);
+        $this->delegate    = $this->prophesize(DelegateInterface::class);
+        $this->request     = $this->prophesize(Request::class);
     }
 
     public function getMiddleware(string $expectedSecret = 'foo')
@@ -49,7 +58,7 @@ class ExperimentInitiatorTest extends TestCase
 
     public function testMiddlewareIsNoopWhenNoExperimentsAreRunning()
     {
-        $this->api->getExperiments()->willReturn(null);
+        $this->api->getExperiments()->willReturn($this->experiments->reveal());
         $this->helpers->get('inlineScript')->shouldNotBeCalled();
         $request = $this->request->reveal();
         $this->delegate->process($request)->shouldBeCalled();
@@ -89,7 +98,10 @@ class ExperimentInitiatorTest extends TestCase
 // InlineScript uses __call which Prophecy doesn't like
 class InlineScriptStubForExperiments extends InlineScript
 {
-    public function appendScript($arg){}
-    public function appendFile($arg){}
+    public function appendScript($arg)
+    {
+    }
+    public function appendFile($arg)
+    {
+    }
 }
-

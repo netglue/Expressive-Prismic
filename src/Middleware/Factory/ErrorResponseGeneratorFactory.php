@@ -16,11 +16,17 @@ class ErrorResponseGeneratorFactory
     public function __invoke(ContainerInterface $container) : ErrorResponseGenerator
     {
         $config = $container->get('config');
-        if (!isset($config['prismic']['error_handler']['template_error'])) {
-            throw new Exception\RuntimeException('No template for server errors has been proivded in the key [prismic][error_handler][template_error]');
+        if (! isset($config['prismic']['error_handler']['template_error'])) {
+            throw new Exception\RuntimeException(
+                'No template for server errors has been provided in the key '
+                . '[prismic][error_handler][template_error]'
+            );
         }
-        if (!isset($config['prismic']['error_handler']['bookmark_error'])) {
-            throw new Exception\RuntimeException('No API bookmark for server errors has been proivded in the key [prismic][error_handler][bookmark_error]');
+        if (! isset($config['prismic']['error_handler']['bookmark_error'])) {
+            throw new Exception\RuntimeException(
+                'No API bookmark for server errors has been provided in the key '
+                . '[prismic][error_handler][bookmark_error]'
+            );
         }
         return new ErrorResponseGenerator(
             $container->get('ExpressivePrismic\Middleware\ErrorHandlerPipe'),

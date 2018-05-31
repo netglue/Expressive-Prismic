@@ -58,5 +58,4 @@ class NormalizeNotFoundTest extends TestCase
         $this->delegate->process($request)->shouldBeCalled();
         $middleware->process($request, $this->delegate->reveal());
     }
-
 }

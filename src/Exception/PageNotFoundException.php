@@ -20,5 +20,4 @@ class PageNotFoundException extends RuntimeException implements ExceptionInterfa
     {
         throw new self('Page Not Found', 404);
     }
-
 }

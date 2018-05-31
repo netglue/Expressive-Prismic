@@ -35,7 +35,7 @@ class NotFoundSetupFactoryTest extends TestCase
             $this->prophesize(CurrentDocument::class)->reveal()
         );
         $this->container->get('config')->willReturn([
-            'prismic' => ['error_handler'=> [
+            'prismic' => ['error_handler' => [
                 'template_404' => 'templateName',
                 'bookmark_404' => 'bookmarkName',
                 'render_404_fallback' => true,
@@ -61,7 +61,7 @@ class NotFoundSetupFactoryTest extends TestCase
             $this->prophesize(CurrentDocument::class)->reveal()
         );
         $this->container->get('config')->willReturn([
-            'prismic' => ['error_handler'=> [
+            'prismic' => ['error_handler' => [
                 'template_404' => 'templateName',
                 'bookmark_404' => null,
                 'render_404_fallback' => true,
@@ -85,7 +85,7 @@ class NotFoundSetupFactoryTest extends TestCase
             $this->prophesize(CurrentDocument::class)->reveal()
         );
         $this->container->get('config')->willReturn([
-            'prismic' => ['error_handler'=> [
+            'prismic' => ['error_handler' => [
                 'template_404' => null,
                 'bookmark_404' => 'foo',
                 'render_404_fallback' => true,
@@ -96,5 +96,4 @@ class NotFoundSetupFactoryTest extends TestCase
 
         $middleware = $factory($this->container->reveal());
     }
-
 }

@@ -6,4 +6,6 @@ namespace ExpressivePrismic\Exception;
  *
  * @package ExpressivePrismic\Exception
  */
-interface ExceptionInterface {}
+interface ExceptionInterface
+{
+}

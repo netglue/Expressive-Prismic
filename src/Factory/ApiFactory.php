@@ -5,39 +5,47 @@ namespace ExpressivePrismic\Factory;
 
 use Psr\Container\ContainerInterface;
 use Prismic\Api;
+use Prismic\Exception\ExceptionInterface as PrismicException;
 use ExpressivePrismic\Exception;
+
 class ApiFactory
 {
 
     public function __invoke(ContainerInterface $container) : Api
     {
-        if (!$container->has('config')) {
+        if (! $container->has('config')) {
             throw new Exception\RuntimeException('No configuration can be found in the DI Container');
         }
 
+        /** @var array $config */
         $config = $container->get('config');
 
-        if (!isset($config['prismic']['api'])) {
+        if (! isset($config['prismic']['api'])) {
             throw new Exception\RuntimeException('No Prismic API configuration can be found');
         }
 
         $config = $config['prismic']['api'];
 
-        $token = isset($config['token']) ? $config['token'] : null;
-        $url   = isset($config['url'])   ? $config['url']   : null;
-        $ttl   = isset($config['ttl'])   ? $config['ttl']   : null;
+        $token = isset($config['token']) ? (string) $config['token'] : null;
+        $url   = isset($config['url']) ? (string) $config['url'] : null;
 
-        if (!$url) {
-            throw new Exception\RuntimeException('Prismic API endpoint URL must be specified in [prismic][api][url]');
+        if (! $url) {
+            throw new Exception\RuntimeException(
+                'Prismic API endpoint URL must be specified in [prismic][api][url]'
+            );
         }
 
         // Retrieve a dedicated cache instance that implements Prismic's Cache Interface
         $cache = isset($config['cache']) ? $container->get($config['cache']) : null;
 
         try {
-            return Api::get($url, $token, null, $cache, $ttl);
-        } catch (\Exception $e) {
-            throw new Exception\RuntimeException('Exception thrown creating API instance. Have you provided a valid API URL?', 0, null);
+            return Api::get($url, $token, null, $cache);
+        } catch (PrismicException $exception) {
+            throw new Exception\RuntimeException(
+                'Exception thrown creating API instance. Have you provided a valid API URL?',
+                0,
+                $exception
+            );
         }
     }
 }

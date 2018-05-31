@@ -25,5 +25,4 @@ class ZendPaginatorFactory implements PaginatorFactoryInterface
 
         return new Paginator($adapter);
     }
-
 }

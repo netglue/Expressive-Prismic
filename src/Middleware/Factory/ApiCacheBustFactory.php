@@ -5,7 +5,6 @@ namespace ExpressivePrismic\Middleware\Factory;
 
 use Psr\Container\ContainerInterface;
 use Prismic\Api;
-use Prismic\Cache\CacheInterface;
 use ExpressivePrismic\Middleware\ApiCacheBust;
 
 class ApiCacheBustFactory
@@ -16,5 +15,4 @@ class ApiCacheBustFactory
         $api = $container->get(Api::class);
         return new ApiCacheBust($api->getCache());
     }
-
 }

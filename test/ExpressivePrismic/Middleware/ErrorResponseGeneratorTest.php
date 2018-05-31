@@ -19,7 +19,6 @@ use Zend\Stratigility\MiddlewarePipe;
 use Zend\Stratigility\Utils;
 use Zend\Diactoros\Response\TextResponse;
 
-
 class ErrorResponseGeneratorTest extends TestCase
 {
     private $api;
@@ -103,7 +102,7 @@ class ErrorResponseGeneratorTest extends TestCase
         $this->docRegistry->setDocument($doc)->shouldBeCalled();
         $this->request->withAttribute(Prismic\Document::class, $doc)->willReturn($this->request->reveal());
         $this->request->withAttribute('template', 'template-name')->willReturn($this->request->reveal());
-        $this->pipe->process()->will(function() {
+        $this->pipe->process()->will(function () {
             throw new \Exception('foo');
         });
 
@@ -113,5 +112,4 @@ class ErrorResponseGeneratorTest extends TestCase
         $this->assertSame(500, $result->getStatusCode());
         $this->assertSame('An Unexpected Error Occurred', (string) $result->getBody());
     }
-
 }
