@@ -16,7 +16,6 @@ use Psr\Http\Message\ResponseInterface as Response;
 use ExpressivePrismic\Service\CurrentDocument;
 use Prismic;
 use Zend\Stratigility\MiddlewarePipe;
-use Zend\Stratigility\Utils;
 use Zend\Diactoros\Response\TextResponse;
 
 class ErrorResponseGeneratorTest extends TestCase
@@ -24,6 +23,7 @@ class ErrorResponseGeneratorTest extends TestCase
     private $api;
     private $docRegistry;
     private $request;
+    /** @var MiddlewarePipe */
     private $pipe;
 
     public function setUp()
@@ -31,13 +31,13 @@ class ErrorResponseGeneratorTest extends TestCase
         $this->api      = $this->prophesize(Prismic\Api::class);
         $this->request  = $this->prophesize(Request::class);
         $this->docRegistry = $this->prophesize(CurrentDocument::class);
-        $this->pipe = $this->prophesize(MiddlewarePipe::class);
+        $this->pipe = new MiddlewarePipe;
     }
 
     public function getMiddleware()
     {
         return new ErrorResponseGenerator(
-            $this->pipe->reveal(),
+            $this->pipe,
             $this->api->reveal(),
             $this->docRegistry->reveal(),
             'bookmark',
@@ -52,12 +52,12 @@ class ErrorResponseGeneratorTest extends TestCase
         $this->api->bookmark('bookmark')->willReturn('An-ID');
         $this->api->getByID('An-ID')->willReturn($doc);
         $this->docRegistry->setDocument($doc)->shouldBeCalled();
-        $this->request->withAttribute(Prismic\Document::class, $doc)->willReturn($this->request->reveal());
+        $this->request->withAttribute(Prismic\DocumentInterface::class, $doc)->willReturn($this->request->reveal());
         $this->request->withAttribute('template', 'template-name')->willReturn($this->request->reveal());
 
         $response = new TextResponse('Some Text');
-        $this->pipe->process($this->request->reveal(), Argument::type(ErrorResponseGenerator::class))
-            ->willReturn($response);
+        /*$this->pipe->process($this->request->reveal(), Argument::type(ErrorResponseGenerator::class))
+            ->willReturn($response);*/
 
         $middleware = $this->getMiddleware();
         $originalResponse = $this->prophesize(Response::class)->reveal();
