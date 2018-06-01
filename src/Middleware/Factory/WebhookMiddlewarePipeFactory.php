@@ -8,7 +8,7 @@ use Zend\Stratigility\MiddlewarePipe;
 
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
 use ExpressivePrismic\Middleware\ApiCacheBust;
-use ExpressivePrismic\Middleware\JsonSuccess;
+use ExpressivePrismic\Handler\JsonSuccess;
 
 class WebhookMiddlewarePipeFactory
 {

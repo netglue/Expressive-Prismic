@@ -1,17 +1,16 @@
 <?php
 declare(strict_types = 1);
-namespace ExpressivePrismic\Middleware;
+namespace ExpressivePrismic\Handler;
 
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
 
-class JsonSuccess implements MiddlewareInterface
+class JsonSuccess implements RequestHandlerInterface
 {
 
-    public function process(Request $request, DelegateInterface $delegate) : Response
+    public function handle(Request $request) : Response
     {
         $data = [
             'success' => true,
