@@ -47,6 +47,15 @@ class LinkResolverTest extends TestCase
         );
     }
 
+    public function testBrokenLinkReturnsNull()
+    {
+        $resolver = $this->resolver();
+        $link = $this->prophesize(DocumentLink::class);
+        $link->isBroken()->willReturn(true);
+
+        $this->assertNull($resolver->resolve($link->reveal()));
+    }
+
     public function testLinkWithoutMatchingBookmarkRouteOrTypeRouteWillReturnNull()
     {
         $link = $this->prophesize(DocumentLink::class);
@@ -99,6 +108,34 @@ class LinkResolverTest extends TestCase
             ]
         ]);
         $this->matcher->getTypedRoute('mytype')->willReturn($route->reveal());
+        $this->url->generate('RouteName', Argument::type('array'))->willReturn('/foo');
+
+        $resolver = $this->resolver();
+        $this->assertSame('/foo', $resolver->resolve($link->reveal()));
+    }
+
+    public function testDocumentLinkWillBeResolved()
+    {
+        /** @var DocumentLink $link */
+        $link = $this->prophesize(DocumentLink::class);
+        $link->isBroken()->willReturn(false);
+        $link->getId()->willReturn('document-id');
+        $link->getUid()->willReturn(null);
+        $link->getType()->willReturn('foo');
+        $link->getTags()->willReturn([]);
+        $link->getSlug()->willReturn('foo');
+        $link->getLang()->willReturn(null);
+
+        $route = $this->prophesize(Route::class);
+        $route->getName()->willReturn('RouteName');
+        $route->getOptions()->willReturn([
+            'defaults' => [
+                'prismic-bookmark' => 'bookmark-name'
+            ]
+        ]);
+
+
+        $this->matcher->getBookmarkedRoute('bookmark-name')->willReturn($route);
         $this->url->generate('RouteName', Argument::type('array'))->willReturn('/foo');
 
         $resolver = $this->resolver();

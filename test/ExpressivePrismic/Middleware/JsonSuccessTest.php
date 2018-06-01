@@ -5,14 +5,12 @@ namespace ExpressivePrismicTest\Middleware;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
 
 // SUT
 use ExpressivePrismic\Middleware\JsonSuccess;
 
 // Deps
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
 
@@ -23,7 +21,7 @@ class JsonSuccessTest extends TestCase
     {
         $request = $this->prophesize(Request::class)->reveal();
         $delegate = $this->prophesize(DelegateInterface::class);
-        $delegate->process()->shouldNotBeCalled();
+        $delegate->handle()->shouldNotBeCalled();
 
         $middleware = new JsonSuccess;
 

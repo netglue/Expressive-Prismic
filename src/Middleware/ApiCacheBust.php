@@ -2,9 +2,10 @@
 declare(strict_types = 1);
 namespace ExpressivePrismic\Middleware;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
 class ApiCacheBust implements MiddlewareInterface
@@ -19,12 +20,12 @@ class ApiCacheBust implements MiddlewareInterface
         $this->cache = $cache;
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $delegate) : ResponseInterface
     {
         $data = $request->getAttribute(ValidatePrismicWebhook::class);
         if ($data && isset($data['type']) && $data['type'] === 'api-update') {
             $this->cache->clear();
         }
-        return $delegate->process($request);
+        return $delegate->handle($request);
     }
 }

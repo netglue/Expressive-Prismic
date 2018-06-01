@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace ExpressivePrismic\Middleware;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 use ExpressivePrismic\Exception;
@@ -52,7 +53,7 @@ class NotFoundSetup implements MiddlewareInterface
         $this->fallback         = $fallback;
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, DelegateInterface $delegate) : Response
     {
         $document = $this->locateErrorDocument();
         if ($document) {
@@ -61,7 +62,7 @@ class NotFoundSetup implements MiddlewareInterface
             $request = $request->withAttribute('template', $this->template);
         }
 
-        $response = $delegate->process($request);
+        $response = $delegate->handle($request);
         return $response->withStatus(404);
     }
 

@@ -11,15 +11,11 @@ use Prophecy\Argument;
 use ExpressivePrismic\Middleware\PreviewInitiator;
 
 // Deps
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\UriInterface;
-use Zend\Diactoros\ServerRequest;
 use Prismic;
 use Zend\Diactoros\Response\RedirectResponse;
-use Zend\Http\Header\SetCookie;
 
 class PreviewInitiatorTest extends TestCase
 {
@@ -51,7 +47,7 @@ class PreviewInitiatorTest extends TestCase
     {
         $this->request->getQueryParams()->willReturn([]);
         $request = $this->request->reveal();
-        $this->delegate->process($request)->shouldBeCalled();
+        $this->delegate->handle($request)->shouldBeCalled();
         $this->api->previewSession()->shouldNotBeCalled();
         $middleware = $this->getMiddleware();
         $middleware->process($request, $this->delegate->reveal());
@@ -71,7 +67,7 @@ class PreviewInitiatorTest extends TestCase
     {
         $this->prepareRequest();
 
-        $this->delegate->process()->shouldNotBeCalled();
+        $this->delegate->handle()->shouldNotBeCalled();
 
         $middleware = $this->getMiddleware();
         $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
@@ -89,7 +85,7 @@ class PreviewInitiatorTest extends TestCase
     {
         $this->prepareRequest();
 
-        $this->delegate->process()->shouldNotBeCalled();
+        $this->delegate->handle()->shouldNotBeCalled();
 
         $middleware = $this->getMiddleware();
         $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());

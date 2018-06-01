@@ -11,16 +11,12 @@ use Prophecy\Argument;
 use ExpressivePrismic\Middleware\DocumentResolver;
 
 // Deps
-
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
 use Zend\Expressive\Router\RouteResult;
 use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Service\RouteParams;
-use ExpressivePrismic\Exception\PageNotFoundException;
 
 class DocumentResolverTest extends TestCase
 {
@@ -93,7 +89,7 @@ class DocumentResolverTest extends TestCase
 
         $request = $this->request->reveal();
 
-        $this->delegate->process($anotherRequest)->shouldBeCalled();
+        $this->delegate->handle($anotherRequest)->shouldBeCalled();
 
         $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
         $middleware = $this->getMiddleware();
@@ -124,7 +120,7 @@ class DocumentResolverTest extends TestCase
 
         $request = $this->request->reveal();
 
-        $this->delegate->process($anotherRequest)->shouldBeCalled();
+        $this->delegate->handle($anotherRequest)->shouldBeCalled();
 
         $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
         $middleware = $this->getMiddleware();
@@ -156,7 +152,7 @@ class DocumentResolverTest extends TestCase
 
         $request = $this->request->reveal();
 
-        $this->delegate->process($anotherRequest)->shouldBeCalled();
+        $this->delegate->handle($anotherRequest)->shouldBeCalled();
 
         $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
         $middleware = $this->getMiddleware();
@@ -175,7 +171,7 @@ class DocumentResolverTest extends TestCase
         $this->docRegistry->setDocument()->shouldNotBeCalled();
         $this->request->withAttribute()->shouldNotBeCalled();
         $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
-        $this->delegate->process(Argument::type(Request::class))->shouldBeCalled();
+        $this->delegate->handle(Argument::type(Request::class))->shouldBeCalled();
 
 
         $middleware = $this->getMiddleware();

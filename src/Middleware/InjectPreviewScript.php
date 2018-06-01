@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * This file is part of the Expressive Prismic Package
  * Copyright 2016 Net Glue Ltd (https://netglue.uk).
@@ -10,8 +11,8 @@
 
 namespace ExpressivePrismic\Middleware;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
@@ -74,10 +75,7 @@ class InjectPreviewScript implements MiddlewareInterface
         $this->alwaysInject = $alwaysInject;
     }
 
-    /**
-     * @return Response
-     */
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, DelegateInterface $delegate) : Response
     {
         if ($this->api->inPreview() || true === $this->alwaysInject) {
             $helper = $this->helpers->get('inlineScript');
@@ -85,6 +83,6 @@ class InjectPreviewScript implements MiddlewareInterface
             $helper->appendFile($this->toolbarScript);
         }
 
-        return $delegate->process($request);
+        return $delegate->handle($request);
     }
 }

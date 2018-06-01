@@ -14,12 +14,8 @@ use ExpressivePrismic\Middleware\PrismicTemplate;
 use Zend\Expressive\Template\TemplateRendererInterface;
 use Prismic\LinkResolver;
 use Prismic\Document;
-
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Response\HtmlResponse;
 
 class PrismicTemplateTest extends TestCase
@@ -52,7 +48,7 @@ class PrismicTemplateTest extends TestCase
         $this->request->getAttribute(Document::class)->willReturn(null);
         $this->renderer->render()->shouldNotBeCalled();
         $req = $this->request->reveal();
-        $this->delegate->process($req)->shouldBeCalled();
+        $this->delegate->handle($req)->shouldBeCalled();
 
         $middleware = $this->getMiddleware();
         $middleware->process($req, $this->delegate->reveal());

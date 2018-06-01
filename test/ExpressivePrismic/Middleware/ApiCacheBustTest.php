@@ -10,7 +10,7 @@ use ExpressivePrismicTest\TestCase;
 use ExpressivePrismic\Middleware\ApiCacheBust;
 
 // Deps
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Cache\CacheItemPoolInterface;
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
@@ -50,7 +50,7 @@ class ApiCacheBustTest extends TestCase
             'type' => 'api-update',
         ]);
 
-        $this->delegate->process($this->request->reveal())->shouldBeCalled();
+        $this->delegate->handle($this->request->reveal())->shouldBeCalled();
 
         $middleware = $this->getMiddleware();
         $middleware->process(
@@ -67,7 +67,7 @@ class ApiCacheBustTest extends TestCase
             'type' => 'other-update',
         ]);
 
-        $this->delegate->process($this->request->reveal())->shouldBeCalled();
+        $this->delegate->handle($this->request->reveal())->shouldBeCalled();
 
         $middleware = $this->getMiddleware();
         $middleware->process(
@@ -80,7 +80,7 @@ class ApiCacheBustTest extends TestCase
     {
         $this->cache->clear()->shouldNotBeCalled();
         $this->request->getAttribute(ValidatePrismicWebhook::class)->willReturn(null);
-        $this->delegate->process($this->request->reveal())->shouldBeCalled();
+        $this->delegate->handle($this->request->reveal())->shouldBeCalled();
 
         $middleware = $this->getMiddleware();
         $middleware->process(

@@ -11,11 +11,8 @@ use Prophecy\Argument;
 use ExpressivePrismic\Middleware\InjectPreviewScript;
 
 // Deps
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\Response\JsonResponse;
 use Prismic;
 use Zend\View\Helper\InlineScript;
 use Zend\View\HelperPluginManager;
@@ -53,7 +50,7 @@ class InjectPreviewScriptTest extends TestCase
         $this->api->inPreview()->willReturn(false);
         $this->helpers->get('inlineScript')->shouldNotBeCalled();
         $request = $this->request->reveal();
-        $this->delegate->process($request)->shouldBeCalled();
+        $this->delegate->handle($request)->shouldBeCalled();
 
         $middleware = $this->getMiddleware();
         $middleware->process($request, $this->delegate->reveal());
@@ -68,7 +65,7 @@ class InjectPreviewScriptTest extends TestCase
         $helper->appendFile('//Some-Url-Of-Remote-JS')->shouldBeCalled();
         $this->helpers->get('inlineScript')->willReturn($helper->reveal());
         $request = $this->request->reveal();
-        $this->delegate->process($request)->shouldBeCalled();
+        $this->delegate->handle($request)->shouldBeCalled();
         $middleware = $this->getMiddleware();
         $middleware->process($request, $this->delegate->reveal());
     }
@@ -81,7 +78,7 @@ class InjectPreviewScriptTest extends TestCase
         $helper->appendFile(Argument::any())->shouldBeCalled();
         $this->helpers->get('inlineScript')->willReturn($helper->reveal());
         $request = $this->request->reveal();
-        $this->delegate->process($request)->shouldBeCalled();
+        $this->delegate->handle($request)->shouldBeCalled();
         $middleware = $this->getMiddleware(true);
         $middleware->process($request, $this->delegate->reveal());
     }

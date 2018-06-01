@@ -4,13 +4,9 @@ declare(strict_types = 1);
 namespace ExpressivePrismic;
 
 use Prismic;
-use Prismic\Document;
-use Prismic\Document\Fragment\LinkInterface;
 use Prismic\Document\Fragment\Link\DocumentLink;
 use Zend\Expressive\Helper\UrlHelper;
-use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
 use ExpressivePrismic\Service\RouteParams;
-use Zend\Expressive\Application;
 
 /**
  * Prismic LinkResolver Implementation

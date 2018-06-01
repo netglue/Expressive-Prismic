@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ExpressivePrismic\Middleware;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
@@ -46,7 +46,7 @@ class DocumentResolver implements MiddlewareInterface
         $this->documentRegistry = $documentRegistry;
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, RequestHandlerInterface $delegate) : Response
     {
         // Get hold of the matched route (RouteResult) so we can inspect and resolve a document
         $routeResult = $request->getAttribute(RouteResult::class);
@@ -80,7 +80,7 @@ class DocumentResolver implements MiddlewareInterface
             $request = $request->withAttribute(DocumentInterface::class, $document);
         }
 
-        return $delegate->process($request);
+        return $delegate->handle($request);
     }
 
     private function resolveWithBookmark(RouteResult $routeResult) :? DocumentInterface

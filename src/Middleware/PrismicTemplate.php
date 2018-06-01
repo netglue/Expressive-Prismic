@@ -1,15 +1,22 @@
 <?php
+declare(strict_types=1);
 
 namespace ExpressivePrismic\Middleware;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Expressive\Template\TemplateRendererInterface;
 use Prismic;
 
+/**
+ * Template Renderer for CMS Documents
+ *
+ * This middleware is implemented as middleware as opposed to a request handler so that when a document
+ * cannot be located in the CMS API, we'll fall through to whatever Not Found Handler is configured
+ */
 class PrismicTemplate implements MiddlewareInterface
 {
 
@@ -38,13 +45,13 @@ class PrismicTemplate implements MiddlewareInterface
      * @param  DelegateInterface $delegate
      * @return Response
      */
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, DelegateInterface $delegate) : Response
     {
         $template = $request->getAttribute('template');
         $document = $request->getAttribute(Prismic\Document::class);
 
         if (! $document || ! $template) {
-            return $delegate->process($request);
+            return $delegate->handle($request);
         }
 
         $view = [
