@@ -39,8 +39,19 @@ class ConfigProvider
     {
         return [
             'factories' => [
-                // Api Instance
+                /**
+                 * Because the Api is no longer usable without a link resolver, the alias 'ExpressivePrismic\ApiClient'
+                 * returns the Api Client whereas the alias Prismic\Api retrieves the Api Client and setter injects the
+                 * Link Resolver. This leaves a single point to retrieve the Api from, for BC but ensures the link
+                 * resolver is also injected. The link resolver can still be overridden by aliasing Prismic\LinkResolver
+                 * to something else, but if you're doing that, you're probably aware of the cyclic dependency anyway.
+                 */
+                
+                // Api Instance, Configured with Link Resolver
                 Prismic\Api::class => Container\ApiFactory::class,
+
+                // Api Instance without a Link Resolver configured
+                'ExpressivePrismic\ApiClient' => Container\ApiClientFactory::class,
 
                 // Default Link Resolver
                 LinkResolver::class => Container\LinkResolverFactory::class,
@@ -171,6 +182,8 @@ class ConfigProvider
                 'token' => null,
                 // Api Endpoint
                 'url' => null,
+                // A Service name in the DI container that returns a \Psr\Cache\CacheItemPoolInterface
+                'cache' => null,
             ],
 
             // Webhook Shared Secret

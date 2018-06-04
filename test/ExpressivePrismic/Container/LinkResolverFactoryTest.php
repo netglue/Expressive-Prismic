@@ -10,6 +10,7 @@ use ExpressivePrismicTest\TestCase;
 use ExpressivePrismic\Container\LinkResolverFactory;
 
 // Deps
+use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Prismic\Api;
 use ExpressivePrismic\LinkResolver;
@@ -29,8 +30,9 @@ class LinkResolverFactoryTest extends TestCase
     public function testLinkResolverWillBeCreated()
     {
         $api = $this->prophesize(Api::class);
+        $api->setLinkResolver(Argument::type(LinkResolver::class))->shouldBeCalled();
         $api->bookmarks()->willReturn([]);
-        $this->container->get(Api::class)->willReturn(
+        $this->container->get('ExpressivePrismic\ApiClient')->willReturn(
             $api->reveal()
         );
         $this->container->get(RouteParams::class)->willReturn(

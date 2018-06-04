@@ -7,14 +7,14 @@ namespace ExpressivePrismicTest\Container;
 use ExpressivePrismicTest\TestCase;
 
 // SUT
-use ExpressivePrismic\Container\ApiFactory;
+use ExpressivePrismic\Container\ApiClientFactory;
 
 // Deps
 use Psr\Container\ContainerInterface;
 use Prismic\Api;
 use ExpressivePrismic\Exception;
 
-class ApiFactoryTest extends TestCase
+class ApiClientFactoryTest extends TestCase
 {
     private $container;
 
@@ -30,7 +30,7 @@ class ApiFactoryTest extends TestCase
     public function testExceptionIsThrownWhenConfigIsNotAvailable()
     {
         $this->container->has('config')->willReturn(false);
-        $factory = new ApiFactory;
+        $factory = new ApiClientFactory;
         $factory($this->container->reveal());
     }
 
@@ -42,7 +42,7 @@ class ApiFactoryTest extends TestCase
     {
         $this->container->has('config')->willReturn(true);
         $this->container->get('config')->willReturn([]);
-        $factory = new ApiFactory;
+        $factory = new ApiClientFactory;
         $factory($this->container->reveal());
     }
 
@@ -60,7 +60,7 @@ class ApiFactoryTest extends TestCase
                 ],
             ]
         ]);
-        $factory = new ApiFactory;
+        $factory = new ApiClientFactory;
         $factory($this->container->reveal());
     }
 
@@ -78,7 +78,7 @@ class ApiFactoryTest extends TestCase
                 ],
             ]
         ]);
-        $factory = new ApiFactory;
+        $factory = new ApiClientFactory;
         $factory($this->container->reveal());
     }
 
@@ -94,7 +94,7 @@ class ApiFactoryTest extends TestCase
             ]
         ]);
         $this->container->get('SomeCache')->shouldBeCalled();
-        $factory = new ApiFactory;
+        $factory = new ApiClientFactory;
         try {
             $factory($this->container->reveal());
         } catch (Exception\RuntimeException $e) {

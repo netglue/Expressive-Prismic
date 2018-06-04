@@ -15,13 +15,18 @@ class LinkResolverFactory
 
     public function __invoke(ContainerInterface $container) : LinkResolver
     {
-        $api = $container->get(Api::class);
+        /** @var Api $api */
+        $api = $container->get('ExpressivePrismic\ApiClient');
 
-        return new LinkResolver(
+        $resolver = new LinkResolver(
             $api->bookmarks(),
             $container->get(RouteParams::class),
             $container->get(UrlHelper::class),
             $container->get(RouteMatcher::class)
         );
+
+        $api->setLinkResolver($resolver);
+
+        return $resolver;
     }
 }
