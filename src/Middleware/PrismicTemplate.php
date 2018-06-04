@@ -48,7 +48,7 @@ class PrismicTemplate implements MiddlewareInterface
     public function process(Request $request, DelegateInterface $delegate) : Response
     {
         $template = $request->getAttribute('template');
-        $document = $request->getAttribute(Prismic\Document::class);
+        $document = $request->getAttribute(Prismic\DocumentInterface::class);
 
         if (! $document || ! $template) {
             return $delegate->handle($request);
