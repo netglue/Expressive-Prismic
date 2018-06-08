@@ -5,6 +5,7 @@ namespace ExpressivePrismicTest\Middleware;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
+use Prismic\DocumentInterface;
 use Prophecy\Argument;
 
 // SUT
@@ -45,7 +46,7 @@ class PrismicTemplateTest extends TestCase
     public function testTemplateIsNotRenderedWhenNoDocumentIsPresent()
     {
         $this->request->getAttribute('template')->willReturn('SomeTemplate');
-        $this->request->getAttribute(Document::class)->willReturn(null);
+        $this->request->getAttribute(DocumentInterface::class)->willReturn(null);
         $this->renderer->render()->shouldNotBeCalled();
         $req = $this->request->reveal();
         $this->delegate->handle($req)->shouldBeCalled();
@@ -56,9 +57,9 @@ class PrismicTemplateTest extends TestCase
 
     public function testTemplateIsRendered()
     {
-        $doc = $this->prophesize(Document::class)->reveal();
+        $doc = $this->prophesize(DocumentInterface::class)->reveal();
         $this->request->getAttribute('template')->willReturn('SomeTemplate');
-        $this->request->getAttribute(Document::class)->willReturn($doc);
+        $this->request->getAttribute(DocumentInterface::class)->willReturn($doc);
         $this->renderer->render('SomeTemplate', Argument::type('array'))->willReturn('Foo');
 
         $middleware = $this->getMiddleware();
