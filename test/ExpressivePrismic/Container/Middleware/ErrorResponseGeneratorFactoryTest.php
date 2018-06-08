@@ -14,9 +14,9 @@ use ExpressivePrismic\Container\Middleware\ErrorResponseGeneratorFactory;
 use Psr\Container\ContainerInterface;
 
 use Prismic;
-use Zend\Stratigility\MiddlewarePipe;
 use ExpressivePrismic\Middleware\ErrorResponseGenerator;
 use ExpressivePrismic\Service\CurrentDocument;
+use Zend\Stratigility\MiddlewarePipeInterface;
 
 class ErrorResponseGeneratorFactoryTest extends TestCase
 {
@@ -40,7 +40,7 @@ class ErrorResponseGeneratorFactoryTest extends TestCase
         ]);
 
         $this->container->get('ExpressivePrismic\Middleware\ErrorHandlerPipe')->willReturn(
-            $this->prophesize(MiddlewarePipe::class)->reveal()
+            $this->prophesize(MiddlewarePipeInterface::class)->reveal()
         );
         $this->container->get(Prismic\Api::class)->willReturn(
             $this->prophesize(Prismic\Api::class)->reveal()

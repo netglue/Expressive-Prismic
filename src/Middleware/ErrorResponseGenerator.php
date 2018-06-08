@@ -3,18 +3,18 @@ declare(strict_types = 1);
 
 namespace ExpressivePrismic\Middleware;
 
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
 use ExpressivePrismic\Exception;
 use ExpressivePrismic\Service\CurrentDocument;
 use Prismic;
-use Zend\Stratigility\MiddlewarePipe;
+use Zend\Stratigility\MiddlewarePipeInterface;
 use Zend\Stratigility\Utils;
 use Zend\Diactoros\Response\TextResponse;
 
-class ErrorResponseGenerator implements DelegateInterface
+class ErrorResponseGenerator implements RequestHandlerInterface
 {
     /**
      * @var CurrentDocument
@@ -42,7 +42,7 @@ class ErrorResponseGenerator implements DelegateInterface
     private $pipe;
 
     public function __construct(
-        MiddlewarePipe $pipe,
+        MiddlewarePipeInterface $pipe,
         Prismic\Api $api,
         CurrentDocument $documentRegistry,
         string $documentBookmark,
