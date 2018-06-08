@@ -30,7 +30,7 @@ class PipelineAndRoutesDelegator
          */
         $app->route(
             '/prismicio-cache-webhook',
-            ['ExpressivePrismic\Middleware\WebhookMiddlewarePipe'],
+            [Middleware\WebhookPipe::class],
             ['POST'],
             'prismic-webhook-cache-bust'
         );

@@ -71,8 +71,8 @@ class ConfigProvider
                 Middleware\DocumentResolver::class => Container\Middleware\DocumentResolverFactory::class,
 
                 // A Middleware Pipeline containing the cache busting middleware
-                // that you can manipulate with a delegator factory
-                'ExpressivePrismic\Middleware\WebhookMiddlewarePipe'
+                // that you can replace with a custom pipeline if required
+                Middleware\WebhookPipe::class
                     => Container\Middleware\WebhookMiddlewarePipeFactory::class,
 
                 // Processes Webhooks from Prismic.io and busts the cache

@@ -9,11 +9,12 @@ use Zend\Stratigility\MiddlewarePipe;
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
 use ExpressivePrismic\Middleware\ApiCacheBust;
 use ExpressivePrismic\Handler\JsonSuccess;
+use Zend\Stratigility\MiddlewarePipeInterface;
 
 class WebhookMiddlewarePipeFactory
 {
 
-    public function __invoke(ContainerInterface $container) : MiddlewarePipe
+    public function __invoke(ContainerInterface $container) : MiddlewarePipeInterface
     {
         $pipeline = new MiddlewarePipe();
         $pipeline->pipe($container->get(ValidatePrismicWebhook::class));
