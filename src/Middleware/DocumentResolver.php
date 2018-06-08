@@ -92,7 +92,7 @@ class DocumentResolver implements MiddlewareInterface
             $id = $this->api->bookmark($bookmark);
             if ($id) {
                 /** @var Document|null */
-                return $this->api->getByID($id);
+                return $this->api->getById($id);
             }
         }
 
@@ -121,6 +121,6 @@ class DocumentResolver implements MiddlewareInterface
         if (! $type || ! $uid) {
             return null;
         }
-        return $this->api->getByUID($type, $uid);
+        return $this->api->getByUid($type, $uid);
     }
 }
