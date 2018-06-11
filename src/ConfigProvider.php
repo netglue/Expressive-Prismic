@@ -102,9 +102,7 @@ class ConfigProvider
             'invokables' => [
                 // An instance used to track the current document for the request
                 Service\CurrentDocument::class      => Service\CurrentDocument::class,
-
-                // Turns 404 errors into exceptions
-                Middleware\NormalizeNotFound::class => Middleware\NormalizeNotFound::class,
+                // A simple request handler that returns a Json encoded success message for the webhook pipeline
                 Handler\JsonSuccess::class          => Handler\JsonSuccess::class,
             ],
             'aliases' => [
