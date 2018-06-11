@@ -5,7 +5,7 @@ namespace ExpressivePrismic\Container\Middleware;
 
 use Psr\Container\ContainerInterface;
 use Zend\Stratigility\MiddlewarePipe;
-use ExpressivePrismic\Exception;
+use Zend\Expressive\MiddlewareFactory;
 use ExpressivePrismic\Middleware;
 
 class NotFoundPipeFactory
@@ -13,37 +13,14 @@ class NotFoundPipeFactory
 
     public function __invoke(ContainerInterface $container) : MiddlewarePipe
     {
-        $config = $container->get('config');
+        $factory = $container->get(MiddlewareFactory::class);
 
-        $defaultPipe = [
-            Middleware\InjectPreviewScript::class,
-            Middleware\ExperimentInitiator::class,
-            Middleware\NotFoundSetup::class,
-            Middleware\PrismicTemplate::class,
-        ];
+        $pipeline = new MiddlewarePipe;
+        $pipeline->pipe($factory->prepare(Middleware\InjectPreviewScript::class));
+        $pipeline->pipe($factory->prepare(Middleware\ExperimentInitiator::class));
+        $pipeline->pipe($factory->prepare(Middleware\NotFoundSetup::class));
+        $pipeline->pipe($factory->prepare(Middleware\PrismicTemplate::class));
 
-        $configuredPipe = null;
-
-        if (isset($config['prismic']['error_handler']['middleware_404'])) {
-            $configuredPipe = $config['prismic']['error_handler']['middleware_404'];
-        }
-
-        $middleware = $configuredPipe
-                    ? $configuredPipe
-                    : $defaultPipe;
-
-        if (! is_array($middleware)) {
-            throw new Exception\RuntimeException(
-                'Cannot create a 404 handler pipeline without middleware provided in config under '
-                . '[prismic][error_handler][middleware_404]'
-            );
-        }
-
-        $pipe = new MiddlewarePipe;
-        foreach ($middleware as $name) {
-            $pipe->pipe($container->get($name));
-        }
-
-        return $pipe;
+        return $pipeline;
     }
 }

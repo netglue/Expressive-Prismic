@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ExpressivePrismicTest\Container\Middleware;
 
 // Infra
-use ExpressivePrismicTest\Middleware\Factory\ExpressivePrismic;
 use ExpressivePrismicTest\TestCase;
 
 // SUT
@@ -13,7 +12,8 @@ use ExpressivePrismic\Container\Middleware\NotFoundPipeFactory;
 // Deps
 use Psr\Container\ContainerInterface;
 use Zend\Stratigility\MiddlewarePipe;
-use ExpressivePrismic\Middleware\ApiCacheBust;
+use Zend\Expressive\MiddlewareFactory;
+use ExpressivePrismic\Middleware;
 
 class NotFoundPipeFactoryTest extends TestCase
 {
@@ -27,18 +27,15 @@ class NotFoundPipeFactoryTest extends TestCase
 
     public function testFactory()
     {
-        $this->container->get('config')->willReturn([
-            'prismic' => [
-                'error_handler' => [
-                    'middleware_404' => [
-                        ApiCacheBust::class,
-                    ]
-                ]
-            ]
-        ]);
+        $middlewareFactory = $this->prophesize(MiddlewareFactory::class);
 
-        $this->container->get(ApiCacheBust::class)->willReturn(
-            $this->prophesize(ApiCacheBust::class)->reveal()
+        $middlewareFactory->prepare(Middleware\ExperimentInitiator::class)->shouldBeCalled();
+        $middlewareFactory->prepare(Middleware\InjectPreviewScript::class)->shouldBeCalled();
+        $middlewareFactory->prepare(Middleware\NotFoundSetup::class)->shouldBeCalled();
+        $middlewareFactory->prepare(Middleware\PrismicTemplate::class)->shouldBeCalled();
+
+        $this->container->get(MiddlewareFactory::class)->willReturn(
+            $middlewareFactory->reveal()
         );
 
         $factory = new NotFoundPipeFactory;
@@ -46,21 +43,5 @@ class NotFoundPipeFactoryTest extends TestCase
         $pipe = $factory($this->container->reveal());
 
         $this->assertInstanceOf(MiddlewarePipe::class, $pipe);
-    }
-
-    /**
-     * @expectedException ExpressivePrismic\Exception\RuntimeException
-     */
-    public function testExceptionIsThrownForInvalidPipe()
-    {
-        $this->container->get('config')->willReturn([
-            'prismic' => [
-                'error_handler' => [
-                    'middleware_404' => 'foo',
-                ]
-            ]
-        ]);
-        $factory = new NotFoundPipeFactory;
-        $factory($this->container->reveal());
     }
 }
