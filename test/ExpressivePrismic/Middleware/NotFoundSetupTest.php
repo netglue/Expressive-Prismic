@@ -44,7 +44,7 @@ class NotFoundSetupTest extends TestCase
 
     /**
      * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage Error document bookmark does not reference a current document ID
+     * @expectedExceptionMessage The error document bookmark "some-bookmark" does not reference a current document ID
      */
     public function testExceptionThrownForInvalidBookmark()
     {
@@ -60,7 +60,7 @@ class NotFoundSetupTest extends TestCase
 
     /**
      * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage Error document cannot be resolved
+     * @expectedExceptionMessage bookmark "some-bookmark" resolved to the id "some-id" but the document cannot be found
      */
     public function testExceptionThrownForInvalidDocument()
     {
@@ -77,7 +77,7 @@ class NotFoundSetupTest extends TestCase
 
     /**
      * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage An exception occurred retrieving the error document
+     * @expectedExceptionMessage An exception occurred retrieving the error document with the id "some-id"
      */
     public function testApiExceptionIsWrapped()
     {

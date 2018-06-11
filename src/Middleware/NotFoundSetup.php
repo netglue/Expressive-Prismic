@@ -63,32 +63,34 @@ class NotFoundSetup implements MiddlewareInterface
     /**
      * Return the Error Document from the API
      *
-     * If we want to fallback to normal 404 rendering, we return null,
-     * otherwise an exception is thrown if we cannot retrieve the correct document
+     * An exception is thrown if the correct document cannot be retrieved
      */
-    private function locateErrorDocument() :? Prismic\DocumentInterface
+    private function locateErrorDocument() : Prismic\DocumentInterface
     {
         $id = $this->api->bookmark($this->bookmark);
         if (! $id) {
-            throw new Exception\RuntimeException(
+            throw new Exception\RuntimeException(sprintf(
                 'Cannot generate CMS driven Error page. '
-                . 'Error document bookmark does not reference a current document ID'
-            );
+                . 'The error document bookmark "%s" does not reference a current document ID',
+                $this->bookmark
+            ));
         }
         try {
             $document = $this->api->getById($id);
         } catch (CMSException $exception) {
-            throw new Exception\RuntimeException(
+            throw new Exception\RuntimeException(sprintf(
                 'Cannot generate CMS driven Error page. '
-                . 'An exception occurred retrieving the error document',
-                0,
-                $exception
-            );
+                . 'An exception occurred retrieving the error document with the id "%s"',
+                $id
+            ), 0, $exception);
         }
         if (! $document) {
-            throw new Exception\RuntimeException(
-                'Cannot generate CMS driven Error page. Error document cannot be resolved'
-            );
+            throw new Exception\RuntimeException(sprintf(
+                'Cannot generate CMS driven Error page. '
+                . 'The error document bookmark "%s" resolved to the id "%s" but the document cannot be found',
+                $this->bookmark,
+                $id
+            ));
         }
         return $document;
     }
