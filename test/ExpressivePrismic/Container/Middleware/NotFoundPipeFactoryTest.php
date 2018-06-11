@@ -14,7 +14,6 @@ use Psr\Container\ContainerInterface;
 use Zend\Stratigility\MiddlewarePipe;
 use Zend\Expressive\MiddlewareFactory;
 use ExpressivePrismic\Middleware;
-use ExpressivePrismic\Handler;
 
 class NotFoundPipeFactoryTest extends TestCase
 {
@@ -33,7 +32,7 @@ class NotFoundPipeFactoryTest extends TestCase
         $middlewareFactory->prepare(Middleware\ExperimentInitiator::class)->shouldBeCalled();
         $middlewareFactory->prepare(Middleware\InjectPreviewScript::class)->shouldBeCalled();
         $middlewareFactory->prepare(Middleware\NotFoundSetup::class)->shouldBeCalled();
-        $middlewareFactory->prepare(Handler\PrismicTemplate::class)->shouldBeCalled();
+        $middlewareFactory->prepare(Middleware\PrismicTemplate::class)->shouldBeCalled();
 
         $this->container->get(MiddlewareFactory::class)->willReturn(
             $middlewareFactory->reveal()

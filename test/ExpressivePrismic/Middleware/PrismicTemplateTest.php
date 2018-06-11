@@ -1,30 +1,36 @@
 <?php
 declare(strict_types=1);
 
-namespace ExpressivePrismicTest\Handler;
+namespace ExpressivePrismicTest\Middleware;
 
 // Infra
 use ExpressivePrismic\Exception\DocumentNotFoundException;
 use ExpressivePrismicTest\TestCase;
+use Prismic\DocumentInterface;
 use Prophecy\Argument;
 
 // SUT
-use ExpressivePrismic\Handler\PrismicTemplate;
+use ExpressivePrismic\Middleware\PrismicTemplate;
 
 // Deps
 use Zend\Expressive\Template\TemplateRendererInterface;
+use Prismic\LinkResolver;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
-use Prismic\DocumentInterface;
 
 class PrismicTemplateTest extends TestCase
 {
 
+    private $delegate;
     private $request;
+    private $resolver;
     private $renderer;
 
     public function setUp()
     {
+        $this->resolver = $this->prophesize(LinkResolver::class);
+        $this->delegate = $this->prophesize(DelegateInterface::class);
         $this->request  = $this->prophesize(Request::class);
         $this->renderer  = $this->prophesize(TemplateRendererInterface::class);
     }
@@ -32,7 +38,8 @@ class PrismicTemplateTest extends TestCase
     public function getMiddleware()
     {
         return new PrismicTemplate(
-            $this->renderer->reveal()
+            $this->renderer->reveal(),
+            $this->resolver->reveal()
         );
     }
 
@@ -44,7 +51,7 @@ class PrismicTemplateTest extends TestCase
         $this->request->getAttribute('template')->willReturn('SomeTemplate');
         $this->request->getAttribute(DocumentInterface::class)->willReturn(null);
         $middleware = $this->getMiddleware();
-        $middleware->handle($this->request->reveal());
+        $middleware->process($this->request->reveal(), $this->delegate->reveal());
     }
 
     public function testTemplateIsRendered()
@@ -55,7 +62,7 @@ class PrismicTemplateTest extends TestCase
         $this->renderer->render('SomeTemplate', Argument::type('array'))->willReturn('Foo');
 
         $middleware = $this->getMiddleware();
-        $response = $middleware->handle($this->request->reveal());
+        $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
         $this->assertInstanceOf(HtmlResponse::class, $response);
     }
 }

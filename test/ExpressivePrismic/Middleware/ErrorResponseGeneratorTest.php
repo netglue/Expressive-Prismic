@@ -22,7 +22,6 @@ class ErrorResponseGeneratorTest extends TestCase
 
     /** @var MiddlewarePipe */
     private $errorPipe;
-
     /** @var MiddlewarePipe */
     private $notFoundPipe;
 
