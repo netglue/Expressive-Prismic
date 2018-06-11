@@ -1,21 +1,19 @@
 <?php
 declare(strict_types=1);
 
-namespace ExpressivePrismic\Container\Middleware;
+namespace ExpressivePrismic\Container\Handler;
 
 use Psr\Container\ContainerInterface;
 
 use Zend\Expressive\Template\TemplateRendererInterface;
-use ExpressivePrismic\Middleware\PrismicTemplate;
-use Prismic\LinkResolver;
+use ExpressivePrismic\Handler\PrismicTemplate;
 
 class PrismicTemplateFactory
 {
     public function __invoke(ContainerInterface $container) : PrismicTemplate
     {
         return new PrismicTemplate(
-            $container->get(TemplateRendererInterface::class),
-            $container->get(LinkResolver::class)
+            $container->get(TemplateRendererInterface::class)
         );
     }
 }

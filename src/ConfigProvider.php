@@ -54,26 +54,25 @@ class ConfigProvider
                 'ExpressivePrismic\ApiClient' => Container\ApiClientFactory::class,
 
                 // Default Link Resolver
-                LinkResolver::class => Container\LinkResolverFactory::class,
+                LinkResolver::class                => Container\LinkResolverFactory::class,
 
                 // Helper class that helps match the configured routes with properties of prismic documents
-                RouteMatcher::class => Container\RouteMatcherFactory::class,
+                RouteMatcher::class                => Container\RouteMatcherFactory::class,
 
                 // Mapping Route Parameters
-                Service\RouteParams::class => Container\Service\RouteParamsFactory::class,
+                Service\RouteParams::class         => Container\Service\RouteParamsFactory::class,
 
                 // Middleware
 
                 // For rendering document based templates
-                Middleware\PrismicTemplate::class => Container\Middleware\PrismicTemplateFactory::class,
+                Handler\PrismicTemplate::class     => Container\Handler\PrismicTemplateFactory::class,
 
                 // Sets the matched document as a request attribute
                 Middleware\DocumentResolver::class => Container\Middleware\DocumentResolverFactory::class,
 
                 // A Middleware Pipeline containing the cache busting middleware
                 // that you can replace with a custom pipeline if required
-                Middleware\WebhookPipe::class
-                    => Container\Middleware\WebhookMiddlewarePipeFactory::class,
+                Middleware\WebhookPipe::class      => Container\Middleware\WebhookMiddlewarePipeFactory::class,
 
                 // Processes Webhooks from Prismic.io and busts the cache
                 Middleware\ValidatePrismicWebhook::class => Container\Middleware\ValidatePrismicWebhookFactory::class,

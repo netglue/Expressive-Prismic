@@ -14,6 +14,7 @@ use Psr\Container\ContainerInterface;
 use Zend\Stratigility\MiddlewarePipe;
 use Zend\Expressive\MiddlewareFactory;
 use ExpressivePrismic\Middleware as AppMiddleware;
+use ExpressivePrismic\Handler;
 
 class ErrorHandlerPipeFactoryTest extends TestCase
 {
@@ -32,7 +33,7 @@ class ErrorHandlerPipeFactoryTest extends TestCase
         $middlewareFactory->prepare(AppMiddleware\ExperimentInitiator::class)->shouldBeCalled();
         $middlewareFactory->prepare(AppMiddleware\InjectPreviewScript::class)->shouldBeCalled();
         $middlewareFactory->prepare(AppMiddleware\ErrorDocumentSetup::class)->shouldBeCalled();
-        $middlewareFactory->prepare(AppMiddleware\PrismicTemplate::class)->shouldBeCalled();
+        $middlewareFactory->prepare(Handler\PrismicTemplate::class)->shouldBeCalled();
 
         $this->container->get(MiddlewareFactory::class)->willReturn(
             $middlewareFactory->reveal()

@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace ExpressivePrismicTest\Container\Middleware;
+namespace ExpressivePrismicTest\Container\Handler;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
 
 // SUT
-use ExpressivePrismic\Container\Middleware\PrismicTemplateFactory;
+use ExpressivePrismic\Container\Handler\PrismicTemplateFactory;
 
 // Deps
 use Psr\Container\ContainerInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
-use ExpressivePrismic\Middleware\PrismicTemplate;
+use ExpressivePrismic\Handler\PrismicTemplate;
 use Prismic\LinkResolver;
 
 class PrismicTemplateFactoryTest extends TestCase
