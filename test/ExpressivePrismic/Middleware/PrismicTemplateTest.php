@@ -24,12 +24,10 @@ class PrismicTemplateTest extends TestCase
 
     private $delegate;
     private $request;
-    private $resolver;
     private $renderer;
 
     public function setUp()
     {
-        $this->resolver = $this->prophesize(LinkResolver::class);
         $this->delegate = $this->prophesize(DelegateInterface::class);
         $this->request  = $this->prophesize(Request::class);
         $this->renderer  = $this->prophesize(TemplateRendererInterface::class);
@@ -38,8 +36,7 @@ class PrismicTemplateTest extends TestCase
     public function getMiddleware()
     {
         return new PrismicTemplate(
-            $this->renderer->reveal(),
-            $this->resolver->reveal()
+            $this->renderer->reveal()
         );
     }
 

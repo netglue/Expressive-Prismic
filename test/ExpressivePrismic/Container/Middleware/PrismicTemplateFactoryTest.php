@@ -13,7 +13,6 @@ use ExpressivePrismic\Container\Middleware\PrismicTemplateFactory;
 use Psr\Container\ContainerInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 use ExpressivePrismic\Middleware\PrismicTemplate;
-use Prismic\LinkResolver;
 
 class PrismicTemplateFactoryTest extends TestCase
 {
@@ -29,9 +28,6 @@ class PrismicTemplateFactoryTest extends TestCase
     {
         $this->container->get(TemplateRendererInterface::class)->willReturn(
             $this->prophesize(TemplateRendererInterface::class)->reveal()
-        );
-        $this->container->get(LinkResolver::class)->willReturn(
-            $this->prophesize(LinkResolver::class)->reveal()
         );
 
         $factory = new PrismicTemplateFactory;

@@ -26,26 +26,11 @@ class PrismicTemplate implements MiddlewareInterface
      */
     private $renderer;
 
-    /**
-     * @var Prismic\LinkResolver
-     */
-    private $linkResolver;
-
-    /**
-     * @param TemplateRendererInterface $renderer     We'll be using this to render templates
-     * @param Prismic\LinkResolver      $linkResolver The link resolver is passed to the view as a parameter
-     */
-    public function __construct(TemplateRendererInterface $renderer, Prismic\LinkResolver $linkResolver)
+    public function __construct(TemplateRendererInterface $renderer)
     {
         $this->renderer = $renderer;
-        $this->linkResolver = $linkResolver;
     }
 
-    /**
-     * @param  Request           $request
-     * @param  DelegateInterface $delegate
-     * @return Response
-     */
     public function process(Request $request, DelegateInterface $delegate) : Response
     {
         $template = $request->getAttribute('template');
@@ -56,8 +41,7 @@ class PrismicTemplate implements MiddlewareInterface
         }
 
         $view = [
-            'document' => $document,
-            'linkResolver' => $this->linkResolver,
+            'document' => $document
         ];
 
         return new HtmlResponse($this->renderer->render($template, $view));
