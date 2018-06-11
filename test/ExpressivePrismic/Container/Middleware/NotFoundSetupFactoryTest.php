@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ExpressivePrismicTest\Container\Middleware;
 
 // Infra
-use ExpressivePrismicTest\Middleware\Factory\ExpressivePrismic;
 use ExpressivePrismicTest\TestCase;
 
 // SUT
@@ -50,7 +49,7 @@ class NotFoundSetupFactoryTest extends TestCase
     }
 
     /**
-     * @expectedException ExpressivePrismic\Exception\RuntimeException
+     * @expectedException \ExpressivePrismic\Exception\RuntimeException
      */
     public function testExceptionTrhownForEmptyBookmark()
     {
@@ -69,12 +68,11 @@ class NotFoundSetupFactoryTest extends TestCase
         ]);
 
         $factory = new NotFoundSetupFactory;
-
-        $middleware = $factory($this->container->reveal());
+        $factory($this->container->reveal());
     }
 
     /**
-     * @expectedException ExpressivePrismic\Exception\RuntimeException
+     * @expectedException \ExpressivePrismic\Exception\RuntimeException
      */
     public function testExceptionTrhownForEmptyTemplate()
     {
@@ -93,7 +91,6 @@ class NotFoundSetupFactoryTest extends TestCase
         ]);
 
         $factory = new NotFoundSetupFactory;
-
-        $middleware = $factory($this->container->reveal());
+        $factory($this->container->reveal());
     }
 }

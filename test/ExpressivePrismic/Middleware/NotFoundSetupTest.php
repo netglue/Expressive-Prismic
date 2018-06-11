@@ -26,38 +26,25 @@ class NotFoundSetupTest extends TestCase
 
     public function setUp()
     {
-        $this->api      = $this->prophesize(Prismic\Api::class);
+        $this->api        = $this->prophesize(Prismic\Api::class);
         $this->currentDoc = $this->prophesize(CurrentDocument::class);
-        $this->delegate = $this->prophesize(DelegateInterface::class);
-        $this->request  = $this->prophesize(Request::class);
+        $this->delegate   = $this->prophesize(DelegateInterface::class);
+        $this->request    = $this->prophesize(Request::class);
     }
 
-    public function getMiddleware($fallback)
+    public function getMiddleware()
     {
         return new NotFoundSetup(
             $this->api->reveal(),
             $this->currentDoc->reveal(),
             'some-bookmark',
-            'some-template',
-            $fallback
+            'some-template'
         );
-    }
-
-    public function testDelegateContinuesForInvalidBookmark()
-    {
-        $this->api->bookmark('some-bookmark')->willReturn(null);
-        $this->request->withAttribute()->shouldNotBeCalled();
-        $request = $this->request->reveal();
-
-        $this->delegate->handle($request)->willReturn(new ServerResponse);
-
-        $middleware = $this->getMiddleware(true);
-        $response = $middleware->process($request, $this->delegate->reveal());
-        $this->assertSame(404, $response->getStatusCode());
     }
 
     /**
      * @expectedException \ExpressivePrismic\Exception\RuntimeException
+     * @expectedExceptionMessage Error document bookmark does not reference a current document ID
      */
     public function testExceptionThrownForInvalidBookmark()
     {
@@ -67,26 +54,13 @@ class NotFoundSetupTest extends TestCase
 
         $this->delegate->handle()->shouldNotBeCalled();
 
-        $middleware = $this->getMiddleware(false);
+        $middleware = $this->getMiddleware();
         $middleware->process($request, $this->delegate->reveal());
-    }
-
-    public function testDelegateContinuesForInvalidDocument()
-    {
-        $this->api->bookmark('some-bookmark')->willReturn('some-id');
-        $this->api->getById('some-id')->willReturn(null);
-        $this->request->withAttribute()->shouldNotBeCalled();
-        $request = $this->request->reveal();
-
-        $this->delegate->handle($request)->willReturn(new ServerResponse);
-
-        $middleware = $this->getMiddleware(true);
-        $response = $middleware->process($request, $this->delegate->reveal());
-        $this->assertSame(404, $response->getStatusCode());
     }
 
     /**
      * @expectedException \ExpressivePrismic\Exception\RuntimeException
+     * @expectedExceptionMessage Error document cannot be resolved
      */
     public function testExceptionThrownForInvalidDocument()
     {
@@ -97,7 +71,22 @@ class NotFoundSetupTest extends TestCase
 
         $this->delegate->handle()->shouldNotBeCalled();
 
-        $middleware = $this->getMiddleware(false);
+        $middleware = $this->getMiddleware();
+        $middleware->process($request, $this->delegate->reveal());
+    }
+
+    /**
+     * @expectedException \ExpressivePrismic\Exception\RuntimeException
+     * @expectedExceptionMessage An exception occurred retrieving the error document
+     */
+    public function testApiExceptionIsWrapped()
+    {
+        $exception = new \Prismic\Exception\RequestFailureException();
+        $this->api->bookmark('some-bookmark')->willReturn('some-id');
+        $this->api->getById('some-id')->willThrow($exception);
+        $this->request->withAttribute()->shouldNotBeCalled();
+        $request = $this->request->reveal();
+        $middleware = $this->getMiddleware();
         $middleware->process($request, $this->delegate->reveal());
     }
 
@@ -107,10 +96,10 @@ class NotFoundSetupTest extends TestCase
         $this->api->bookmark('some-bookmark')->willReturn('some-id');
         $this->api->getById('some-id')->willReturn($doc->reveal());
         $this->currentDoc->setDocument($doc)->shouldBeCalled();
-        $this->request->withAttribute(Prismic\Document::class, $doc)->willReturn($this->request->reveal());
+        $this->request->withAttribute(Prismic\DocumentInterface::class, $doc)->willReturn($this->request->reveal());
         $this->request->withAttribute('template', 'some-template')->willReturn($this->request->reveal());
         $this->delegate->handle($this->request->reveal())->willReturn(new ServerResponse);
-        $middleware = $this->getMiddleware(false);
+        $middleware = $this->getMiddleware();
         $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
         $this->assertSame(404, $response->getStatusCode());
     }

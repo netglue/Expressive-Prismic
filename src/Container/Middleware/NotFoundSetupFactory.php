@@ -29,16 +29,11 @@ class NotFoundSetupFactory
             );
         }
 
-        $fallback = isset($config['prismic']['error_handler']['render_404_fallback'])
-                  ? $config['prismic']['error_handler']['render_404_fallback']
-                  : false;
-
         return new NotFoundSetup(
             $container->get(Prismic\Api::class),
             $container->get(CurrentDocument::class),
             $config['prismic']['error_handler']['bookmark_404'],
-            $config['prismic']['error_handler']['template_404'],
-            $fallback
+            $config['prismic']['error_handler']['template_404']
         );
     }
 }

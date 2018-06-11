@@ -11,6 +11,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use ExpressivePrismic\Exception;
 use ExpressivePrismic\Service\CurrentDocument;
 use Prismic;
+use Prismic\Exception\ExceptionInterface as CMSException;
 
 class NotFoundSetup implements MiddlewareInterface
 {
@@ -34,23 +35,16 @@ class NotFoundSetup implements MiddlewareInterface
      */
     private $template;
 
-    /**
-     * @var bool
-     */
-    private $fallback;
-
     public function __construct(
         Prismic\Api $api,
         CurrentDocument $documentRegistry,
         string $documentBookmark,
-        string $templateName,
-        bool $fallback = false
+        string $templateName
     ) {
         $this->documentRegistry = $documentRegistry;
         $this->api              = $api;
         $this->bookmark         = $documentBookmark;
         $this->template         = $templateName;
-        $this->fallback         = $fallback;
     }
 
     public function process(Request $request, DelegateInterface $delegate) : Response
@@ -58,7 +52,7 @@ class NotFoundSetup implements MiddlewareInterface
         $document = $this->locateErrorDocument();
         if ($document) {
             $this->documentRegistry->setDocument($document);
-            $request = $request->withAttribute(Prismic\Document::class, $document);
+            $request = $request->withAttribute(Prismic\DocumentInterface::class, $document);
             $request = $request->withAttribute('template', $this->template);
         }
 
@@ -76,19 +70,22 @@ class NotFoundSetup implements MiddlewareInterface
     {
         $id = $this->api->bookmark($this->bookmark);
         if (! $id) {
-            if ($this->fallback) {
-                return null;
-            }
             throw new Exception\RuntimeException(
                 'Cannot generate CMS driven Error page. '
                 . 'Error document bookmark does not reference a current document ID'
             );
         }
-        $document = $this->api->getById($id);
+        try {
+            $document = $this->api->getById($id);
+        } catch (CMSException $exception) {
+            throw new Exception\RuntimeException(
+                'Cannot generate CMS driven Error page. '
+                . 'An exception occurred retrieving the error document',
+                0,
+                $exception
+            );
+        }
         if (! $document) {
-            if ($this->fallback) {
-                return null;
-            }
             throw new Exception\RuntimeException(
                 'Cannot generate CMS driven Error page. Error document cannot be resolved'
             );
