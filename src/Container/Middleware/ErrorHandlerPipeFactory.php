@@ -5,7 +5,7 @@ namespace ExpressivePrismic\Container\Middleware;
 
 use Psr\Container\ContainerInterface;
 use Zend\Stratigility\MiddlewarePipe;
-use ExpressivePrismic\Exception;
+use Zend\Expressive\MiddlewareFactory;
 use ExpressivePrismic\Middleware;
 
 class ErrorHandlerPipeFactory
@@ -13,36 +13,15 @@ class ErrorHandlerPipeFactory
 
     public function __invoke(ContainerInterface $container) : MiddlewarePipe
     {
-        $config = $container->get('config');
+        $factory = $container->get(MiddlewareFactory::class);
 
-        $defaultPipe = [
-            Middleware\InjectPreviewScript::class,
-            Middleware\ExperimentInitiator::class,
-            Middleware\PrismicTemplate::class,
-        ];
+        $pipeline = new MiddlewarePipe;
 
-        $configuredPipe = null;
+        $pipeline->pipe($factory->prepare(Middleware\InjectPreviewScript::class));
+        $pipeline->pipe($factory->prepare(Middleware\ExperimentInitiator::class));
+        $pipeline->pipe($factory->prepare(Middleware\ErrorDocumentSetup::class));
+        $pipeline->pipe($factory->prepare(Middleware\PrismicTemplate::class));
 
-        if (isset($config['prismic']['error_handler']['middleware_error'])) {
-            $configuredPipe = $config['prismic']['error_handler']['middleware_error'];
-        }
-
-        $middleware = $configuredPipe
-                    ? $configuredPipe
-                    : $defaultPipe;
-
-        if (! is_array($middleware)) {
-            throw new Exception\RuntimeException(
-                'Cannot create an error handler pipeline without middleware provided in config under '
-                . '[prismic][error_handler][middleware_error]'
-            );
-        }
-
-        $pipe = new MiddlewarePipe;
-        foreach ($middleware as $name) {
-            $pipe->pipe($container->get($name));
-        }
-
-        return $pipe;
+        return $pipeline;
     }
 }

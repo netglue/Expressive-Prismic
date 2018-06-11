@@ -7,15 +7,15 @@ namespace ExpressivePrismicTest\Container\Middleware;
 use ExpressivePrismicTest\TestCase;
 
 // SUT
-use ExpressivePrismic\Container\Middleware\NotFoundSetupFactory;
+use ExpressivePrismic\Container\Middleware\ErrorDocumentSetupFactory;
 
 // Deps
 use Psr\Container\ContainerInterface;
-use ExpressivePrismic\Middleware\NotFoundSetup;
+use ExpressivePrismic\Middleware\ErrorDocumentSetup;
 use ExpressivePrismic\Service\CurrentDocument;
 use Prismic;
 
-class NotFoundSetupFactoryTest extends TestCase
+class ErrorDocumentSetupFactoryTest extends TestCase
 {
 
     private $container;
@@ -35,16 +35,16 @@ class NotFoundSetupFactoryTest extends TestCase
         );
         $this->container->get('config')->willReturn([
             'prismic' => ['error_handler' => [
-                'template_404' => 'templateName',
-                'bookmark_404' => 'bookmarkName',
+                'template_error' => 'templateName',
+                'bookmark_error' => 'bookmarkName',
             ]]
         ]);
 
-        $factory = new NotFoundSetupFactory;
+        $factory = new ErrorDocumentSetupFactory;
 
         $middleware = $factory($this->container->reveal());
 
-        $this->assertInstanceOf(NotFoundSetup::class, $middleware);
+        $this->assertInstanceOf(ErrorDocumentSetup::class, $middleware);
     }
 
     /**
@@ -60,12 +60,12 @@ class NotFoundSetupFactoryTest extends TestCase
         );
         $this->container->get('config')->willReturn([
             'prismic' => ['error_handler' => [
-                'template_404' => 'templateName',
-                'bookmark_404' => null,
+                'template_error' => 'templateName',
+                'bookmark_error' => null,
             ]]
         ]);
 
-        $factory = new NotFoundSetupFactory;
+        $factory = new ErrorDocumentSetupFactory;
         $factory($this->container->reveal());
     }
 
@@ -82,12 +82,12 @@ class NotFoundSetupFactoryTest extends TestCase
         );
         $this->container->get('config')->willReturn([
             'prismic' => ['error_handler' => [
-                'template_404' => null,
-                'bookmark_404' => 'foo',
+                'template_error' => null,
+                'bookmark_error' => 'foo',
             ]]
         ]);
 
-        $factory = new NotFoundSetupFactory;
+        $factory = new ErrorDocumentSetupFactory;
         $factory($this->container->reveal());
     }
 }

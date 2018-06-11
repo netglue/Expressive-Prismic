@@ -83,21 +83,23 @@ class ConfigProvider
                 Middleware\PreviewInitiator::class => Container\Middleware\PreviewInitiatorFactory::class,
 
                 // Injects javascript for running A/B tests with Prismic and Google Analytics
-                Middleware\ExperimentInitiator::class => Container\Middleware\ExperimentInitiatorFactory::class,
+                Middleware\ExperimentInitiator::class    => Container\Middleware\ExperimentInitiatorFactory::class,
 
                 // Injects javascript to display the preview toolbar
-                Middleware\InjectPreviewScript::class => Container\Middleware\InjectPreviewScriptFactory::class,
+                Middleware\InjectPreviewScript::class    => Container\Middleware\InjectPreviewScriptFactory::class,
 
-                // Middleware that sets Request Attributes with the bookmarked 404 document when a 404 is in process
-                Middleware\NotFoundSetup::class => Container\Middleware\NotFoundSetupFactory::class,
+                // Middleware that resolves the 404 document from the API
+                Middleware\NotFoundSetup::class          => Container\Middleware\NotFoundSetupFactory::class,
+                // Middleware that resolves the error document from the API
+                Middleware\ErrorDocumentSetup::class     => Container\Middleware\ErrorDocumentSetupFactory::class,
 
-                // The Pipeline that runs as the outermost middleware for rendering 404 errors
-                Middleware\NotFoundPipe::class => Container\Middleware\NotFoundPipeFactory::class,
+                // The Pipeline used for rendering 404 error documents
+                Middleware\NotFoundPipe::class           => Container\Middleware\NotFoundPipeFactory::class,
+                // The Pipeline used for rendering exception/error documents
+                Middleware\ErrorHandlerPipe::class       => Container\Middleware\ErrorHandlerPipeFactory::class,
 
                 // Custom error response generator intended to replace the default in Zend Expressive
                 Middleware\ErrorResponseGenerator::class => Container\Middleware\ErrorResponseGeneratorFactory::class,
-                // The Pipeline that runs when an error (exception) occurs
-                'ExpressivePrismic\Middleware\ErrorHandlerPipe' => Container\Middleware\ErrorHandlerPipeFactory::class,
             ],
             'invokables' => [
                 // An instance used to track the current document for the request
@@ -210,16 +212,6 @@ class ConfigProvider
                 'bookmark_error'    => null,
                 'template_error'    => 'error::error',
 
-                /**
-                 * The pipe line can be overridden by providing an array of middleware here,
-                 * the default is shown:
-                 *
-                 * 'middleware_error' => [
-                 *     Middleware\InjectPreviewScript::class,
-                 *     Middleware\ExperimentInitiator::class,
-                 *     Middleware\PrismicTemplate::class,
-                 * ],
-                 */
             ],
 
             /**

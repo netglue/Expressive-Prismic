@@ -81,7 +81,7 @@ class NotFoundSetupTest extends TestCase
      */
     public function testApiExceptionIsWrapped()
     {
-        $exception = new \Prismic\Exception\RequestFailureException();
+        $exception = new Prismic\Exception\RequestFailureException();
         $this->api->bookmark('some-bookmark')->willReturn('some-id');
         $this->api->getById('some-id')->willThrow($exception);
         $this->request->withAttribute()->shouldNotBeCalled();
