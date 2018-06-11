@@ -29,9 +29,6 @@ class PreviewInitiatorFactoryTest extends TestCase
         $this->container->get(Prismic\Api::class)->willReturn(
             $this->prophesize(Prismic\Api::class)->reveal()
         );
-        $this->container->get(Prismic\LinkResolver::class)->willReturn(
-            $this->prophesize(Prismic\LinkResolver::class)->reveal()
-        );
 
         $factory = new PreviewInitiatorFactory;
 

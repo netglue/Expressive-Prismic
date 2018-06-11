@@ -23,13 +23,11 @@ class PreviewInitiatorTest extends TestCase
     private $delegate;
     private $request;
     private $api;
-    private $resolver;
     private $uri;
 
     public function setUp()
     {
         $this->api      = $this->prophesize(Prismic\Api::class);
-        $this->resolver = $this->prophesize(Prismic\LinkResolver::class);
         $this->delegate = $this->prophesize(DelegateInterface::class);
         $this->request  = $this->prophesize(Request::class);
         $this->uri      = $this->prophesize(UriInterface::class);
@@ -38,8 +36,7 @@ class PreviewInitiatorTest extends TestCase
     public function getMiddleware()
     {
         return new PreviewInitiator(
-            $this->api->reveal(),
-            $this->resolver->reveal()
+            $this->api->reveal()
         );
     }
 
@@ -59,7 +56,7 @@ class PreviewInitiatorTest extends TestCase
         $this->uri->getHost()->willReturn('foo.com');
         $this->request->getUri()->willReturn($this->uri->reveal());
         $this->request->getQueryParams()->willReturn(['token' => 'Some%20Token']);
-        $this->api->previewSession('Some Token', Argument::type(Prismic\LinkResolver::class), Argument::type('string'))
+        $this->api->previewSession('Some Token', Argument::type('string'))
              ->willReturn('/some-url');
     }
 

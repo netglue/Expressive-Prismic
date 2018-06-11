@@ -19,22 +19,11 @@ class PreviewInitiator implements MiddlewareInterface
      */
     private $api;
 
-    /**
-     * @var Prismic\LinkResolver
-     */
-    private $linkResolver;
-
-    public function __construct(Prismic\Api $api, Prismic\LinkResolver $linkResolver)
+    public function __construct(Prismic\Api $api)
     {
         $this->api = $api;
-        $this->linkResolver = $linkResolver;
     }
 
-    /**
-     * @param  Request           $request
-     * @param  DelegateInterface $delegate
-     * @return Response
-     */
     public function process(Request $request, DelegateInterface $delegate) : Response
     {
         $query = $request->getQueryParams();
@@ -71,7 +60,7 @@ class PreviewInitiator implements MiddlewareInterface
         /**
          * Figure out URL and redirect
          */
-        $url = $this->api->previewSession($token, $this->linkResolver, '/');
+        $url = $this->api->previewSession($token, '/');
 
         return new RedirectResponse($url, 302, [$cookie->getFieldName() => $cookie->getFieldValue()]);
     }
