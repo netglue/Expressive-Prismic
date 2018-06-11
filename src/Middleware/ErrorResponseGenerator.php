@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace ExpressivePrismic\Middleware;
 
+use ExpressivePrismic\Exception\DocumentNotFoundException;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -18,17 +19,29 @@ class ErrorResponseGenerator implements RequestHandlerInterface
     /**
      * @var MiddlewarePipeInterface
      */
-    private $pipe;
+    private $errorPipeline;
 
-    public function __construct(MiddlewarePipeInterface $pipe)
-    {
-        $this->pipe = $pipe;
+    /**
+     * @var MiddlewarePipeInterface
+     */
+    private $notFoundPipeline;
+
+    public function __construct(
+        MiddlewarePipeInterface $errorPipeline,
+        MiddlewarePipeInterface $notFoundPipeline
+    ) {
+        $this->errorPipeline = $errorPipeline;
+        $this->notFoundPipeline = $notFoundPipeline;
     }
 
     public function __invoke(Throwable $error, Request $request, Response $response) : Response
     {
         try {
-            $response = $this->pipe->process($request, $this);
+            if ($error instanceof DocumentNotFoundException) {
+                $response = $this->notFoundPipeline->process($request, $this);
+                return $response->withStatus(404);
+            }
+            $response = $this->errorPipeline->process($request, $this);
             return $response->withStatus(Utils::getStatusCode($error, $response));
         } catch (\Throwable $e) {
             return $this->generateFallbackResponse();

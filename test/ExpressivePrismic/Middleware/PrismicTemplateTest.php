@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExpressivePrismicTest\Middleware;
 
 // Infra
+use ExpressivePrismic\Exception\DocumentNotFoundException;
 use ExpressivePrismicTest\TestCase;
 use Prismic\DocumentInterface;
 use Prophecy\Argument;
@@ -14,7 +15,6 @@ use ExpressivePrismic\Middleware\PrismicTemplate;
 // Deps
 use Zend\Expressive\Template\TemplateRendererInterface;
 use Prismic\LinkResolver;
-use Prismic\Document;
 use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\HtmlResponse;
@@ -43,16 +43,15 @@ class PrismicTemplateTest extends TestCase
         );
     }
 
-    public function testTemplateIsNotRenderedWhenNoDocumentIsPresent()
+    /**
+     * @expectedException \ExpressivePrismic\Exception\DocumentNotFoundException
+     */
+    public function testExceptionIsThrownWhenDocumentCannotBeResolved()
     {
         $this->request->getAttribute('template')->willReturn('SomeTemplate');
         $this->request->getAttribute(DocumentInterface::class)->willReturn(null);
-        $this->renderer->render()->shouldNotBeCalled();
-        $req = $this->request->reveal();
-        $this->delegate->handle($req)->shouldBeCalled();
-
         $middleware = $this->getMiddleware();
-        $middleware->process($req, $this->delegate->reveal());
+        $middleware->process($this->request->reveal(), $this->delegate->reveal());
     }
 
     public function testTemplateIsRendered()

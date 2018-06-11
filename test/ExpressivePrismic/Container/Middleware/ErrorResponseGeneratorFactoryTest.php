@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExpressivePrismicTest\Container\Middleware;
 
 // Infra
+use ExpressivePrismic\Middleware\NotFoundPipe;
 use ExpressivePrismicTest\TestCase;
 
 // SUT
@@ -27,6 +28,9 @@ class ErrorResponseGeneratorFactoryTest extends TestCase
     public function testFactory()
     {
         $this->container->get(ErrorHandlerPipe::class)->willReturn(
+            $this->prophesize(MiddlewarePipeInterface::class)->reveal()
+        );
+        $this->container->get(NotFoundPipe::class)->willReturn(
             $this->prophesize(MiddlewarePipeInterface::class)->reveal()
         );
         $factory = new ErrorResponseGeneratorFactory;

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ExpressivePrismic\Middleware;
 
+use ExpressivePrismic\Exception\DocumentNotFoundException;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -51,7 +52,7 @@ class PrismicTemplate implements MiddlewareInterface
         $document = $request->getAttribute(Prismic\DocumentInterface::class);
 
         if (! $document || ! $template) {
-            return $delegate->handle($request);
+            DocumentNotFoundException::throw404();
         }
 
         $view = [

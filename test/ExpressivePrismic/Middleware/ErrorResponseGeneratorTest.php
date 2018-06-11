@@ -21,24 +21,28 @@ class ErrorResponseGeneratorTest extends TestCase
 {
 
     /** @var MiddlewarePipe */
-    private $pipe;
+    private $errorPipe;
+    /** @var MiddlewarePipe */
+    private $notFoundPipe;
 
     public function setUp()
     {
-        $this->pipe = $this->prophesize(MiddlewarePipeInterface::class);
+        $this->errorPipe    = $this->prophesize(MiddlewarePipeInterface::class);
+        $this->notFoundPipe = $this->prophesize(MiddlewarePipeInterface::class);
     }
 
     public function getMiddleware()
     {
         return new ErrorResponseGenerator(
-            $this->pipe->reveal()
+            $this->errorPipe->reveal(),
+            $this->notFoundPipe->reveal()
         );
     }
 
     public function testThatInvokeProcessesPipe()
     {
         $response = new TextResponse('Some Text');
-        $this->pipe->process(
+        $this->errorPipe->process(
             Argument::any(),
             Argument::type(ErrorResponseGenerator::class)
         )->willReturn($response);
@@ -55,7 +59,7 @@ class ErrorResponseGeneratorTest extends TestCase
 
     public function testThatExceptionDuringProcessRendersFallbackTextResponse()
     {
-        $this->pipe->process(
+        $this->errorPipe->process(
             Argument::any(),
             Argument::type(ErrorResponseGenerator::class)
         )->willThrow(new \Exception('Uncaught'));
