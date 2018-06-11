@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExpressivePrismicTest\Middleware;
 
 // Infra
+use ExpressivePrismic\Exception\DocumentNotFoundException;
 use ExpressivePrismicTest\TestCase;
 use Prophecy\Argument;
 
@@ -39,14 +40,14 @@ class ErrorResponseGeneratorTest extends TestCase
         );
     }
 
-    public function testThatInvokeProcessesPipe()
+    public function testThatInvokeProcessesErrorPipe()
     {
         $response = new TextResponse('Some Text');
         $this->errorPipe->process(
             Argument::any(),
             Argument::type(ErrorResponseGenerator::class)
         )->willReturn($response);
-
+        $this->notFoundPipe->process(Argument::any())->shouldNotBeCalled();
         $handler = $this->getMiddleware();
 
         $originalRequest = $this->prophesize(Request::class)->reveal();
@@ -63,7 +64,7 @@ class ErrorResponseGeneratorTest extends TestCase
             Argument::any(),
             Argument::type(ErrorResponseGenerator::class)
         )->willThrow(new \Exception('Uncaught'));
-
+        $this->notFoundPipe->process(Argument::any())->shouldNotBeCalled();
         $handler = $this->getMiddleware();
         $originalRequest = $this->prophesize(Request::class)->reveal();
         $originalResponse = $this->prophesize(Response::class)->reveal();
@@ -73,5 +74,21 @@ class ErrorResponseGeneratorTest extends TestCase
         $this->assertInstanceOf(TextResponse::class, $result);
         $this->assertSame('An Unexpected Error Occurred', (string) $result->getBody());
         $this->assertSame(500, $result->getStatusCode());
+    }
+
+    public function testNotFoundPipeIsProcessedWhenThrowableInstanceofDocumentNotFound()
+    {
+        $response = new TextResponse('Some Text');
+        $this->errorPipe->process(Argument::any())->shouldNotBeCalled();
+        $this->notFoundPipe->process(
+            Argument::any(),
+            Argument::type(ErrorResponseGenerator::class)
+        )->willReturn($response);
+        $handler = $this->getMiddleware();
+        $originalRequest = $this->prophesize(Request::class)->reveal();
+        $originalResponse = $this->prophesize(Response::class)->reveal();
+        $result = $handler(new DocumentNotFoundException('Message'), $originalRequest, $originalResponse);
+        $this->assertSame( 'Some Text', (string) $result->getBody());
+        $this->assertSame(404, $result->getStatusCode());
     }
 }
