@@ -121,12 +121,12 @@ class ConfigProvider
                  *
                  * This alias is commented out to show what to do to take advantage of CMS driven 404's
                  */
-                //NotFoundHandler::class => Middleware\NotFoundPipe::class,
+                NotFoundHandler::class => Middleware\NotFoundPipe::class,
 
                 /**
                  * Replace the shipped ErrorResponseGenerator with our own in order to render 500 errors from the CMS
                  */
-                //ErrorResponseGenerator::class => Middleware\ErrorResponseGenerator::class,
+                ErrorResponseGenerator::class => Middleware\ErrorResponseGenerator::class,
             ],
             'delegators' => [
                 Application::class => [
