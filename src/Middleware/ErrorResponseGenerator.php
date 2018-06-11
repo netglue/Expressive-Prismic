@@ -10,7 +10,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
 use Zend\Stratigility\MiddlewarePipeInterface;
-use Zend\Stratigility\Utils;
 use Zend\Diactoros\Response\TextResponse;
 
 class ErrorResponseGenerator implements RequestHandlerInterface
@@ -42,7 +41,7 @@ class ErrorResponseGenerator implements RequestHandlerInterface
                 return $response->withStatus(404);
             }
             $response = $this->errorPipeline->process($request, $this);
-            return $response->withStatus(Utils::getStatusCode($error, $response));
+            return $response->withStatus(500);
         } catch (\Throwable $e) {
             return $this->generateFallbackResponse();
         }
