@@ -133,9 +133,9 @@ This view helper operates on the current resolved document and provides an easy 
 
 ## CMS Managed Error Pages for Production
 
-**Error handling is not wired in by default**, so if you want want pretty error pages you'll need to explicitly enable them.
+**Error handling is wired in by default**… If you are using the Whoops error handler in development, you'll need to disable development mode `composer development-disable` to experience custom errors and 404's
 
-### Opt-In CMS 404 Errors
+### 404 Errors
 
 In the event of a 404, by default, Expressive will execute the `\Zend\Expressive\Handler\NotFoundHandler`. This module provides a pipeline in `\ExpressivePrismic\Middleware\NotFoundPipe` that initialises previews and experiments, locates a bookmarked error document in the Prismic API and renders that document to a template.
 
@@ -152,25 +152,11 @@ To take advantage of pretty CMS managed 404's, first you will have to specify in
     ];
 ```
 
-You will also need to decide whether you want to replace the shipped 404 request handler or pipe it into you app before the default request handler. It makes most sense to replace the shipped handler, because if a 404 document cannot be resolved, the pipeline will throw exceptions, therefore it's unlikely that the default _(Expressive)_ 404 handler will ever be reached.
+Note that in development mode, 404's experienced after a route has matched, i.e. the Prismic Document can't be found, will cause a `DocumentNotFound` exception, thereby delegating to the Whoops error handler.
 
-To replace the default request handler, you should alias the default handler to the pipeline configured in this module under your dependency config:
-```php
-    return [
-        'dependencies' => [
-            'aliases' => [
-                \Zend\Expressive\Handler\NotFoundHandler::class =>
-                    \ExpressivePrismic\Middleware\NotFoundPipe::class,
-            ],
-        ],
-    ];
-```
+### Exceptions
 
-As mentioned, the pipeline is retrieved from the container using the alias `ExpressivePrismic\Middleware\NotFoundPipe`. Naturally, you can setup delegator factories to alter the pipeline, or use the factory as a basis for creating your own pipeline.
-
-### Opt-In CMS Exceptions
-
-Presenting a pretty error page during errors and exceptions are handled in much the same way as 404's. Again, you'll need to configure a bookmark and a template name used to render the content, but you will also need to alias the `ErrorResponseGenerator` in your dependencies.
+Presenting a pretty error page during errors and exceptions are handled in much the same way as 404's. Again, you'll need to configure a bookmark and a template name used to render the content.
 
 ```php
     return [
@@ -180,16 +166,7 @@ Presenting a pretty error page during errors and exceptions are handled in much 
                 'bookmark_error'   => 'some-bookmark',
             ],
         ],
-        'dependencies' => [
-            'aliases' => [
-                \Zend\Expressive\Middleware\ErrorResponseGenerator::class =>
-                    \ExpressivePrismic\Middleware\ErrorResponseGenerator::class,
-            ],
-        ],
     ];
 ```
 
 The fallback _(i.e. when the error document cannot be retrieved from the api)_ for exception situations is a simple plain text message stating that an error occurred. This fallback is not currently configurable to be anything more fancy than that.
-
-The pipeline for retrieving and rendering the error document is retrieved from the container using `\ExpressivePrismic\Middleware\ErrorHandlerPipe::class`. You can of course override this pipeline by replacing it or modifying the existing setup with a delegator factory. 
-
