@@ -11,7 +11,9 @@ If you haven't heard of Prismic before, you can [find out about it here](https:/
 
 ## Requirements
 
-This module is only suitable for Zend Expressive ^2.0 and PHP ^7.1
+This module is only suitable for Zend Expressive ^3.0 and PHP ^7.1
+
+Furthermore, it uses a fork of the official Prismic.io php library which you can see here: [netglue/prismic-php-kit](https://github.com/netglue/prismic-php-kit). This fork is quite different to the official kit and I recommend looking through the docs/code to make yourself aware of the differences if you are already familiar with the official lib.
 
 ## Install
 
@@ -27,7 +29,8 @@ This should also ask you if you want to inject the config provider too.
 ## Basic Configuration
 
 This library exposes the Prismic API instance in your container as `Prismic\Api`. At the very least, you'll need to configure your credentials thus:
-    
+
+```php
     return [
         'prismic' => [
             'api' => [
@@ -36,11 +39,13 @@ This library exposes the Prismic API instance in your container as `Prismic\Api`
             ],
         ],
     ];
+```
 
 ## Defining Routes
 
 In order to allow you to specify properties of a document to look out for during routing, you must map the route parameter names you want to use to the prismic document/api equivalent. The defaults are:
-    
+
+```php
     'prismic' => [
         'route_params' => [
             'id'       => 'prismic-id',
@@ -50,56 +55,50 @@ In order to allow you to specify properties of a document to look out for during
             'lang'     => 'prismic-lang',
         ],
     ],
+```
 
 So, assuming the above, to define a route to a bookmarked document, you would configure something like this:
-    
-    'routes' => [
-        'home' => [
-            'name' => 'home',
-            'path' => '/',
-            'allowed_methods' => ['GET'],
-            'middleware' => [ /* ... */ ],
-            'options' => [
-                'defaults' => [
-                    'template' => 'my:home-page',
-                    'prismic-bookmark' => 'home',
-                ],
-            ],
-        ],
-    ],
 
+```php
+    /**
+     * @var \Zend\Expressive\Application $app
+     * @var \Zend\Stratigility\MiddlewarePipeInterface $middlewarePipe
+     */
+    $app->route('/', [$middlewarePipe], ['GET'], 'home')
+        ->setOptions([
+            'defaults' => [
+                'template' => 'page::default',
+                'prismic-bookmark' => 'home',
+            ],
+        ]);
+```
 Normally, to save yourself some effort, you'd have a template that's capable of rendering perhaps any page of a given type such as a 'case-study' type. Let's say you want the url `/case-studies/{case-study-uid}`, then you'd define a route like this _(If you are using FastRoute)_:
-    
-    'routes' => [
-        'case-studies' => [
-            'name' => 'case-studies',
-            'path' => '/case-studies/{prismic-uid}',
-            'allowed_methods' => ['GET'],
-            'middleware' => [ /* ... */ ],
-            'options' => [
+
+```php
+    $app->route('/case-studies/{prismic-uid}', [$middlewarePipe], ['GET'], 'case-studies')
+            ->setOptions([
                 'defaults' => [
                     'template' => 'my:case-study',
                     'prismic-type' => 'case-study',
                 ],
-            ],
-        ],
-    ],
-
-
+            ]);
+```
 
 ## Cache Busting Webhook
 
-You will be able to see in `Factory\PipelineAndRoutesDelegator` that two routes are wired in by default, one of these is the webhook to bust the cache. In order to use it, you will need to set the shared secret that Prismic.io sends in it's webhook payload like this:
+You will see in `Factory\PipelineAndRoutesDelegator` that two routes are wired in by default, one of these is the webhook to bust the cache. In order to use it, you will need to provide the shared secret that Prismic.io sends in it's webhook payload to a local configuration file or Config Provider like this:
 
+```php
     return [
         'prismic' => [
             'webhook_secret' => 'SomeSuperToughSharedSecret',
         ],
     ];
+```
 
 The Url of the webhook will be `/prismicio-cache-webhook` - given a valid Json payload containing a matching shared secret, the pre-configured middleware will empty the cache attached to the Prismic API instance.
 
-The webhook route points to a middleware pipe named `ExpressivePrismic\Middleware\WebhookMiddlewarePipe` so if you want to modify the pipeline to do other things, or replace it entirely, just alias that pipe to different factory or implement a delegator factory for the pipe.
+The webhook route points to a middleware pipe named `ExpressivePrismic\Middleware\WebhookPipe` so if you want to modify the pipeline to do other things, or replace it entirely, just alias that pipe to different factory or implement a delegator factory for the pipe.
 
 ## Link Resolver
 
@@ -119,12 +118,12 @@ This view helper will generate a local URL using the link resolver. It's `__invo
 
 * string - Treated as a Document ID
 * \Prismic\Document
-* \Prismic\Fragment\Link\LinkInterface
+* \Prismic\Document\Fragment\LinkInterface
 
 
 ### Fragment Helper `$this->fragment()`
 
-This view helper operates on the current resolved document and provides an easy way of rendering simple fragments to views. It does not require the fully qaulified fragment name, ie. `documentType.fragmentName` and instead you can pass it just `'fragmentName'`.
+This view helper operates on the current resolved document and provides an easy way of rendering simple fragments to views. It does not require the fully qualified fragment name, ie. `documentType.fragmentName` and instead you can pass it just `'fragmentName'`.
 
 `$this->fragment()->get('title');` will return the fragment object.
 
@@ -134,14 +133,15 @@ This view helper operates on the current resolved document and provides an easy 
 
 ## CMS Managed Error Pages for Production
 
-**Error handling is wired in by default**
+**Error handling is not wired in by default**, so if you want want pretty error pages you'll need to explicitly enable them.
 
-### 404 Errors
+### Opt-In CMS 404 Errors
 
-In the event of a 404, Expressive will execute the default 'not found delegate' which consists of a single `NotFoundHandler` middleware. This module replaces the `NotFoundHandler` with a custom middleware pipe that initialises previews and experiments, locates a bookmarked error document in the Prismic API and renders that document to a template.
+In the event of a 404, by default, Expressive will execute the `\Zend\Expressive\Handler\NotFoundHandler`. This module provides a pipeline in `\ExpressivePrismic\Middleware\NotFoundPipe` that initialises previews and experiments, locates a bookmarked error document in the Prismic API and renders that document to a template.
 
-All you have to do to take advantage of pretty CMS managed 404s is to specify the bookmark name for the error document in your repository and specify the template name to render like this:
+To take advantage of pretty CMS managed 404's, first you will have to specify in your configuration the bookmark name for the error document in your repository and the template name to render like this:
 
+```php
     return [
         'prismic' => [
             'error_handler' => [
@@ -150,55 +150,46 @@ All you have to do to take advantage of pretty CMS managed 404s is to specify th
             ],
         ],
     ];
+```
 
-The pipeline is retrieved from the container using the alias `ExpressivePrismic\Middleware\NotFoundPipe` and by default, a factory is registered to return a suitable pipeline. You can override the pipeline either by changing the alias to point at your own factory which should return a `Zend\Stratigility\MiddlewarePipe` or by providing an array of middleware class names in config like this:
-    
+You will also need to decide whether you want to replace the shipped 404 request handler or pipe it into you app before the default request handler. It makes most sense to replace the shipped handler, because if a 404 document cannot be resolved, the pipeline will throw exceptions, therefore it's unlikely that the default _(Expressive)_ 404 handler will ever be reached.
+
+To replace the default request handler, you should alias the default handler to the pipeline configured in this module under your dependency config:
+```php
     return [
-        'prismic' => [
-            'error_handler' => [
-                'middleware_404' => [
-                    \ExpressivePrismic\Middleware\InjectPreviewScript::class,
-                    \ExpressivePrismic\Middleware\ExperimentInitiator::class,
-                    \ExpressivePrismic\Middleware\NotFoundSetup::class,
-                    \\SomeOtherMiddleware-ToRun-Before-Template-Is-Rendered…
-                    \ExpressivePrismic\Middleware\PrismicTemplate::class,
-                ],
+        'dependencies' => [
+            'aliases' => [
+                \Zend\Expressive\Handler\NotFoundHandler::class =>
+                    \ExpressivePrismic\Middleware\NotFoundPipe::class,
             ],
         ],
     ];
+```
 
-There is an additional config key for 404 errors that determines what should happen if the 404 document cannot be retrieved from the Prismic API. This boolean when false means that an exception will be thrown if the document cannot be resolved _(Default behaviour)_. Setting the value to true will fall back to the default 404 rendering provided by Zend Expressive.
+As mentioned, the pipeline is retrieved from the container using the alias `ExpressivePrismic\Middleware\NotFoundPipe`. Naturally, you can setup delegator factories to alter the pipeline, or use the factory as a basis for creating your own pipeline.
 
-    return [
-        'prismic' => [
-            'error_handler' => [
-                'render_404_fallback' => true, // or false
-            ]
-        ]
-    ]
+### Opt-In CMS Exceptions
 
-### Exceptions
+Presenting a pretty error page during errors and exceptions are handled in much the same way as 404's. Again, you'll need to configure a bookmark and a template name used to render the content, but you will also need to alias the `ErrorResponseGenerator` in your dependencies.
 
-Exceptions are handled in much the same way. We need to know the bookmark and template, and the pipeline can be overridden in the same way but obviously, the keys are different:
-
+```php
     return [
         'prismic' => [
             'error_handler' => [
                 'template_error'   => 'some::template-name',
                 'bookmark_error'   => 'some-bookmark',
-                'middleware_error' => [
-                    \ExpressivePrismic\Middleware\InjectPreviewScript::class,
-                    \ExpressivePrismic\Middleware\ExperimentInitiator::class,
-                    \ExpressivePrismic\Middleware\PrismicTemplate::class,
-                ],
+            ],
+        ],
+        'dependencies' => [
+            'aliases' => [
+                \Zend\Expressive\Middleware\ErrorResponseGenerator::class =>
+                    \ExpressivePrismic\Middleware\ErrorResponseGenerator::class,
             ],
         ],
     ];
+```
 
-The fallback _(i.e. when the error document cannot be retrieved from the api)_ for exception situations is a simple plain text message stating that an error occurred. This fallback is not currently configurable to be anything more fancy.
+The fallback _(i.e. when the error document cannot be retrieved from the api)_ for exception situations is a simple plain text message stating that an error occurred. This fallback is not currently configurable to be anything more fancy than that.
 
-The pipeline for errors is retrieved from the container using `'ExpressivePrismic\Middleware\ErrorHandlerPipe'`.
-
-
-
+The pipeline for retrieving and rendering the error document is retrieved from the container using `\ExpressivePrismic\Middleware\ErrorHandlerPipe::class`. You can of course override this pipeline by replacing it or modifying the existing setup with a delegator factory. 
 

@@ -126,7 +126,7 @@ class ConfigProvider
                 /**
                  * Replace the shipped ErrorResponseGenerator with our own in order to render 500 errors from the CMS
                  */
-                ErrorResponseGenerator::class => Middleware\ErrorResponseGenerator::class,
+                //ErrorResponseGenerator::class => Middleware\ErrorResponseGenerator::class,
             ],
             'delegators' => [
                 Application::class => [
