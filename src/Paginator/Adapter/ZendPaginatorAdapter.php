@@ -21,7 +21,7 @@ class ZendPaginatorAdapter implements AdapterInterface
      *
      * @var int
      */
-    protected $count = null;
+    protected $count;
 
     /**
      * Constructor.
@@ -31,7 +31,7 @@ class ZendPaginatorAdapter implements AdapterInterface
     public function __construct(SearchForm $form)
     {
         $this->form = $form;
-        $this->count = $this->form->count();
+        $this->count = (int) $this->form->count();
     }
 
     /**
@@ -63,7 +63,7 @@ class ZendPaginatorAdapter implements AdapterInterface
      *
      * @return int
      */
-    public function count()
+    public function count() : int
     {
         return $this->count;
     }
