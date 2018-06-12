@@ -54,6 +54,6 @@
             "@check-phpstan",
             "@test"
         ],
-        "check-phpstan": "phpstan analyse --level max -c phpstan.neon src test"
+        "check-phpstan": "phpstan analyse --level max -c phpstan.neon src"
     }
 }
