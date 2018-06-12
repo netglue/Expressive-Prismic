@@ -24,7 +24,7 @@
     },
     "require": {
         "php": ">=7.1",
-        "netglue/prismic-php-kit": "dev-master",
+        "netglue/prismic-php-kit": "^4.0",
         "zendframework/zend-diactoros": "^1.7",
         "zendframework/zend-expressive": "^3.0.1",
         "zendframework/zend-expressive-helpers": "^5.0",
