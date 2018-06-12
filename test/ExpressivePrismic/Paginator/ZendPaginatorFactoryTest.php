@@ -30,5 +30,4 @@ class ZendPaginatorFactoryTest extends TestCase
         $this->assertInstanceOf(Paginator::class, $pager);
         $this->assertInstanceOf(ZendPaginatorAdapter::class, $pager->getAdapter());
     }
-
 }

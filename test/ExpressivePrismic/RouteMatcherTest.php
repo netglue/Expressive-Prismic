@@ -17,12 +17,13 @@ class RouteMatcherTest extends TestCase
 
     public function testBookmarkedRouteIsCorrectlyClassifiedAndReturned()
     {
-        $route = new Route('/foo', function(){});
-        $route->setOptions([
+        $route = $this->prophesize(Route::class);
+        $route->getOptions()->willReturn([
             'defaults' => [
                 'prismic-bookmark' => 'some-bookmark',
             ]
         ]);
+        $route = $route->reveal();
 
         $matcher = new RouteMatcher([$route], new RouteParams);
 
@@ -31,26 +32,28 @@ class RouteMatcherTest extends TestCase
 
     public function testTypedRouteIsCorrectlyClassifiedAndReturned()
     {
-        $route = new Route('/foo', function(){});
-        $route->setOptions([
+        $route = $this->prophesize(Route::class);
+        $route->getOptions()->willReturn([
             'defaults' => [
                 'prismic-type' => 'some-type',
             ]
         ]);
+        $route = $route->reveal();
 
         $matcher = new RouteMatcher([$route], new RouteParams);
 
         $this->assertSame($route, $matcher->getTypedRoute('some-type'));
     }
 
-    public function testTypesAsArrayWillReturnTheSameouteForAllTypes()
+    public function testTypesAsArrayWillReturnTheSameRouteForAllTypes()
     {
-        $route = new Route('/foo', function(){});
-        $route->setOptions([
+        $route = $this->prophesize(Route::class);
+        $route->getOptions()->willReturn([
             'defaults' => [
                 'prismic-type' => ['some-type', 'other-type'],
             ]
         ]);
+        $route = $route->reveal();
 
         $matcher = new RouteMatcher([$route], new RouteParams);
 
@@ -59,20 +62,18 @@ class RouteMatcherTest extends TestCase
     }
 
     /**
-     * @expectedException ExpressivePrismic\Exception\InvalidArgumentException
+     * @expectedException \ExpressivePrismic\Exception\InvalidArgumentException
      * @expectedExceptionMessage Route type definitions for Prismic routes must be a string or an array
      */
     public function testExceptionThrownWhenTypeIsNotAStringOrAnArray()
     {
-        $route = new Route('/foo', function(){});
-        $route->setOptions([
+        $route = $this->prophesize(Route::class);
+        $route->getOptions()->willReturn([
             'defaults' => [
                 'prismic-type' => 1,
             ]
         ]);
 
-        $matcher = new RouteMatcher([$route], new RouteParams);
+        $matcher = new RouteMatcher([$route->reveal()], new RouteParams);
     }
-
-
 }

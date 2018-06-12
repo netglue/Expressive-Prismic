@@ -2,8 +2,8 @@
 declare(strict_types = 1);
 namespace ExpressivePrismic\Middleware;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
@@ -27,7 +27,7 @@ class ValidatePrismicWebhook implements MiddlewareInterface
         $this->expectedSecret = $expectedSecret;
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, DelegateInterface $delegate) : Response
     {
         $body = (string) $request->getBody();
 
@@ -37,18 +37,18 @@ class ValidatePrismicWebhook implements MiddlewareInterface
 
         $json = json_decode($body, true, 10);
 
-        if (!$json) {
+        if (! $json) {
             return $this->jsonError('Invalid payload', 400);
         }
 
 
-        if (!isset($json['secret']) || $json['secret'] !== $this->expectedSecret) {
+        if (! isset($json['secret']) || $json['secret'] !== $this->expectedSecret) {
             return $this->jsonError('Invalid payload', 400);
         }
 
         $request = $request->withAttribute(__CLASS__, $json);
 
-        return $delegate->process($request);
+        return $delegate->handle($request);
     }
 
     /**

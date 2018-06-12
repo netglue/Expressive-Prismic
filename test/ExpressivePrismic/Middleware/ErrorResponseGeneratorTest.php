@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExpressivePrismicTest\Middleware;
 
 // Infra
+use ExpressivePrismic\Exception\DocumentNotFoundException;
 use ExpressivePrismicTest\TestCase;
 use Prophecy\Argument;
 
@@ -13,105 +14,81 @@ use ExpressivePrismic\Middleware\ErrorResponseGenerator;
 // Deps
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use ExpressivePrismic\Service\CurrentDocument;
-use Prismic;
 use Zend\Stratigility\MiddlewarePipe;
-use Zend\Stratigility\Utils;
 use Zend\Diactoros\Response\TextResponse;
-
+use Zend\Stratigility\MiddlewarePipeInterface;
 
 class ErrorResponseGeneratorTest extends TestCase
 {
-    private $api;
-    private $docRegistry;
-    private $request;
-    private $pipe;
+
+    /** @var MiddlewarePipe */
+    private $errorPipe;
+    /** @var MiddlewarePipe */
+    private $notFoundPipe;
 
     public function setUp()
     {
-        $this->api      = $this->prophesize(Prismic\Api::class);
-        $this->request  = $this->prophesize(Request::class);
-        $this->docRegistry = $this->prophesize(CurrentDocument::class);
-        $this->pipe = $this->prophesize(MiddlewarePipe::class);
+        $this->errorPipe    = $this->prophesize(MiddlewarePipeInterface::class);
+        $this->notFoundPipe = $this->prophesize(MiddlewarePipeInterface::class);
     }
 
     public function getMiddleware()
     {
         return new ErrorResponseGenerator(
-            $this->pipe->reveal(),
-            $this->api->reveal(),
-            $this->docRegistry->reveal(),
-            'bookmark',
-            'template-name'
+            $this->errorPipe->reveal(),
+            $this->notFoundPipe->reveal()
         );
     }
 
-    public function testThatThePipeWillBeProcessedIfADocumentCanBeLocated()
+    public function testThatInvokeProcessesErrorPipe()
     {
-        $doc = $this->prophesize(Prismic\Document::class);
-        $doc = $doc->reveal();
-        $this->api->bookmark('bookmark')->willReturn('An-ID');
-        $this->api->getByID('An-ID')->willReturn($doc);
-        $this->docRegistry->setDocument($doc)->shouldBeCalled();
-        $this->request->withAttribute(Prismic\Document::class, $doc)->willReturn($this->request->reveal());
-        $this->request->withAttribute('template', 'template-name')->willReturn($this->request->reveal());
-
         $response = new TextResponse('Some Text');
-        $this->pipe->process($this->request->reveal(), Argument::type(ErrorResponseGenerator::class))
-            ->willReturn($response);
+        $this->errorPipe->process(
+            Argument::any(),
+            Argument::type(ErrorResponseGenerator::class)
+        )->willReturn($response);
+        $this->notFoundPipe->process(Argument::any())->shouldNotBeCalled();
+        $handler = $this->getMiddleware();
 
-        $middleware = $this->getMiddleware();
+        $originalRequest = $this->prophesize(Request::class)->reveal();
         $originalResponse = $this->prophesize(Response::class)->reveal();
-        $result = $middleware(new \Exception('Foo'), $this->request->reveal(), $originalResponse);
+
+        $result = $handler(new \Exception('Message'), $originalRequest, $originalResponse);
+        $this->assertSame( 'Some Text', (string) $result->getBody());
         $this->assertSame(500, $result->getStatusCode());
     }
 
-    public function testThatTheFallbackResponseWillBeEmittedIfTheDocumentBookmarkReturnsANullID()
+    public function testThatExceptionDuringProcessRendersFallbackTextResponse()
     {
-        $this->api->bookmark('bookmark')->willReturn(null);
-        $this->docRegistry->setDocument()->shouldNotBeCalled();
-        $this->pipe->process()->shouldNotBeCalled();
-
-        $middleware = $this->getMiddleware();
+        $this->errorPipe->process(
+            Argument::any(),
+            Argument::type(ErrorResponseGenerator::class)
+        )->willThrow(new \Exception('Uncaught'));
+        $this->notFoundPipe->process(Argument::any())->shouldNotBeCalled();
+        $handler = $this->getMiddleware();
+        $originalRequest = $this->prophesize(Request::class)->reveal();
         $originalResponse = $this->prophesize(Response::class)->reveal();
-        $result = $middleware(new \Exception('Foo'), $this->request->reveal(), $originalResponse);
-        $this->assertSame(500, $result->getStatusCode());
+
+        $result = $handler(new \Exception('Message'), $originalRequest, $originalResponse);
+
+        $this->assertInstanceOf(TextResponse::class, $result);
         $this->assertSame('An Unexpected Error Occurred', (string) $result->getBody());
+        $this->assertSame(500, $result->getStatusCode());
     }
 
-    public function testThatTheFallbackResponseWillBeEmittedIfTheDocumentIdIsInvalid()
+    public function testNotFoundPipeIsProcessedWhenThrowableInstanceofDocumentNotFound()
     {
-        $this->api->bookmark('bookmark')->willReturn('An-ID');
-        $this->api->getByID('An-ID')->willReturn(null);
-
-        $this->docRegistry->setDocument()->shouldNotBeCalled();
-        $this->pipe->process()->shouldNotBeCalled();
-
-        $middleware = $this->getMiddleware();
+        $response = new TextResponse('Some Text');
+        $this->errorPipe->process(Argument::any())->shouldNotBeCalled();
+        $this->notFoundPipe->process(
+            Argument::any(),
+            Argument::type(ErrorResponseGenerator::class)
+        )->willReturn($response);
+        $handler = $this->getMiddleware();
+        $originalRequest = $this->prophesize(Request::class)->reveal();
         $originalResponse = $this->prophesize(Response::class)->reveal();
-        $result = $middleware(new \Exception('Foo'), $this->request->reveal(), $originalResponse);
-        $this->assertSame(500, $result->getStatusCode());
-        $this->assertSame('An Unexpected Error Occurred', (string) $result->getBody());
+        $result = $handler(new DocumentNotFoundException('Message'), $originalRequest, $originalResponse);
+        $this->assertSame( 'Some Text', (string) $result->getBody());
+        $this->assertSame(404, $result->getStatusCode());
     }
-
-    public function testThatTheFallbackResponseWillBeEmittedIfThePipeThrowsAnException()
-    {
-        $doc = $this->prophesize(Prismic\Document::class);
-        $doc = $doc->reveal();
-        $this->api->bookmark('bookmark')->willReturn('An-ID');
-        $this->api->getByID('An-ID')->willReturn($doc);
-        $this->docRegistry->setDocument($doc)->shouldBeCalled();
-        $this->request->withAttribute(Prismic\Document::class, $doc)->willReturn($this->request->reveal());
-        $this->request->withAttribute('template', 'template-name')->willReturn($this->request->reveal());
-        $this->pipe->process()->will(function() {
-            throw new \Exception('foo');
-        });
-
-        $middleware = $this->getMiddleware();
-        $originalResponse = $this->prophesize(Response::class)->reveal();
-        $result = $middleware(new \Exception('Original Exception'), $this->request->reveal(), $originalResponse);
-        $this->assertSame(500, $result->getStatusCode());
-        $this->assertSame('An Unexpected Error Occurred', (string) $result->getBody());
-    }
-
 }

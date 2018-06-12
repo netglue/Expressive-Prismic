@@ -11,15 +11,11 @@ use Prophecy\Argument;
 use ExpressivePrismic\Middleware\PreviewInitiator;
 
 // Deps
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\UriInterface;
-use Zend\Diactoros\ServerRequest;
 use Prismic;
 use Zend\Diactoros\Response\RedirectResponse;
-use Zend\Http\Header\SetCookie;
 
 class PreviewInitiatorTest extends TestCase
 {
@@ -27,13 +23,11 @@ class PreviewInitiatorTest extends TestCase
     private $delegate;
     private $request;
     private $api;
-    private $resolver;
     private $uri;
 
     public function setUp()
     {
         $this->api      = $this->prophesize(Prismic\Api::class);
-        $this->resolver = $this->prophesize(Prismic\LinkResolver::class);
         $this->delegate = $this->prophesize(DelegateInterface::class);
         $this->request  = $this->prophesize(Request::class);
         $this->uri      = $this->prophesize(UriInterface::class);
@@ -42,8 +36,7 @@ class PreviewInitiatorTest extends TestCase
     public function getMiddleware()
     {
         return new PreviewInitiator(
-            $this->api->reveal(),
-            $this->resolver->reveal()
+            $this->api->reveal()
         );
     }
 
@@ -51,7 +44,7 @@ class PreviewInitiatorTest extends TestCase
     {
         $this->request->getQueryParams()->willReturn([]);
         $request = $this->request->reveal();
-        $this->delegate->process($request)->shouldBeCalled();
+        $this->delegate->handle($request)->shouldBeCalled();
         $this->api->previewSession()->shouldNotBeCalled();
         $middleware = $this->getMiddleware();
         $middleware->process($request, $this->delegate->reveal());
@@ -63,7 +56,7 @@ class PreviewInitiatorTest extends TestCase
         $this->uri->getHost()->willReturn('foo.com');
         $this->request->getUri()->willReturn($this->uri->reveal());
         $this->request->getQueryParams()->willReturn(['token' => 'Some%20Token']);
-        $this->api->previewSession('Some Token', Argument::type(Prismic\LinkResolver::class), Argument::type('string'))
+        $this->api->previewSession('Some Token', Argument::type('string'))
              ->willReturn('/some-url');
     }
 
@@ -71,7 +64,7 @@ class PreviewInitiatorTest extends TestCase
     {
         $this->prepareRequest();
 
-        $this->delegate->process()->shouldNotBeCalled();
+        $this->delegate->handle()->shouldNotBeCalled();
 
         $middleware = $this->getMiddleware();
         $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
@@ -89,7 +82,7 @@ class PreviewInitiatorTest extends TestCase
     {
         $this->prepareRequest();
 
-        $this->delegate->process()->shouldNotBeCalled();
+        $this->delegate->handle()->shouldNotBeCalled();
 
         $middleware = $this->getMiddleware();
         $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
@@ -100,5 +93,4 @@ class PreviewInitiatorTest extends TestCase
         $this->assertContains('foo.com', $header);
         $this->assertContains('Secure', $header);
     }
-
 }

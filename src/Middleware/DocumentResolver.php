@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace ExpressivePrismic\Middleware;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Prismic;
-use Prismic\Document;
+use Prismic\DocumentInterface;
 use Zend\Expressive\Router\RouteResult;
 use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Service\RouteParams;
@@ -46,13 +46,15 @@ class DocumentResolver implements MiddlewareInterface
         $this->documentRegistry = $documentRegistry;
     }
 
-    public function process(Request $request, DelegateInterface $delegate)
+    public function process(Request $request, RequestHandlerInterface $delegate) : Response
     {
         // Get hold of the matched route (RouteResult) so we can inspect and resolve a document
         $routeResult = $request->getAttribute(RouteResult::class);
 
-        if (!$routeResult) {
-            throw new Exception\RuntimeException('No route has yet been matched so it\'s not possible to resolve a document');
+        if (! $routeResult) {
+            throw new Exception\RuntimeException(
+                'No route has yet been matched so it\'s not possible to resolve a document'
+            );
         }
 
         /**
@@ -65,62 +67,60 @@ class DocumentResolver implements MiddlewareInterface
 
         $document = $this->resolveWithBookmark($routeResult);
 
-        if (!$document) {
+        if (! $document) {
             $document = $this->resolveWithUid($routeResult);
         }
 
-        if (!$document) {
+        if (! $document) {
             $document = $this->resolveWithId($routeResult);
         }
 
         if ($document) {
             $this->documentRegistry->setDocument($document);
-            $request = $request->withAttribute(Document::class, $document);
+            $request = $request->withAttribute(DocumentInterface::class, $document);
         }
 
-        return $delegate->process($request);
+        return $delegate->handle($request);
     }
 
-    private function resolveWithBookmark(RouteResult $routeResult) :? Document
+    private function resolveWithBookmark(RouteResult $routeResult) :? DocumentInterface
     {
         $params = $routeResult->getMatchedParams();
         $search = $this->routeParams->getBookmark();
-        $bookmark = isset($params[$search]) && !empty($params[$search]) ? $params[$search] : null;
+        $bookmark = isset($params[$search]) && ! empty($params[$search]) ? (string) $params[$search] : null;
         if ($bookmark) {
             $id = $this->api->bookmark($bookmark);
             if ($id) {
                 /** @var Document|null */
-                return $this->api->getByID($id);
+                return $this->api->getById($id);
             }
         }
 
         return null;
     }
 
-    private function resolveWithId(RouteResult $routeResult) :? Document
+    private function resolveWithId(RouteResult $routeResult) :? DocumentInterface
     {
         $params = $routeResult->getMatchedParams();
         $search = $this->routeParams->getId();
-        $id = isset($params[$search]) && !empty($params[$search]) ? $params[$search] : null;
+        $id = isset($params[$search]) && ! empty($params[$search]) ? (string) $params[$search] : null;
         if ($id) {
-            /** @var Document|null */
-            return $this->api->getByID($id);
+            return $this->api->getById($id);
         }
 
         return null;
     }
 
-    private function resolveWithUid(RouteResult $routeResult) :? Document
+    private function resolveWithUid(RouteResult $routeResult) :? DocumentInterface
     {
         $params = $routeResult->getMatchedParams();
         $search = $this->routeParams->getUid();
-        $uid    = isset($params[$search]) && !empty($params[$search]) ? $params[$search] : null;
+        $uid    = isset($params[$search]) && ! empty($params[$search]) ? (string) $params[$search] : null;
         $search = $this->routeParams->getType();
-        $type   = isset($params[$search]) && !empty($params[$search]) ? $params[$search] : null;
-        if (!$type || !$uid) {
+        $type   = isset($params[$search]) && ! empty($params[$search]) ? (string) $params[$search] : null;
+        if (! $type || ! $uid) {
             return null;
         }
-        /** @var Document|null */
-        return $this->api->getByUID($type, $uid);
+        return $this->api->getByUid($type, $uid);
     }
 }

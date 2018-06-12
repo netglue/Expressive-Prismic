@@ -16,12 +16,12 @@ class RouteMatcher
     private $routeParams;
 
     /**
-     * @var array
+     * @var Route[]
      */
     private $routes;
 
     /**
-     * @var array
+     * @var Route[]
      */
     private $bookmarks;
 
@@ -59,7 +59,7 @@ class RouteMatcher
         $this->bookmarks = [];
         foreach ($this->routes as $key => $route) {
             $options = $route->getOptions();
-            if (!empty($options['defaults'][$search])) {
+            if (! empty($options['defaults'][$search])) {
                 $this->bookmarks[$options['defaults'][$search]] = $route;
                 // This route can only possibly match a single bookmarked document
                 // so remove it from further evaluation
@@ -94,8 +94,10 @@ class RouteMatcher
             }
             return;
         }
-        if (!is_string($type)) {
-            throw new Exception\InvalidArgumentException('Route type definitions for Prismic routes must be a string or an array of strings');
+        if (! is_string($type)) {
+            throw new Exception\InvalidArgumentException(
+                'Route type definitions for Prismic routes must be a string or an array of strings'
+            );
         }
         $this->typed[$type] = $route;
     }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace ExpressivePrismic\Exception;
 
 /**
@@ -6,4 +7,6 @@ namespace ExpressivePrismic\Exception;
  *
  * @package ExpressivePrismic\Exception
  */
-interface ExceptionInterface {}
+interface ExceptionInterface
+{
+}

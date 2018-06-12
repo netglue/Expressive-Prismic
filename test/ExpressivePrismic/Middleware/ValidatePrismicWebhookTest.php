@@ -5,15 +5,14 @@ namespace ExpressivePrismicTest\Middleware;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
 
 // SUT
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
 
 // Deps
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
+
 
 class ValidatePrismicWebhookTest extends TestCase
 {
@@ -93,13 +92,14 @@ class ValidatePrismicWebhookTest extends TestCase
     public function testCorrectSecretIsSuccess()
     {
         $this->request->getBody()->willReturn('{"secret" : "big-secret"}');
-        $this->request->withAttribute(ValidatePrismicWebhook::class,['secret'=>'big-secret'])->willReturn($this->request->reveal());
-        $this->delegate->process($this->request->reveal())->shouldBeCalled();
+        $this->request
+            ->withAttribute(ValidatePrismicWebhook::class, ['secret' => 'big-secret'])
+            ->willReturn($this->request->reveal());
+        $this->delegate->handle($this->request->reveal())->shouldBeCalled();
         $middleware = $this->getMiddleware();
-        $response = $middleware->process(
+        $middleware->process(
             $this->request->reveal(),
             $this->delegate->reveal()
         );
     }
 }
-

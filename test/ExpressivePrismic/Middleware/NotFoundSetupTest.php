@@ -5,19 +5,14 @@ namespace ExpressivePrismicTest\Middleware;
 
 // Infra
 use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
 
 // SUT
 use ExpressivePrismic\Middleware\NotFoundSetup;
 
 // Deps
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Diactoros\ServerRequest;
 use Prismic;
-use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Diactoros\Response as ServerResponse;
 use ExpressivePrismic\Service\CurrentDocument;
 
@@ -31,38 +26,25 @@ class NotFoundSetupTest extends TestCase
 
     public function setUp()
     {
-        $this->api      = $this->prophesize(Prismic\Api::class);
+        $this->api        = $this->prophesize(Prismic\Api::class);
         $this->currentDoc = $this->prophesize(CurrentDocument::class);
-        $this->delegate = $this->prophesize(DelegateInterface::class);
-        $this->request  = $this->prophesize(Request::class);
+        $this->delegate   = $this->prophesize(DelegateInterface::class);
+        $this->request    = $this->prophesize(Request::class);
     }
 
-    public function getMiddleware($fallback)
+    public function getMiddleware()
     {
         return new NotFoundSetup(
             $this->api->reveal(),
             $this->currentDoc->reveal(),
             'some-bookmark',
-            'some-template',
-            $fallback
+            'some-template'
         );
     }
 
-    public function testDelegateContinuesForInvalidBookmark()
-    {
-        $this->api->bookmark('some-bookmark')->willReturn(null);
-        $this->request->withAttribute()->shouldNotBeCalled();
-        $request = $this->request->reveal();
-
-        $this->delegate->process($request)->willReturn(new ServerResponse);
-
-        $middleware = $this->getMiddleware(true);
-        $response = $middleware->process($request, $this->delegate->reveal());
-        $this->assertSame(404, $response->getStatusCode());
-    }
-
     /**
-     * @expectedException ExpressivePrismic\Exception\RuntimeException
+     * @expectedException \ExpressivePrismic\Exception\RuntimeException
+     * @expectedExceptionMessage The error document bookmark "some-bookmark" does not reference a current document ID
      */
     public function testExceptionThrownForInvalidBookmark()
     {
@@ -70,57 +52,55 @@ class NotFoundSetupTest extends TestCase
         $this->request->withAttribute()->shouldNotBeCalled();
         $request = $this->request->reveal();
 
-        $this->delegate->process()->shouldNotBeCalled();
+        $this->delegate->handle()->shouldNotBeCalled();
 
-        $middleware = $this->getMiddleware(false);
+        $middleware = $this->getMiddleware();
         $middleware->process($request, $this->delegate->reveal());
     }
 
-    public function testDelegateContinuesForInvalidDocument()
-    {
-        $this->api->bookmark('some-bookmark')->willReturn('some-id');
-        $this->api->getByID('some-id')->willReturn(null);
-        $this->request->withAttribute()->shouldNotBeCalled();
-        $request = $this->request->reveal();
-
-        $this->delegate->process($request)->willReturn(new ServerResponse);
-
-        $middleware = $this->getMiddleware(true);
-        $response = $middleware->process($request, $this->delegate->reveal());
-        $this->assertSame(404, $response->getStatusCode());
-    }
-
     /**
-     * @expectedException ExpressivePrismic\Exception\RuntimeException
+     * @expectedException \ExpressivePrismic\Exception\RuntimeException
+     * @expectedExceptionMessage bookmark "some-bookmark" resolved to the id "some-id" but the document cannot be found
      */
     public function testExceptionThrownForInvalidDocument()
     {
         $this->api->bookmark('some-bookmark')->willReturn('some-id');
-        $this->api->getByID('some-id')->willReturn(null);
+        $this->api->getById('some-id')->willReturn(null);
         $this->request->withAttribute()->shouldNotBeCalled();
         $request = $this->request->reveal();
 
-        $this->delegate->process()->shouldNotBeCalled();
+        $this->delegate->handle()->shouldNotBeCalled();
 
-        $middleware = $this->getMiddleware(false);
+        $middleware = $this->getMiddleware();
+        $middleware->process($request, $this->delegate->reveal());
+    }
+
+    /**
+     * @expectedException \ExpressivePrismic\Exception\RuntimeException
+     * @expectedExceptionMessage An exception occurred retrieving the error document with the id "some-id"
+     */
+    public function testApiExceptionIsWrapped()
+    {
+        $exception = new Prismic\Exception\RequestFailureException();
+        $this->api->bookmark('some-bookmark')->willReturn('some-id');
+        $this->api->getById('some-id')->willThrow($exception);
+        $this->request->withAttribute()->shouldNotBeCalled();
+        $request = $this->request->reveal();
+        $middleware = $this->getMiddleware();
         $middleware->process($request, $this->delegate->reveal());
     }
 
     public function testSuccessfulDocumentRetrievalWillBeAddedToRequestAttrs()
     {
-        $doc = $this->prophesize(Prismic\Document::class);
+        $doc = $this->prophesize(Prismic\DocumentInterface::class);
         $this->api->bookmark('some-bookmark')->willReturn('some-id');
-        $this->api->getByID('some-id')->willReturn($doc->reveal());
+        $this->api->getById('some-id')->willReturn($doc->reveal());
         $this->currentDoc->setDocument($doc)->shouldBeCalled();
-        $this->request->withAttribute(Prismic\Document::class, $doc)->willReturn($this->request->reveal());
+        $this->request->withAttribute(Prismic\DocumentInterface::class, $doc)->willReturn($this->request->reveal());
         $this->request->withAttribute('template', 'some-template')->willReturn($this->request->reveal());
-        $this->delegate->process($this->request->reveal())->willReturn(new ServerResponse);
-        $middleware = $this->getMiddleware(false);
+        $this->delegate->handle($this->request->reveal())->willReturn(new ServerResponse);
+        $middleware = $this->getMiddleware();
         $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
         $this->assertSame(404, $response->getStatusCode());
     }
-
-
-
-
 }
