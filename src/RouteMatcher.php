@@ -3,102 +3,73 @@ declare(strict_types=1);
 
 namespace ExpressivePrismic;
 
-use ExpressivePrismic\Exception;
 use ExpressivePrismic\Service\RouteParams;
 use Zend\Expressive\Router\Route;
+use Zend\Expressive\Router\RouteCollector;
+use function in_array;
+use function is_array;
 
 class RouteMatcher
 {
 
-    /**
-     * @var RouteParams
-     */
+    /** @var RouteParams */
     private $routeParams;
 
-    /**
-     * @var Route[]
-     */
-    private $routes;
+    /** @var RouteCollector */
+    private $routeCollector;
 
-    /**
-     * @var Route[]
-     */
-    private $bookmarks;
-
-    /**
-     * @var array
-     */
-    private $typed;
-
-    public function __construct(array $routes, RouteParams $routeParams)
+    public function __construct(RouteCollector $collector, RouteParams $routeParams)
     {
-        $this->routeParams = $routeParams;
-        $this->routes      = $routes;
-
-        $this->extractBookmarked();
-        $this->extractByType();
+        $this->routeParams    = $routeParams;
+        $this->routeCollector = $collector;
     }
 
     public function getBookmarkedRoute(string $bookmark) :? Route
     {
-        return isset($this->bookmarks[$bookmark])
-               ? $this->bookmarks[$bookmark]
-               : null;
+        $search = $this->routeParams->getBookmark();
+        foreach ($this->getRoutes() as $route) {
+            $options = $route->getOptions();
+            if (empty($options['defaults'][$search])) {
+                continue;
+            }
+            if ($options['defaults'][$search] === $bookmark) {
+                return $route;
+            }
+        }
+        return null;
     }
 
     public function getTypedRoute(string $type) :? Route
     {
-        return isset($this->typed[$type])
-               ? $this->typed[$type]
-               : null;
-    }
-
-    private function extractBookmarked() : void
-    {
-        $search = $this->routeParams->getBookmark();
-        $this->bookmarks = [];
-        foreach ($this->routes as $key => $route) {
-            $options = $route->getOptions();
-            if (! empty($options['defaults'][$search])) {
-                $this->bookmarks[$options['defaults'][$search]] = $route;
-                // This route can only possibly match a single bookmarked document
-                // so remove it from further evaluation
-                unset($this->routes[$key]);
+        foreach ($this->getRoutes() as $route) {
+            if ($this->matchesType($route, $type)) {
+                return $route;
             }
         }
+        return null;
     }
 
-    private function extractByType() : void
+    private function matchesType(Route $route, string $type) : bool
     {
         $search = $this->routeParams->getType();
-        $this->typed = [];
-        foreach ($this->routes as $key => $route) {
-            $options = $route->getOptions();
-            $type = isset($options['defaults'][$search])
-                  ? $options['defaults'][$search]
-                  : null;
-            if ($type) {
-                $this->addTypedRoute($type, $route);
-                // Only documents matching the given type will ever match
-                // so remove from further evaluation
-                unset($this->routes[$key]);
-            }
+        $options = $route->getOptions();
+        $subject = isset($options['defaults'][$search])
+            ? $options['defaults'][$search]
+            : null;
+        if (! $subject) {
+            return false;
         }
+        if (is_array($subject) && in_array($type, $subject, true)) {
+            return true;
+        }
+        return ($type === $subject);
     }
 
-    private function addTypedRoute($type, Route $route) : void
+    /**
+     * @return Route[]
+     */
+    private function getRoutes() : array
     {
-        if (is_array($type)) {
-            foreach ($type as $t) {
-                $this->addTypedRoute($t, $route);
-            }
-            return;
-        }
-        if (! is_string($type)) {
-            throw new Exception\InvalidArgumentException(
-                'Route type definitions for Prismic routes must be a string or an array of strings'
-            );
-        }
-        $this->typed[$type] = $route;
+        return $this->routeCollector->getRoutes();
     }
 }
