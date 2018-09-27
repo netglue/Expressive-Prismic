@@ -3,17 +3,13 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\RouteMatcherFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
-use ExpressivePrismic\Service\RouteParams;
-use Zend\Expressive\Application;
 use ExpressivePrismic\RouteMatcher;
+use ExpressivePrismic\Service\RouteParams;
+use ExpressivePrismicTest\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Container\ContainerInterface;
+use Zend\Expressive\Router\RouteCollector;
 
 class RouteMatcherFactoryTest extends TestCase
 {
@@ -26,10 +22,11 @@ class RouteMatcherFactoryTest extends TestCase
 
     public function testFactory()
     {
-        $app = $this->prophesize(Application::class);
-        $app->getRoutes()->willReturn([]);
-        $this->container->get(Application::class)->willReturn(
-            $app->reveal()
+        /** @var RouteCollector|ObjectProphecy $collector */
+        $collector = $this->prophesize(RouteCollector::class);
+        $collector->getRoutes()->willReturn([]);
+        $this->container->get(RouteCollector::class)->willReturn(
+            $collector->reveal()
         );
         $this->container->get(RouteParams::class)->willReturn(
             new RouteParams
