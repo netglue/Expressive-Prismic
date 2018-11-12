@@ -78,6 +78,7 @@ class ConfigProvider
                 // Processes Webhooks from Prismic.io and busts the cache
                 Middleware\ValidatePrismicWebhook::class => Container\Middleware\ValidatePrismicWebhookFactory::class,
                 Middleware\ApiCacheBust::class => Container\Middleware\ApiCacheBustFactory::class,
+                Middleware\CliCacheBust::class => Container\Middleware\CliCacheBustFactory::class,
 
                 // Processes a preview token and redirects to the page being previewed
                 Middleware\PreviewInitiator::class => Container\Middleware\PreviewInitiatorFactory::class,
