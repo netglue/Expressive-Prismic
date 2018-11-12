@@ -5,7 +5,8 @@
 
 ## Introduction
 
-This module/library's purpose is to ease development of content driven websites using prismic.io's content API as a backend service.
+This module/library's purpose is to ease development of content driven websites using prismic.io's content API as a
+ backend service.
 
 If you haven't heard of Prismic before, you can [find out about it here](https://prismic.io).
 
@@ -13,7 +14,10 @@ If you haven't heard of Prismic before, you can [find out about it here](https:/
 
 This module is only suitable for Zend Expressive ^3.0 and PHP ^7.1
 
-Furthermore, it uses a fork of the official Prismic.io php library which you can see here: [netglue/prismic-php-kit](https://github.com/netglue/prismic-php-kit). This fork is quite different to the official kit and I recommend looking through the docs/code to make yourself aware of the differences if you are already familiar with the official lib.
+Furthermore, it uses a fork of the official Prismic.io php library which you can see here:
+[netglue/prismic-php-kit](https://github.com/netglue/prismic-php-kit). This fork is quite different to the official
+kit and I recommend looking through the docs/code to make yourself aware of the differences if you are already
+familiar with the official lib.
 
 ## Install
 
@@ -28,7 +32,8 @@ This should also ask you if you want to inject the config provider too.
 
 ## Basic Configuration
 
-This library exposes the Prismic API instance in your container as `Prismic\Api`. At the very least, you'll need to configure your credentials thus:
+This library exposes the Prismic API instance in your container as `Prismic\Api`. At the very least, you'll need to
+configure your credentials thus:
 
 ```php
     return [
@@ -43,7 +48,8 @@ This library exposes the Prismic API instance in your container as `Prismic\Api`
 
 ## Defining Routes
 
-In order to allow you to specify properties of a document to look out for during routing, you must map the route parameter names you want to use to the prismic document/api equivalent. The defaults are:
+In order to allow you to specify properties of a document to look out for during routing, you must map the route
+parameter names you want to use to the prismic document/api equivalent. The defaults are:
 
 ```php
     'prismic' => [
@@ -72,7 +78,9 @@ So, assuming the above, to define a route to a bookmarked document, you would co
             ],
         ]);
 ```
-Normally, to save yourself some effort, you'd have a template that's capable of rendering perhaps any page of a given type such as a 'case-study' type. Let's say you want the url `/case-studies/{case-study-uid}`, then you'd define a route like this _(If you are using FastRoute)_:
+Normally, to save yourself some effort, you'd have a template that's capable of rendering perhaps any page of a given
+type such as a 'case-study' type. Let's say you want the url `/case-studies/{case-study-uid}`, then you'd define a
+route like this _(If you are using FastRoute)_:
 
 ```php
     $app->route('/case-studies/{prismic-uid}', [$middlewarePipe], ['GET'], 'case-studies')
@@ -86,7 +94,9 @@ Normally, to save yourself some effort, you'd have a template that's capable of 
 
 ## Cache Busting Webhook
 
-You will see in `Factory\PipelineAndRoutesDelegator` that two routes are wired in by default, one of these is the webhook to bust the cache. In order to use it, you will need to provide the shared secret that Prismic.io sends in it's webhook payload to a local configuration file or Config Provider like this:
+You will see in `Factory\PipelineAndRoutesDelegator` that two routes are wired in by default, one of these is the
+webhook to bust the cache. In order to use it, you will need to provide the shared secret that Prismic.io sends in it's
+webhook payload to a local configuration file or Config Provider like this:
 
 ```php
     return [
@@ -96,19 +106,29 @@ You will see in `Factory\PipelineAndRoutesDelegator` that two routes are wired i
     ];
 ```
 
-The Url of the webhook will be `/prismicio-cache-webhook` - given a valid Json payload containing a matching shared secret, the pre-configured middleware will empty the cache attached to the Prismic API instance.
+The Url of the webhook will be `/prismicio-cache-webhook` - given a valid Json payload containing a matching shared
+secret, the pre-configured middleware will empty the cache attached to the Prismic API instance.
 
-The webhook route points to a middleware pipe named `ExpressivePrismic\Middleware\WebhookPipe` so if you want to modify the pipeline to do other things, or replace it entirely, just alias that pipe to different factory or implement a delegator factory for the pipe.
+The webhook route points to a middleware pipe named `ExpressivePrismic\Middleware\WebhookPipe` so if you want to modify
+the pipeline to do other things, or replace it entirely, just alias that pipe to different factory or implement a
+delegator factory for the pipe.
 
 ## Link Resolver
 
-The Link Resolver is a concept introduced by Prismic to turn documents, or document link fragments into local urls and there's a concrete implementation in this package at `ExpressivePrismic\LinkResolver`.
+The Link Resolver is a concept introduced by Prismic to turn documents, or document link fragments into local urls and
+there's a concrete implementation in this package at `ExpressivePrismic\LinkResolver`.
 
-Using the same setup for routing parameters, it tries to use the Expressive URL helper to generate local URLs. It's setup in the container as `Prismic\LinkResolver` as well as `ExpressivePrismic\LinkResolver` and throughout the package it's retrieved by the name of `Prismic\LinkResolver` so it's easy to replace with your own concrete implementation if you need one.
+Using the same setup for routing parameters, it tries to use the Expressive URL helper to generate local URLs. It's
+setup in the container as `Prismic\LinkResolver` as well as `ExpressivePrismic\LinkResolver` and throughout the package
+it's retrieved by the name of `Prismic\LinkResolver` so it's easy to replace with your own concrete implementation if
+you need one.
 
 ## Previews
 
-There's another route that's auto-wired like the cache busting webhook for initiating previews. All you have to do is add the URL in the settings on your Prismic repository and clicks on the preview button in the writing room will put the site in preview mode. You can see how this is configured in `Factory\PipelineAndRoutesDelegator` - the URL is `/prismic-preview`
+There's another route that's auto-wired like the cache busting webhook for initiating previews. All you have to do is
+add the URL in the settings on your Prismic repository and clicks on the preview button in the writing room will put
+the site in preview mode. You can see how this is configured in `Factory\PipelineAndRoutesDelegator` - the URL is
+`/prismic-preview`
 
 ## View Helpers
 
@@ -123,7 +143,9 @@ This view helper will generate a local URL using the link resolver. It's `__invo
 
 ### Fragment Helper `$this->fragment()`
 
-This view helper operates on the current resolved document and provides an easy way of rendering simple fragments to views. It does not require the fully qualified fragment name, ie. `documentType.fragmentName` and instead you can pass it just `'fragmentName'`.
+This view helper operates on the current resolved document and provides an easy way of rendering simple fragments to
+views. It does not require the fully qualified fragment name, ie. `documentType.fragmentName` and instead you can pass
+it just `'fragmentName'`.
 
 `$this->fragment()->get('title');` will return the fragment object.
 
@@ -133,13 +155,17 @@ This view helper operates on the current resolved document and provides an easy 
 
 ## CMS Managed Error Pages for Production
 
-**Error handling is wired in by default**… If you are using the Whoops error handler in development, you'll need to disable development mode `composer development-disable` to experience custom errors and 404's
+**Error handling is wired in by default**… If you are using the Whoops error handler in development, you'll need to
+disable development mode `composer development-disable` to experience custom errors and 404's
 
 ### 404 Errors
 
-In the event of a 404, by default, Expressive will execute the `\Zend\Expressive\Handler\NotFoundHandler`. This module provides a pipeline in `\ExpressivePrismic\Middleware\NotFoundPipe` that initialises previews and experiments, locates a bookmarked error document in the Prismic API and renders that document to a template.
+In the event of a 404, by default, Expressive will execute the `\Zend\Expressive\Handler\NotFoundHandler`. This module
+provides a pipeline in `\ExpressivePrismic\Middleware\NotFoundPipe` that initialises previews and experiments, locates
+a bookmarked error document in the Prismic API and renders that document to a template.
 
-To take advantage of pretty CMS managed 404's, first you will have to specify in your configuration the bookmark name for the error document in your repository and the template name to render like this:
+To take advantage of pretty CMS managed 404's, first you will have to specify in your configuration the bookmark name
+for the error document in your repository and the template name to render like this:
 
 ```php
     return [
@@ -152,11 +178,13 @@ To take advantage of pretty CMS managed 404's, first you will have to specify in
     ];
 ```
 
-Note that in development mode, 404's experienced after a route has matched, i.e. the Prismic Document can't be found, will cause a `DocumentNotFound` exception, thereby delegating to the Whoops error handler.
+Note that in development mode, 404's experienced after a route has matched, i.e. the Prismic Document can't be found,
+will cause a `DocumentNotFound` exception, thereby delegating to the Whoops error handler.
 
 ### Exceptions
 
-Presenting a pretty error page during errors and exceptions are handled in much the same way as 404's. Again, you'll need to configure a bookmark and a template name used to render the content.
+Presenting a pretty error page during errors and exceptions are handled in much the same way as 404's. Again, you'll
+need to configure a bookmark and a template name used to render the content.
 
 ```php
     return [
@@ -169,4 +197,6 @@ Presenting a pretty error page during errors and exceptions are handled in much 
     ];
 ```
 
-The fallback _(i.e. when the error document cannot be retrieved from the api)_ for exception situations is a simple plain text message stating that an error occurred. This fallback is not currently configurable to be anything more fancy than that.
+The fallback _(i.e. when the error document cannot be retrieved from the api)_ for exception situations is a simple
+plain text message stating that an error occurred. This fallback is not currently configurable to be anything more
+fancy than that.
