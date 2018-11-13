@@ -3,13 +3,9 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
+use ExpressivePrismic\Middleware\CliCacheBust;
 use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Middleware\WebhookMiddlewarePipeFactory;
-
-// Deps
 use Psr\Container\ContainerInterface;
 use Zend\Stratigility\MiddlewarePipe;
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
@@ -32,6 +28,7 @@ class WebhookMiddlewarePipeFactoryTest extends TestCase
         $middlewareFactory = $this->prophesize(MiddlewareFactory::class);
 
         $middlewareFactory->prepare(ApiCacheBust::class)->shouldBeCalled();
+        $middlewareFactory->prepare(CliCacheBust::class)->shouldBeCalled();
         $middlewareFactory->prepare(ValidatePrismicWebhook::class)->shouldBeCalled();
         $middlewareFactory->prepare(JsonSuccess::class)->shouldBeCalled();
 
