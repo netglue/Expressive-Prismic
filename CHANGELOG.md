@@ -2,13 +2,14 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 4.1.0 - TBD
+## 4.1.0 - 2018-11-13
 
 ### Added
 
 - `CliCacheBust` Middleware that forces a reload of the Prismic Api data during a cache busting webhook, if, the app
  is running on the cli. This middleware is wired into the Webhook pipeline by default as is essentially a no-op in a
  regular, non-cli environment. It’s been added to improve compatibility with Swoole
+- This Readme
 
 ### Changed
 
