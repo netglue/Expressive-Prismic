@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 4.2.0 - TBD
+
+### Added
+
+- [#9](https://github.com/netglue/Expressive-Prismic/pull/9) Expires experiment cookies if a cookie is present in the 
+request and the Api reports that no experiments are running. This action occurs in the `ExperimentInitiator` middleware. 
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 4.1.0 - 2018-11-13
 
 ### Added

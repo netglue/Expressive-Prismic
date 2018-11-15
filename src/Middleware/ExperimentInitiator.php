@@ -3,18 +3,19 @@ declare(strict_types=1);
 
 namespace ExpressivePrismic\Middleware;
 
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
+use Dflydev\FigCookies\FigRequestCookies;
+use Dflydev\FigCookies\FigResponseCookies;
+use Prismic;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Prismic;
-use Zend\Http\Header\SetCookie;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Zend\View\HelperPluginManager;
 
 class ExperimentInitiator implements MiddlewareInterface
 {
 
-    const START_EXPERIMENT_JS = 'PrismicToolbar.startExperiment("%1$s");';
+    public const START_EXPERIMENT_JS = 'PrismicToolbar.startExperiment("%1$s");';
 
     /**
      * @var Prismic\Api
@@ -55,16 +56,23 @@ class ExperimentInitiator implements MiddlewareInterface
         $this->endpointScript = $endpointScript;
     }
 
-    public function process(Request $request, DelegateInterface $delegate) : Response
+    public function process(Request $request, RequestHandlerInterface $delegate) : Response
     {
         /**
          * Prismic is only capable of one experiment at a time
          */
         $experiments = $this->api->getExperiments();
         $experiment  = $experiments ? $experiments->getCurrent() : null;
-
         if (! $experiment) {
-            return $delegate->handle($request);
+            /**
+             * If no experiment is running, check for and expire the experiment cookie if it is present in the request
+             */
+            $response = $delegate->handle($request);
+            $experimentCookie = FigRequestCookies::get($request, Prismic\Api::EXPERIMENTS_COOKIE);
+            if ($experimentCookie->getValue() !== null) {
+                $response = FigResponseCookies::expire($response, Prismic\Api::EXPERIMENTS_COOKIE);
+            }
+            return $response;
         }
 
         $helper = $this->helpers->get('inlineScript');
