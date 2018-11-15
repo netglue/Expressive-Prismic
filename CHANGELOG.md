@@ -11,7 +11,8 @@ request and the Api reports that no experiments are running. This action occurs 
 
 ### Changed
 
-- Nothing.
+- [#10](https://github.com/netglue/Expressive-Prismic/pull/10) Documents the requirement for a (string) shared secret for
+authenticating webhooks. Also adds `ext-json` to composer as a previously hidden dependency _(FWIW)_
 
 ### Deprecated
 
