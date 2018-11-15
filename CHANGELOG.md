@@ -13,6 +13,13 @@ request and the Api reports that no experiments are running. This action occurs 
 
 - [#10](https://github.com/netglue/Expressive-Prismic/pull/10) Documents the requirement for a (string) shared secret for
 authenticating webhooks. Also adds `ext-json` to composer as a previously hidden dependency _(FWIW)_
+- [#11](https://github.com/netglue/Expressive-Prismic/pull/11) Changed the PreviewInitiator middleware so that it no
+longer sets a cookie. The JS toolbar now sets this for you and if you want previews, you need to have it installed
+anyway. This double setting of the preview cookie has been causing problems when both are successfully set. The
+middleware also checks for an `ExpiredPreviewTokenException` and presents a more friendly error message for previewers.
+This exception only became available in the PHP Kit version 4.2, just released, so composer.json is updated to
+require it.
+- `ExceptionInterface` now correctly extends `Throwable`
 
 ### Deprecated
 
@@ -20,7 +27,7 @@ authenticating webhooks. Also adds `ext-json` to composer as a previously hidden
 
 ### Removed
 
-- Nothing.
+- Removed pointless test bootstrap and cleaned up phpunit config.
 
 ### Fixed
 

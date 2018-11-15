@@ -3,44 +3,43 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
-
-// SUT
+use ExpressivePrismic\Exception\RuntimeException;
 use ExpressivePrismic\Middleware\PreviewInitiator;
-
-// Deps
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
+use ExpressivePrismicTest\TestCase;
+use Prismic;
+use Prismic\Exception\ExpiredPreviewTokenException;
+use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\UriInterface;
-use Prismic;
-use Zend\Diactoros\Response\RedirectResponse;
+use Psr\Http\Server\RequestHandlerInterface;
+use Zend\Diactoros\ServerRequest;
 
 class PreviewInitiatorTest extends TestCase
 {
 
     private $delegate;
     private $request;
+
+    /** @var Prismic\Api */
     private $api;
     private $uri;
 
     public function setUp()
     {
         $this->api      = $this->prophesize(Prismic\Api::class);
-        $this->delegate = $this->prophesize(DelegateInterface::class);
+        $this->delegate = $this->prophesize(RequestHandlerInterface::class);
         $this->request  = $this->prophesize(Request::class);
         $this->uri      = $this->prophesize(UriInterface::class);
     }
 
-    public function getMiddleware()
+    public function getMiddleware() : PreviewInitiator
     {
         return new PreviewInitiator(
             $this->api->reveal()
         );
     }
 
-    public function testAbsenceOfQueryStringIsANoop()
+    public function testAbsenceOfQueryStringIsANoop() : void
     {
         $this->request->getQueryParams()->willReturn([]);
         $request = $this->request->reveal();
@@ -50,7 +49,7 @@ class PreviewInitiatorTest extends TestCase
         $middleware->process($request, $this->delegate->reveal());
     }
 
-    private function prepareRequest()
+    private function prepareRequest() : void
     {
         $this->uri->getScheme()->willReturn('https');
         $this->uri->getHost()->willReturn('foo.com');
@@ -60,7 +59,7 @@ class PreviewInitiatorTest extends TestCase
              ->willReturn('/some-url');
     }
 
-    public function testResponseIsRedirectWithCookie()
+    public function testResponseIsRedirect()
     {
         $this->prepareRequest();
 
@@ -68,29 +67,30 @@ class PreviewInitiatorTest extends TestCase
 
         $middleware = $this->getMiddleware();
         $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
-
-        $this->assertInstanceOf(RedirectResponse::class, $response);
 
         $this->assertSame(302, $response->getStatusCode());
-
         $header = $response->getHeader('location');
         $this->assertSame('/some-url', current($header));
-        $this->assertTrue($response->hasHeader('Set-Cookie'));
     }
 
-    public function testCookieHasDomain()
+    public function testPreviewExpiryIsCaughtWithFriendlyError() : void
     {
-        $this->prepareRequest();
+        $request = new ServerRequest();
+        $request = $request->withQueryParams(['token' => 'foo']);
+        $this->api->previewSession('foo', '/')->willThrow(new ExpiredPreviewTokenException);
+        $handler = $this->getMiddleware();
+        $response = $handler->process($request, $this->delegate->reveal());
+        $this->assertContains('text/html', $response->getHeaderLine('Content-Type'));
+        $this->assertSame(410, $response->getStatusCode());
+    }
 
-        $this->delegate->handle()->shouldNotBeCalled();
-
-        $middleware = $this->getMiddleware();
-        $response = $middleware->process($this->request->reveal(), $this->delegate->reveal());
-
-        $header = $response->getHeader('Set-Cookie');
-        $header = current($header);
-
-        $this->assertContains('foo.com', $header);
-        $this->assertContains('Secure', $header);
+    public function testThatLessSpecificExceptionsAreReThrown() : void
+    {
+        $request = new ServerRequest();
+        $request = $request->withQueryParams(['token' => 'foo']);
+        $this->api->previewSession('foo', '/')->willThrow(new Prismic\Exception\UnexpectedValueException());
+        $handler = $this->getMiddleware();
+        $this->expectException(RuntimeException::class);
+        $handler->process($request, $this->delegate->reveal());
     }
 }

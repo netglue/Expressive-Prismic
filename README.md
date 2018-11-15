@@ -140,6 +140,10 @@ add the URL in the settings on your Prismic repository and clicks on the preview
 the site in preview mode. You can see how this is configured in `Factory\PipelineAndRoutesDelegator` - the URL is
 `/prismic-preview`
 
+> In 4.2.0, the middleware responsible for initiating a preview session was altered to catch an exception that is
+> thrown when the preview token has expired and subsequently return a simple html response with a descriptive error.
+> Previously, in this situation, an uncaught exception would have occurred.  
+
 ## View Helpers
 
 ### URL Helper `$this->prismicUrl()`
