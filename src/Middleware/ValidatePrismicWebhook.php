@@ -3,7 +3,7 @@ declare(strict_types = 1);
 namespace ExpressivePrismic\Middleware;
 
 use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\JsonResponse;
@@ -27,7 +27,7 @@ class ValidatePrismicWebhook implements MiddlewareInterface
         $this->expectedSecret = $expectedSecret;
     }
 
-    public function process(Request $request, DelegateInterface $delegate) : Response
+    public function process(Request $request, RequestHandlerInterface $handler) : Response
     {
         $body = (string) $request->getBody();
 
@@ -48,7 +48,7 @@ class ValidatePrismicWebhook implements MiddlewareInterface
 
         $request = $request->withAttribute(__CLASS__, $json);
 
-        return $delegate->handle($request);
+        return $handler->handle($request);
     }
 
     /**
