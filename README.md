@@ -95,7 +95,7 @@ route like this _(If you are using FastRoute)_:
 ## Cache Busting Webhook
 
 You will see in `Factory\PipelineAndRoutesDelegator` that two routes are wired in by default, one of these is the
-webhook to bust the cache. In order to use it, you will need to provide the shared secret that Prismic.io sends in it's
+webhook to bust the cache. In order to use it, you **will need** to provide the shared secret that Prismic.io sends in it's
 webhook payload to a local configuration file or Config Provider like this:
 
 ```php
@@ -105,6 +105,10 @@ webhook payload to a local configuration file or Config Provider like this:
         ],
     ];
 ```
+
+> By default the secret is `null`, so if you don't set it the Validation middleware will cause a `TypeError` due to the
+> secret string being a constructor dependency. If it's really important that you don't use a shared secret, you'll have
+> to override `ValidatePrismicWebhook` with your own middleware or configure your own pipeline and webhook handlers.
 
 The Url of the webhook will be `/prismicio-cache-webhook` - given a valid Json payload containing a matching shared
 secret, the pre-configured middleware will empty the cache attached to the Prismic API instance.
