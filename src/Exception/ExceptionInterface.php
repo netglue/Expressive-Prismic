@@ -2,11 +2,8 @@
 declare(strict_types=1);
 namespace ExpressivePrismic\Exception;
 
-/**
- * Interface ExceptionInterface
- *
- * @package ExpressivePrismic\Exception
- */
-interface ExceptionInterface
+use Throwable;
+
+interface ExceptionInterface extends Throwable
 {
 }
