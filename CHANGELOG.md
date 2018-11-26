@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 4.3.0 - 2018-11-26
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#12](https://github.com/netglue/Expressive-Prismic/pull/12) removes the CLI cache busting middleware introduced in
+`4.1.0`  - I guess it was a bad idea introducing environment specific stuff anyway and it's now a moot point since
+[4.2.2](https://github.com/netglue/prismic-php-kit/releases/tag/4.2.2) of the prismic kit fork. This will be a BC break
+for you if you were relying on this middleware for some reason.
+
+### Fixed
+
+- Nothing.
+
 ## 4.2.0 - 2018-11-15
 
 ### Added
