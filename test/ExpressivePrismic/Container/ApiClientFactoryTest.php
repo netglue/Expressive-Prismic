@@ -64,24 +64,6 @@ class ApiClientFactoryTest extends TestCase
         $factory($this->container->reveal());
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage Exception thrown creating API instance.
-     */
-    public function testExceptionThrownForInvalidUrl()
-    {
-        $this->container->has('config')->willReturn(true);
-        $this->container->get('config')->willReturn([
-            'prismic' => [
-                'api' => [
-                    'url' => 'foo',
-                ],
-            ]
-        ]);
-        $factory = new ApiClientFactory;
-        $factory($this->container->reveal());
-    }
-
     public function testContainerWillBeAskedForACacheInstanceIfCacheParameterIsNonEmpty()
     {
         $this->container->has('config')->willReturn(true);

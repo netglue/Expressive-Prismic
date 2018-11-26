@@ -5,7 +5,6 @@ namespace ExpressivePrismic\Container\Middleware;
 
 use ExpressivePrismic\Handler\JsonSuccess;
 use ExpressivePrismic\Middleware\ApiCacheBust;
-use ExpressivePrismic\Middleware\CliCacheBust;
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
 use Psr\Container\ContainerInterface;
 use Zend\Expressive\MiddlewareFactory;
@@ -21,7 +20,6 @@ class WebhookMiddlewarePipeFactory
         $pipeline = new MiddlewarePipe();
         $pipeline->pipe($factory->prepare(ValidatePrismicWebhook::class));
         $pipeline->pipe($factory->prepare(ApiCacheBust::class));
-        $pipeline->pipe($factory->prepare(CliCacheBust::class));
         $pipeline->pipe($factory->prepare(JsonSuccess::class));
         return $pipeline;
     }
