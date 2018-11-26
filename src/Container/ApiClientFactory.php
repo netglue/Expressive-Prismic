@@ -37,15 +37,6 @@ class ApiClientFactory
 
         // Retrieve a dedicated cache instance that implements Prismic's Cache Interface
         $cache = isset($config['cache']) ? $container->get($config['cache']) : null;
-
-        try {
-            return Api::get($url, $token, null, $cache);
-        } catch (PrismicException $exception) {
-            throw new Exception\RuntimeException(
-                'Exception thrown creating API instance. Have you provided a valid API URL?',
-                0,
-                $exception
-            );
-        }
+        return Api::get($url, $token, null, $cache);
     }
 }

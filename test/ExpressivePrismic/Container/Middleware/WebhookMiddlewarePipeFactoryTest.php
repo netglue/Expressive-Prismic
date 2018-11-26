@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-use ExpressivePrismic\Middleware\CliCacheBust;
 use ExpressivePrismicTest\TestCase;
 use ExpressivePrismic\Container\Middleware\WebhookMiddlewarePipeFactory;
 use Psr\Container\ContainerInterface;
@@ -28,7 +27,6 @@ class WebhookMiddlewarePipeFactoryTest extends TestCase
         $middlewareFactory = $this->prophesize(MiddlewareFactory::class);
 
         $middlewareFactory->prepare(ApiCacheBust::class)->shouldBeCalled();
-        $middlewareFactory->prepare(CliCacheBust::class)->shouldBeCalled();
         $middlewareFactory->prepare(ValidatePrismicWebhook::class)->shouldBeCalled();
         $middlewareFactory->prepare(JsonSuccess::class)->shouldBeCalled();
 

@@ -117,12 +117,6 @@ The webhook route points to a middleware pipe named `ExpressivePrismic\Middlewar
 the pipeline to do other things, or replace it entirely, just alias that pipe to different factory or implement a
 delegator factory for the pipe.
 
-It's worth mentioning that if you're running Prismic in a cli environment, there's another middleware that's wired into
-the cache busting pipeline _(Since 4.1.0)_ `Middleware\CliCacheBust` that forces a reload of the remote Api Data. This
-middleware will only execute in a cli environment, and it also requires that you’re using `>=4.1` of the
-[Prismic kit/fork](https://github.com/netglue/prismic-php-kit/releases/tag/4.1.0) which is likely unless you’ve pinned
-an older version for some reason.
-
 ## Link Resolver
 
 The Link Resolver is a concept introduced by Prismic to turn documents, or document link fragments into local urls and
