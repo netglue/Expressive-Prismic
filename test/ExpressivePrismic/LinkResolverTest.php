@@ -3,26 +3,15 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
-
-// SUT
 use ExpressivePrismic\LinkResolver;
-
-// Deps
-use Prismic;
+use ExpressivePrismic\RouteMatcher;
+use ExpressivePrismic\Service\RouteParams;
 use Prismic\Document;
-use Prismic\Fragment\Link\LinkInterface;
 use Prismic\Fragment\Link\DocumentLink;
 use Prismic\Fragment\Link\WebLink;
+use Prophecy\Argument;
 use Zend\Expressive\Helper\UrlHelper;
-use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
-use ExpressivePrismic\Service\RouteParams;
-use ExpressivePrismic\RouteMatcher;
 use Zend\Expressive\Router\Route;
-
-
 
 class LinkResolverTest extends TestCase
 {
@@ -106,7 +95,13 @@ class LinkResolverTest extends TestCase
 
 
         $this->matcher->getBookmarkedRoute('bookmark-name')->willReturn($route);
-        $this->url->generate('RouteName', Argument::type('array'))->willReturn('/foo');
+        $this->url->generate(
+            'RouteName',
+            Argument::type('array'),
+            [],
+            null,
+            ['reuse_result_params' => false]
+        )->willReturn('/foo');
 
         $resolver = $this->resolver();
         $this->assertSame('/foo', $resolver->resolve($doc->reveal()));
@@ -143,13 +138,15 @@ class LinkResolverTest extends TestCase
             ]
         ]);
         $this->matcher->getTypedRoute('mytype')->willReturn($route);
-        $this->url->generate('RouteName', Argument::type('array'))->willReturn('/foo');
+        $this->url->generate(
+            'RouteName',
+            Argument::type('array'),
+            [],
+            null,
+            ['reuse_result_params' => false]
+        )->willReturn('/foo');
 
         $resolver = $this->resolver();
         $this->assertSame('/foo', $resolver->resolve($link->reveal()));
-
     }
-
-
-
 }
