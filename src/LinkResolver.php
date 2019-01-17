@@ -1,15 +1,15 @@
 <?php
 declare(strict_types = 1);
+
 namespace ExpressivePrismic;
 
+use ExpressivePrismic\Service\RouteParams;
 use Prismic;
 use Prismic\Document;
-use Prismic\Fragment\Link\LinkInterface;
 use Prismic\Fragment\Link\DocumentLink;
+use Prismic\Fragment\Link\LinkInterface;
 use Zend\Expressive\Helper\UrlHelper;
-use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
-use ExpressivePrismic\Service\RouteParams;
-use Zend\Expressive\Application;
+use Zend\Expressive\Router\Route;
 
 /**
  * Prismic LinkResolver Implementation
@@ -51,7 +51,7 @@ class LinkResolver extends Prismic\LinkResolver
      * @param LinkInterface|DocumentLink|Document $link
      * @return string|null
      */
-    public function resolve($link)
+    public function resolve($link) :? string
     {
         if ($link instanceof Document) {
             return $this->resolveDocument($link);
@@ -86,12 +86,12 @@ class LinkResolver extends Prismic\LinkResolver
      * @param DocumentLink $link
      * @return string|null
      */
-    public function getBookmarkNameWithLink(DocumentLink $link)
+    public function getBookmarkNameWithLink(DocumentLink $link): ?string
     {
         $bookmarks = array_flip($this->bookmarks);
         $id = $link->getId();
 
-        return isset($bookmarks[$id]) ? $bookmarks[$id] : null;
+        return $bookmarks[$id] ?? null;
     }
 
     /**
@@ -104,11 +104,11 @@ class LinkResolver extends Prismic\LinkResolver
      * @param DocumentLink $link
      * @return string|null
      */
-    protected function tryResolveAsType(DocumentLink $link)
+    protected function tryResolveAsType(DocumentLink $link): ?string
     {
         $route = $this->routeMatch->getTypedRoute($link->getType());
         if ($route) {
-            return $this->urlHelper->generate($route->getName(), $this->getRouteParams($link));
+            return $this->generateUrl($route, $link);
         }
         return null;
     }
@@ -122,7 +122,7 @@ class LinkResolver extends Prismic\LinkResolver
      * @param DocumentLink $link
      * @return null|string
      */
-    protected function tryResolveAsBookmark(DocumentLink $link)
+    protected function tryResolveAsBookmark(DocumentLink $link): ?string
     {
         $bookmark = $this->getBookmarkNameWithLink($link);
         if (!$bookmark) {
@@ -133,7 +133,20 @@ class LinkResolver extends Prismic\LinkResolver
             return null;
         }
 
-        return $this->urlHelper->generate($route->getName(), $this->getRouteParams($link));
+        return $this->generateUrl($route, $link);
+    }
+
+    private function generateUrl(Route $route, DocumentLink $link) :? string
+    {
+        return $this->urlHelper->generate(
+            $route->getName(),
+            $this->getRouteParams($link),
+            [],
+            null,
+            [
+                'reuse_result_params' => false,
+            ]
+        );
     }
 
     /**
