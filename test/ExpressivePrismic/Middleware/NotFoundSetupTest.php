@@ -3,18 +3,14 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
+use ExpressivePrismic\Exception\RuntimeException;
 use ExpressivePrismic\Middleware\NotFoundSetup;
-
-// Deps
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Prismic;
-use Zend\Diactoros\Response as ServerResponse;
 use ExpressivePrismic\Service\CurrentDocument;
+use ExpressivePrismicTest\TestCase;
+use Prismic;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
+use Zend\Diactoros\Response as ServerResponse;
 
 class NotFoundSetupTest extends TestCase
 {
@@ -24,7 +20,7 @@ class NotFoundSetupTest extends TestCase
     private $api;
     private $currentDoc;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->api        = $this->prophesize(Prismic\Api::class);
         $this->currentDoc = $this->prophesize(CurrentDocument::class);
@@ -32,7 +28,7 @@ class NotFoundSetupTest extends TestCase
         $this->request    = $this->prophesize(Request::class);
     }
 
-    public function getMiddleware()
+    private function getMiddleware() : NotFoundSetup
     {
         return new NotFoundSetup(
             $this->api->reveal(),
@@ -42,11 +38,7 @@ class NotFoundSetupTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage The error document bookmark "some-bookmark" does not reference a current document ID
-     */
-    public function testExceptionThrownForInvalidBookmark()
+    public function testExceptionThrownForInvalidBookmark() : void
     {
         $this->api->bookmark('some-bookmark')->willReturn(null);
         $this->request->withAttribute()->shouldNotBeCalled();
@@ -55,14 +47,12 @@ class NotFoundSetupTest extends TestCase
         $this->delegate->handle()->shouldNotBeCalled();
 
         $middleware = $this->getMiddleware();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The error document bookmark "some-bookmark" does not reference a current document ID');
         $middleware->process($request, $this->delegate->reveal());
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage bookmark "some-bookmark" resolved to the id "some-id" but the document cannot be found
-     */
-    public function testExceptionThrownForInvalidDocument()
+    public function testExceptionThrownForInvalidDocument() : void
     {
         $this->api->bookmark('some-bookmark')->willReturn('some-id');
         $this->api->getById('some-id')->willReturn(null);
@@ -72,14 +62,12 @@ class NotFoundSetupTest extends TestCase
         $this->delegate->handle()->shouldNotBeCalled();
 
         $middleware = $this->getMiddleware();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('bookmark "some-bookmark" resolved to the id "some-id" but the document cannot be found');
         $middleware->process($request, $this->delegate->reveal());
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage An exception occurred retrieving the error document with the id "some-id"
-     */
-    public function testApiExceptionIsWrapped()
+    public function testApiExceptionIsWrapped() : void
     {
         $exception = new Prismic\Exception\RequestFailureException();
         $this->api->bookmark('some-bookmark')->willReturn('some-id');
@@ -87,10 +75,12 @@ class NotFoundSetupTest extends TestCase
         $this->request->withAttribute()->shouldNotBeCalled();
         $request = $this->request->reveal();
         $middleware = $this->getMiddleware();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('An exception occurred retrieving the error document with the id "some-id"');
         $middleware->process($request, $this->delegate->reveal());
     }
 
-    public function testSuccessfulDocumentRetrievalWillBeAddedToRequestAttrs()
+    public function testSuccessfulDocumentRetrievalWillBeAddedToRequestAttrs() : void
     {
         $doc = $this->prophesize(Prismic\DocumentInterface::class);
         $this->api->bookmark('some-bookmark')->willReturn('some-id');

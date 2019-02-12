@@ -3,20 +3,16 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
-
-// SUT
+use ExpressivePrismic\Exception\RuntimeException;
 use ExpressivePrismic\Middleware\DocumentResolver;
-
-// Deps
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Prismic;
-use Zend\Expressive\Router\RouteResult;
 use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Service\RouteParams;
+use ExpressivePrismicTest\TestCase;
+use Prismic;
+use Prophecy\Argument;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
+use Zend\Expressive\Router\RouteResult;
 
 class DocumentResolverTest extends TestCase
 {
@@ -30,7 +26,7 @@ class DocumentResolverTest extends TestCase
     private $request;
     private $document;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->api         = $this->prophesize(Prismic\Api::class);
         $this->routeParams = new RouteParams([]);
@@ -41,7 +37,7 @@ class DocumentResolverTest extends TestCase
         $this->document    = $this->prophesize(Prismic\DocumentInterface::class);
     }
 
-    public function getMiddleware()
+    private function getMiddleware() : DocumentResolver
     {
         return new DocumentResolver(
             $this->api->reveal(),
@@ -50,21 +46,19 @@ class DocumentResolverTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage No route has yet been matched
-     */
-    public function testExceptionIsThrownWhenNoRouteResultIsPresent()
+    public function testExceptionIsThrownWhenNoRouteResultIsPresent() : void
     {
         $this->request->getAttribute(RouteResult::class)->willReturn(null);
         $middleware = $this->getMiddleware();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No route has yet been matched');
         $middleware->process(
             $this->request->reveal(),
             $this->delegate->reveal()
         );
     }
 
-    public function testResolveWithBookmark()
+    public function testResolveWithBookmark() : void
     {
         $this->routeResult
             ->getMatchedParams()
@@ -99,7 +93,7 @@ class DocumentResolverTest extends TestCase
         );
     }
 
-    public function testResolveWithId()
+    public function testResolveWithId() : void
     {
         $this->routeResult
             ->getMatchedParams()
@@ -130,7 +124,7 @@ class DocumentResolverTest extends TestCase
         );
     }
 
-    public function testResolveWithUid()
+    public function testResolveWithUid() : void
     {
         $this->routeResult
             ->getMatchedParams()
@@ -162,7 +156,7 @@ class DocumentResolverTest extends TestCase
         );
     }
 
-    public function testDelegateProcessesWhenTheresNoDocument()
+    public function testDelegateProcessesWhenTheresNoDocument() : void
     {
         $this->routeResult
             ->getMatchedParams()

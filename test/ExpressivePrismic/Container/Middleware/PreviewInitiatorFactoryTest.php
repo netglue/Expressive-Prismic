@@ -3,28 +3,23 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Middleware\PreviewInitiatorFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
 use ExpressivePrismic\Middleware\PreviewInitiator;
+use ExpressivePrismicTest\TestCase;
 use Prismic;
+use Psr\Container\ContainerInterface;
 
 class PreviewInitiatorFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get(Prismic\Api::class)->willReturn(
             $this->prophesize(Prismic\Api::class)->reveal()

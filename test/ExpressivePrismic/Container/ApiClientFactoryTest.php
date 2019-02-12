@@ -3,54 +3,40 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\ApiClientFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
-use Prismic\Api;
 use ExpressivePrismic\Exception;
+use ExpressivePrismicTest\TestCase;
+use Psr\Container\ContainerInterface;
 
 class ApiClientFactoryTest extends TestCase
 {
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage No configuration can be found
-     */
-    public function testExceptionIsThrownWhenConfigIsNotAvailable()
+    public function testExceptionIsThrownWhenConfigIsNotAvailable() : void
     {
         $this->container->has('config')->willReturn(false);
         $factory = new ApiClientFactory;
+        $this->expectException(Exception\RuntimeException::class);
+        $this->expectExceptionMessage('No configuration can be found');
         $factory($this->container->reveal());
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage No Prismic API configuration can be found
-     */
-    public function testExceptionIsThrownWhenPrismicConfigIsNotAvailable()
+    public function testExceptionIsThrownWhenPrismicConfigIsNotAvailable() : void
     {
         $this->container->has('config')->willReturn(true);
         $this->container->get('config')->willReturn([]);
         $factory = new ApiClientFactory;
+        $this->expectException(Exception\RuntimeException::class);
+        $this->expectExceptionMessage('No Prismic API configuration can be found');
         $factory($this->container->reveal());
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage Prismic API endpoint URL must be specified
-     */
-    public function testExceptionIsThrownWhenApiUrlHasNotBeenSet()
+    public function testExceptionIsThrownWhenApiUrlHasNotBeenSet() : void
     {
         $this->container->has('config')->willReturn(true);
         $this->container->get('config')->willReturn([
@@ -61,10 +47,12 @@ class ApiClientFactoryTest extends TestCase
             ]
         ]);
         $factory = new ApiClientFactory;
+        $this->expectException(Exception\RuntimeException::class);
+        $this->expectExceptionMessage('Prismic API endpoint URL must be specified');
         $factory($this->container->reveal());
     }
 
-    public function testContainerWillBeAskedForACacheInstanceIfCacheParameterIsNonEmpty()
+    public function testContainerWillBeAskedForACacheInstanceIfCacheParameterIsNonEmpty() : void
     {
         $this->container->has('config')->willReturn(true);
         $this->container->get('config')->willReturn([

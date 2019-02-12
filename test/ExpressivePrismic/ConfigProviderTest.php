@@ -7,7 +7,7 @@ use ExpressivePrismic\ConfigProvider;
 
 class ConfigProviderTest extends TestCase
 {
-    public function testInvokeReturnsAnArray()
+    public function testInvokeReturnsAnArray() : void
     {
         $config = new ConfigProvider();
         $this->assertInternalType('array', $config());

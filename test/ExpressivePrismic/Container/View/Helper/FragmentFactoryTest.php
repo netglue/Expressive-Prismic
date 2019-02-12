@@ -3,28 +3,23 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\View\Helper;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\View\Helper\FragmentFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
-use ExpressivePrismic\View\Helper\Fragment;
 use ExpressivePrismic\Service\CurrentDocument;
+use ExpressivePrismic\View\Helper\Fragment;
+use ExpressivePrismicTest\TestCase;
+use Psr\Container\ContainerInterface;
 
 class FragmentFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get(CurrentDocument::class)->willReturn(
             $this->prophesize(CurrentDocument::class)->reveal()

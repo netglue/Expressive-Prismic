@@ -3,30 +3,25 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Middleware\DocumentResolverFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
-use Prismic;
+use ExpressivePrismic\Middleware\DocumentResolver;
 use ExpressivePrismic\Service\CurrentDocument;
 use ExpressivePrismic\Service\RouteParams;
-use ExpressivePrismic\Middleware\DocumentResolver;
+use ExpressivePrismicTest\TestCase;
+use Prismic;
+use Psr\Container\ContainerInterface;
 
 class DocumentResolverFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get(Prismic\Api::class)->willReturn(
             $this->prophesize(Prismic\Api::class)->reveal()

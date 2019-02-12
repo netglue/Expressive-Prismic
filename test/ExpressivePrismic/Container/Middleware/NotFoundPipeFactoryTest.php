@@ -3,29 +3,24 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Middleware\NotFoundPipeFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
-use Zend\Stratigility\MiddlewarePipe;
-use Zend\Expressive\MiddlewareFactory;
 use ExpressivePrismic\Middleware;
+use ExpressivePrismicTest\TestCase;
+use Psr\Container\ContainerInterface;
+use Zend\Expressive\MiddlewareFactory;
+use Zend\Stratigility\MiddlewarePipe;
 
 class NotFoundPipeFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $middlewareFactory = $this->prophesize(MiddlewareFactory::class);
 

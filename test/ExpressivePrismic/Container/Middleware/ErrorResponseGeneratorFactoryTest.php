@@ -3,29 +3,25 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
+use ExpressivePrismic\Container\Middleware\ErrorResponseGeneratorFactory;
+use ExpressivePrismic\Middleware\ErrorHandlerPipe;
+use ExpressivePrismic\Middleware\ErrorResponseGenerator;
 use ExpressivePrismic\Middleware\NotFoundPipe;
 use ExpressivePrismicTest\TestCase;
-
-// SUT
-use ExpressivePrismic\Container\Middleware\ErrorResponseGeneratorFactory;
-
 use Psr\Container\ContainerInterface;
-use ExpressivePrismic\Middleware\ErrorResponseGenerator;
 use Zend\Stratigility\MiddlewarePipeInterface;
-use ExpressivePrismic\Middleware\ErrorHandlerPipe;
 
 class ErrorResponseGeneratorFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get(ErrorHandlerPipe::class)->willReturn(
             $this->prophesize(MiddlewarePipeInterface::class)->reveal()

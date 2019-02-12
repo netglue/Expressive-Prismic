@@ -24,7 +24,7 @@ class RouteMatcherTest extends TestCase
     /** @var ObjectProphecy */
     private $router;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->router = $this->prophesize(RouterInterface::class);
@@ -58,7 +58,7 @@ class RouteMatcherTest extends TestCase
         return new RouteMatcher($this->getCollector(), new RouteParams());
     }
 
-    public function testBookmarkedRouteIsCorrectlyClassifiedAndReturned()
+    public function testBookmarkedRouteIsCorrectlyClassifiedAndReturned() : void
     {
         $route = $this->addRoute('/foo', 'test', [
             'defaults' => [
@@ -69,7 +69,7 @@ class RouteMatcherTest extends TestCase
         $this->assertSame($route, $matcher->getBookmarkedRoute('some-bookmark'));
     }
 
-    public function testTypedRouteIsCorrectlyClassifiedAndReturned()
+    public function testTypedRouteIsCorrectlyClassifiedAndReturned() : void
     {
         $route = $this->addRoute('/foo', 'test', [
             'defaults' => [
@@ -80,7 +80,7 @@ class RouteMatcherTest extends TestCase
         $this->assertSame($route, $matcher->getTypedRoute('some-type'));
     }
 
-    public function testTypesAsArrayWillReturnTheSameRouteForAllTypes()
+    public function testTypesAsArrayWillReturnTheSameRouteForAllTypes() : void
     {
         $route = $this->addRoute('/foo', 'test', [
             'defaults' => [
@@ -93,7 +93,7 @@ class RouteMatcherTest extends TestCase
         $this->assertSame($route, $matcher->getTypedRoute('other-type'));
     }
 
-    public function testThatTwoRoutesWithTheSameBookmarkWillReturnTheFirstMatchedRoute()
+    public function testThatTwoRoutesWithTheSameBookmarkWillReturnTheFirstMatchedRoute() : void
     {
         $first = $this->addRoute('/first', 'first', [
             'defaults' => [
@@ -109,7 +109,7 @@ class RouteMatcherTest extends TestCase
         $this->assertSame($first, $matcher->getBookmarkedRoute('some-bookmark'));
     }
 
-    public function testThatNullIsReturnedWhenNoRouteMatchesBookmark()
+    public function testThatNullIsReturnedWhenNoRouteMatchesBookmark() : void
     {
         $this->addRoute('/first', 'first', [
             'defaults' => [
@@ -120,7 +120,7 @@ class RouteMatcherTest extends TestCase
         $this->assertNull($matcher->getBookmarkedRoute('other-bookmark'));
     }
 
-    public function testNullIsReturnedWhenNoRouteMatchesType()
+    public function testNullIsReturnedWhenNoRouteMatchesType() : void
     {
         $this->addRoute('/foo', 'test', [
             'defaults' => [
@@ -132,7 +132,7 @@ class RouteMatcherTest extends TestCase
         $this->assertNull($matcher->getTypedRoute('wrong-type'));
     }
 
-    public function testThatRoutesWithoutKnownOptionsDoNotMatch()
+    public function testThatRoutesWithoutKnownOptionsDoNotMatch() : void
     {
         $this->addRoute('/foo', 'test', []);
         $matcher = $this->getMatcher();

@@ -3,30 +3,25 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
-use ExpressivePrismicTest\Middleware\Factory\RuntimeException;
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Middleware\ExperimentInitiatorFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
+use ExpressivePrismic\Exception\RuntimeException;
 use ExpressivePrismic\Middleware\ExperimentInitiator;
-use Zend\View\HelperPluginManager;
+use ExpressivePrismicTest\TestCase;
 use Prismic;
+use Psr\Container\ContainerInterface;
+use Zend\View\HelperPluginManager;
 
 class ExperimentInitiatorFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get(Prismic\Api::class)->willReturn(
             $this->prophesize(Prismic\Api::class)->reveal()
@@ -50,14 +45,12 @@ class ExperimentInitiatorFactoryTest extends TestCase
         $this->assertInstanceOf(ExperimentInitiator::class, $middleware);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The Zend\View\HelperPluginManager cannot be located in the container
-     */
-    public function testExceptionThrownWhenHelpersNotAvailable()
+    public function testExceptionThrownWhenHelpersNotAvailable() : void
     {
         $this->container->has(HelperPluginManager::class)->willReturn(false);
         $factory = new ExperimentInitiatorFactory;
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The Zend\View\HelperPluginManager cannot be located in the container');
         $factory($this->container->reveal());
     }
 }

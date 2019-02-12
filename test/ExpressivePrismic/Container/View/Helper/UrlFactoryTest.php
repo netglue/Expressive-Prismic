@@ -3,28 +3,23 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\View\Helper;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\View\Helper\UrlFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
 use ExpressivePrismic\View\Helper\Url;
+use ExpressivePrismicTest\TestCase;
 use Prismic\Api;
+use Psr\Container\ContainerInterface;
 
 class UrlFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get(Api::class)->willReturn(
             $this->prophesize(Api::class)->reveal()

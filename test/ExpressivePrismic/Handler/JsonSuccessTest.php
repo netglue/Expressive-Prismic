@@ -3,13 +3,8 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Handler;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Handler\JsonSuccess;
-
-// Deps
+use ExpressivePrismicTest\TestCase;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\JsonResponse;
@@ -17,7 +12,7 @@ use Zend\Diactoros\Response\JsonResponse;
 class JsonSuccessTest extends TestCase
 {
 
-    public function testJsonReturned()
+    public function testJsonReturned() : void
     {
         $request = $this->prophesize(Request::class)->reveal();
 
@@ -29,7 +24,7 @@ class JsonSuccessTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
     }
 
-    public function testJsonIsReturnedFromProcess()
+    public function testJsonIsReturnedFromProcess() : void
     {
         $request = $this->prophesize(Request::class)->reveal();
 

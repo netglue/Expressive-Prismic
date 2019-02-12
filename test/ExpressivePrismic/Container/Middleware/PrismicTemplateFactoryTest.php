@@ -3,28 +3,23 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Middleware\PrismicTemplateFactory;
-
-// Deps
+use ExpressivePrismic\Middleware\PrismicTemplate;
+use ExpressivePrismicTest\TestCase;
 use Psr\Container\ContainerInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
-use ExpressivePrismic\Middleware\PrismicTemplate;
 
 class PrismicTemplateFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get(TemplateRendererInterface::class)->willReturn(
             $this->prophesize(TemplateRendererInterface::class)->reveal()

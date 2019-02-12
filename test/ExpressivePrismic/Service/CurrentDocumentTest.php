@@ -3,25 +3,20 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Service;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Service\CurrentDocument;
-
-// Deps
+use ExpressivePrismicTest\TestCase;
 use Prismic\Document;
 
 class CurrentDocumentTest extends TestCase
 {
     private $doc;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->doc = $this->prophesize(Document::class)->reveal();
     }
 
-    public function testBasic()
+    public function testBasic() : void
     {
         $current = new CurrentDocument;
 

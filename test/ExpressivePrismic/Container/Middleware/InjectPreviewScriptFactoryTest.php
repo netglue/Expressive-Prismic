@@ -3,14 +3,9 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
-use ExpressivePrismicTest\Middleware\Factory\RuntimeException;
 use ExpressivePrismicTest\TestCase;
-
-// SUT
+use ExpressivePrismic\Exception;
 use ExpressivePrismic\Container\Middleware\InjectPreviewScriptFactory;
-
-// Deps
 use Psr\Container\ContainerInterface;
 use ExpressivePrismic\Middleware\InjectPreviewScript;
 use Zend\View\HelperPluginManager;
@@ -21,12 +16,12 @@ class InjectPreviewScriptFactoryTest extends TestCase
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get(Prismic\Api::class)->willReturn(
             $this->prophesize(Prismic\Api::class)->reveal()
@@ -51,14 +46,12 @@ class InjectPreviewScriptFactoryTest extends TestCase
         $this->assertInstanceOf(InjectPreviewScript::class, $middleware);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The Zend\View\HelperPluginManager cannot be located in the container
-     */
-    public function testExceptionThrownWhenHelpersNotAvailable()
+    public function testExceptionThrownWhenHelpersNotAvailable() : void
     {
         $this->container->has(HelperPluginManager::class)->willReturn(false);
         $factory = new InjectPreviewScriptFactory;
+        $this->expectException(Exception\RuntimeException::class);
+        $this->expectExceptionMessage('The Zend\View\HelperPluginManager cannot be located in the container');
         $factory($this->container->reveal());
     }
 }

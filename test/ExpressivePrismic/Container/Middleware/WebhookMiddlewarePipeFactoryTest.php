@@ -3,26 +3,26 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-use ExpressivePrismicTest\TestCase;
 use ExpressivePrismic\Container\Middleware\WebhookMiddlewarePipeFactory;
-use Psr\Container\ContainerInterface;
-use Zend\Stratigility\MiddlewarePipe;
-use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
-use ExpressivePrismic\Middleware\ApiCacheBust;
 use ExpressivePrismic\Handler\JsonSuccess;
+use ExpressivePrismic\Middleware\ApiCacheBust;
+use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
+use ExpressivePrismicTest\TestCase;
+use Psr\Container\ContainerInterface;
 use Zend\Expressive\MiddlewareFactory;
+use Zend\Stratigility\MiddlewarePipe;
 
 class WebhookMiddlewarePipeFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $middlewareFactory = $this->prophesize(MiddlewareFactory::class);
 

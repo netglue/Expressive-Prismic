@@ -3,29 +3,25 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Middleware\ErrorDocumentSetupFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
+use ExpressivePrismic\Exception;
 use ExpressivePrismic\Middleware\ErrorDocumentSetup;
 use ExpressivePrismic\Service\CurrentDocument;
+use ExpressivePrismicTest\TestCase;
 use Prismic;
+use Psr\Container\ContainerInterface;
 
 class ErrorDocumentSetupFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get(Prismic\Api::class)->willReturn(
             $this->prophesize(Prismic\Api::class)->reveal()
@@ -47,10 +43,7 @@ class ErrorDocumentSetupFactoryTest extends TestCase
         $this->assertInstanceOf(ErrorDocumentSetup::class, $middleware);
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     */
-    public function testExceptionThrownForEmptyBookmark()
+    public function testExceptionThrownForEmptyBookmark() : void
     {
         $this->container->get(Prismic\Api::class)->willReturn(
             $this->prophesize(Prismic\Api::class)->reveal()
@@ -66,13 +59,11 @@ class ErrorDocumentSetupFactoryTest extends TestCase
         ]);
 
         $factory = new ErrorDocumentSetupFactory;
+        $this->expectException(Exception\RuntimeException::class);
         $factory($this->container->reveal());
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     */
-    public function testExceptionThrownForEmptyTemplate()
+    public function testExceptionThrownForEmptyTemplate() : void
     {
         $this->container->get(Prismic\Api::class)->willReturn(
             $this->prophesize(Prismic\Api::class)->reveal()
@@ -88,6 +79,7 @@ class ErrorDocumentSetupFactoryTest extends TestCase
         ]);
 
         $factory = new ErrorDocumentSetupFactory;
+        $this->expectException(Exception\RuntimeException::class);
         $factory($this->container->reveal());
     }
 }

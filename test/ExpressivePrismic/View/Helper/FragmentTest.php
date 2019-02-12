@@ -3,16 +3,12 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\View\Helper;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
-use ExpressivePrismic\View\Helper\Fragment;
-
-// Deps
+use ExpressivePrismic\Exception\RuntimeException;
 use ExpressivePrismic\Service\CurrentDocument;
-use Prismic\DocumentInterface;
+use ExpressivePrismic\View\Helper\Fragment;
+use ExpressivePrismicTest\TestCase;
 use Prismic\Document\Fragment\FragmentInterface;
+use Prismic\DocumentInterface;
 
 class FragmentTest extends TestCase
 {
@@ -20,37 +16,35 @@ class FragmentTest extends TestCase
     private $docRegistry;
     private $doc;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->docRegistry = $this->prophesize(CurrentDocument::class);
         $this->doc = $this->prophesize(DocumentInterface::class);
     }
 
-    private function getHelper()
+    private function getHelper() : Fragment
     {
         return new Fragment(
             $this->docRegistry->reveal()
         );
     }
 
-    public function testInvokeReturnsSelf()
+    public function testInvokeReturnsSelf() : void
     {
         $helper = $this->getHelper();
         $this->assertSame($helper, ($helper)());
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\RuntimeException
-     * @expectedExceptionMessage No prismic document has been set in the document registry
-     */
-    public function testExceptionThrownWhenNoDocumentIsAvailable()
+    public function testExceptionThrownWhenNoDocumentIsAvailable() : void
     {
         $this->docRegistry->getDocument()->willReturn(null);
         $helper = $this->getHelper();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No prismic document has been set in the document registry');
         $helper->get('foo');
     }
 
-    private function setCurrentDocument()
+    private function setCurrentDocument() : void
     {
         $this->doc->getType()->willReturn('mytype');
         $this->docRegistry->getDocument()->willReturn(
@@ -58,7 +52,7 @@ class FragmentTest extends TestCase
         );
     }
 
-    public function testGetReturnsFragmentWithUnqualifiedOrQualifiedName()
+    public function testGetReturnsFragmentWithUnqualifiedOrQualifiedName() : void
     {
         $frag = $this->prophesize(FragmentInterface::class);
         $frag = $frag->reveal();
@@ -71,7 +65,7 @@ class FragmentTest extends TestCase
     }
 
 
-    public function testAsTextReturnsExpectedValue()
+    public function testAsTextReturnsExpectedValue() : void
     {
         $frag = $this->prophesize(FragmentInterface::class);
         $frag->asText()->willReturn('Example Text');
@@ -84,7 +78,7 @@ class FragmentTest extends TestCase
         $this->assertSame('Example Text', $helper->asText('myfrag'));
     }
 
-    public function testAsHtmlReturnsExpectedValue()
+    public function testAsHtmlReturnsExpectedValue() : void
     {
         $frag = $this->prophesize(FragmentInterface::class);
         $frag->asHtml()->willReturn('Example HTML');
@@ -97,7 +91,7 @@ class FragmentTest extends TestCase
         $this->assertSame('Example HTML', $helper->asHtml('myfrag'));
     }
 
-    public function testAccessorsReturnsNullForUnknownFragmentName()
+    public function testAccessorsReturnsNullForUnknownFragmentName() : void
     {
         $this->doc->get('myfrag')->willReturn(null);
         $this->setCurrentDocument();

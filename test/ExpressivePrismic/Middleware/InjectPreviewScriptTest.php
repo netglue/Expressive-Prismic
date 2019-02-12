@@ -3,17 +3,12 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-use Prophecy\Argument;
-
-// SUT
 use ExpressivePrismic\Middleware\InjectPreviewScript;
-
-// Deps
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use ExpressivePrismicTest\TestCase;
 use Prismic;
+use Prophecy\Argument;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Zend\View\Helper\InlineScript;
 use Zend\View\HelperPluginManager;
 
@@ -25,7 +20,7 @@ class InjectPreviewScriptTest extends TestCase
     private $delegate;
     private $request;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->api      = $this->prophesize(Prismic\Api::class);
         $this->helpers  = $this->prophesize(HelperPluginManager::class);
@@ -33,7 +28,7 @@ class InjectPreviewScriptTest extends TestCase
         $this->request  = $this->prophesize(Request::class);
     }
 
-    public function getMiddleware(bool $alwaysInject = false)
+    private function getMiddleware(bool $alwaysInject = false) : InjectPreviewScript
     {
         return new InjectPreviewScript(
             $this->api->reveal(),
@@ -45,7 +40,7 @@ class InjectPreviewScriptTest extends TestCase
         );
     }
 
-    public function testMiddlewareIsNoopWhenNotInPreviewMode()
+    public function testMiddlewareIsNoopWhenNotInPreviewMode() : void
     {
         $this->api->inPreview()->willReturn(false);
         $this->helpers->get('inlineScript')->shouldNotBeCalled();
@@ -56,7 +51,7 @@ class InjectPreviewScriptTest extends TestCase
         $middleware->process($request, $this->delegate->reveal());
     }
 
-    public function testScriptsAreAdded()
+    public function testScriptsAreAdded() : void
     {
         $this->api->inPreview()->willReturn(true);
         $helper = $this->prophesize(InlineScriptStubForInjectPreview::class);
@@ -70,7 +65,7 @@ class InjectPreviewScriptTest extends TestCase
         $middleware->process($request, $this->delegate->reveal());
     }
 
-    public function testScriptIsAddedWhenAlwaysInjectIsTrue()
+    public function testScriptIsAddedWhenAlwaysInjectIsTrue() : void
     {
         $this->api->inPreview()->willReturn(false);
         $helper = $this->prophesize(InlineScriptStubForInjectPreview::class);

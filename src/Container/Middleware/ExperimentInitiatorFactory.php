@@ -6,6 +6,7 @@ namespace ExpressivePrismic\Container\Middleware;
 use Psr\Container\ContainerInterface;
 
 use Prismic;
+use ExpressivePrismic\Exception;
 use ExpressivePrismic\Middleware\ExperimentInitiator;
 use Zend\View\HelperPluginManager;
 
@@ -15,7 +16,7 @@ class ExperimentInitiatorFactory
     public function __invoke(ContainerInterface $container) : ExperimentInitiator
     {
         if (! $container->has(HelperPluginManager::class)) {
-            throw new \RuntimeException('The Zend\View\HelperPluginManager cannot be located in the container');
+            throw new Exception\RuntimeException('The Zend\View\HelperPluginManager cannot be located in the container');
         }
 
         $config  = $container->get('config');

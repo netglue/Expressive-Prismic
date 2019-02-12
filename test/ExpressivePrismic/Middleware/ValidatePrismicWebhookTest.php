@@ -3,16 +3,10 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
-
-// Deps
+use ExpressivePrismicTest\TestCase;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
-
 
 class ValidatePrismicWebhookTest extends TestCase
 {
@@ -20,20 +14,20 @@ class ValidatePrismicWebhookTest extends TestCase
     private $delegate;
     private $request;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->delegate = $this->prophesize(DelegateInterface::class);
         $this->request  = $this->prophesize(Request::class);
     }
 
-    public function getMiddleware()
+    private function getMiddleware() : ValidatePrismicWebhook
     {
         return new ValidatePrismicWebhook(
             'big-secret'
         );
     }
 
-    public function testEmptyRequestBodyIsError()
+    public function testEmptyRequestBodyIsError() : void
     {
         $this->request->getBody()->willReturn(null);
 
@@ -47,7 +41,7 @@ class ValidatePrismicWebhookTest extends TestCase
         $this->assertJsonResponseIsError($response, 400);
     }
 
-    private function assertJsonResponseIsError($response, $expectedCode = 400)
+    private function assertJsonResponseIsError($response, $expectedCode = 400) : void
     {
         $this->assertSame($expectedCode, $response->getStatusCode());
         $json = json_decode((string)$response->getBody(), true);
@@ -55,7 +49,7 @@ class ValidatePrismicWebhookTest extends TestCase
         $this->assertInternalType('string', $json['message']);
     }
 
-    public function testInvalidJsonIsError()
+    public function testInvalidJsonIsError() : void
     {
         $this->request->getBody()->willReturn('foo');
         $middleware = $this->getMiddleware();
@@ -67,7 +61,7 @@ class ValidatePrismicWebhookTest extends TestCase
         $this->assertJsonResponseIsError($response, 400);
     }
 
-    public function testMissingSecretIsError()
+    public function testMissingSecretIsError() : void
     {
         $this->request->getBody()->willReturn('{"json" : "foo"}');
         $middleware = $this->getMiddleware();
@@ -78,7 +72,7 @@ class ValidatePrismicWebhookTest extends TestCase
         $this->assertJsonResponseIsError($response, 400);
     }
 
-    public function testIncorrectSecretIsError()
+    public function testIncorrectSecretIsError() : void
     {
         $this->request->getBody()->willReturn('{"secret" : "wrong"}');
         $middleware = $this->getMiddleware();
@@ -89,7 +83,7 @@ class ValidatePrismicWebhookTest extends TestCase
         $this->assertJsonResponseIsError($response, 400);
     }
 
-    public function testCorrectSecretIsSuccess()
+    public function testCorrectSecretIsSuccess() : void
     {
         $this->request->getBody()->willReturn('{"secret" : "big-secret"}');
         $this->request

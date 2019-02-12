@@ -15,12 +15,12 @@ class RouteMatcherFactoryTest extends TestCase
 {
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         /** @var RouteCollector|ObjectProphecy $collector */
         $collector = $this->prophesize(RouteCollector::class);

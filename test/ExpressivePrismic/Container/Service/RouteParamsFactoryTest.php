@@ -3,26 +3,21 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Service;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Service\RouteParamsFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
 use ExpressivePrismic\Service\RouteParams;
+use ExpressivePrismicTest\TestCase;
+use Psr\Container\ContainerInterface;
 
 class RouteParamsFactoryTest extends TestCase
 {
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactoryWithNoConfig()
+    public function testFactoryWithNoConfig() : void
     {
         $this->container->get('config')->willReturn([]);
 
@@ -35,7 +30,7 @@ class RouteParamsFactoryTest extends TestCase
         $this->assertSame('prismic-uid', $service->getUid());
     }
 
-    public function testFactoryWithConfig()
+    public function testFactoryWithConfig() : void
     {
         $this->container->get('config')->willReturn([
             'prismic' => [

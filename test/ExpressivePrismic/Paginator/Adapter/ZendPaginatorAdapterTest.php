@@ -3,21 +3,16 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Paginator\Adapter;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-use Prophecy\Prophecy\ObjectProphecy;
-
-// SUT
 use ExpressivePrismic\Paginator\Adapter\ZendPaginatorAdapter;
-
-// Deps
-use Prismic\SearchForm;
+use ExpressivePrismicTest\TestCase;
 use Prismic\Response;
+use Prismic\SearchForm;
+use Prophecy\Prophecy\ObjectProphecy;
 
 class ZendPaginatorAdapterTest extends TestCase
 {
 
-    public function testCount()
+    public function testCount() : void
     {
         $form = $this->prophesize(SearchForm::class);
         $form->count()->willReturn(10);
@@ -27,7 +22,7 @@ class ZendPaginatorAdapterTest extends TestCase
         $this->assertSame(10, $adapter->count());
     }
 
-    public function testItemCountAndPageNumberAreGivenToForm()
+    public function testItemCountAndPageNumberAreGivenToForm() : void
     {
         $response = $this->prophesize(Response::class);
         $response->getResults()->shouldBeCalled();

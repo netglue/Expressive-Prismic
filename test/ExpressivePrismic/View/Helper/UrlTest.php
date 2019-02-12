@@ -3,17 +3,10 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\View\Helper;
 
-// Infra
-use ExpressivePrismic\LinkResolver;
-use ExpressivePrismicTest\TestCase;
-use Prismic\Document\Fragment\Link\DocumentLink;
-use Prophecy\Argument;
-
-// SUT
 use ExpressivePrismic\View\Helper\Url;
-
-// Deps
+use ExpressivePrismicTest\TestCase;
 use Prismic;
+use Prismic\Document\Fragment\Link\DocumentLink;
 
 class UrlTest extends TestCase
 {
@@ -28,21 +21,20 @@ class UrlTest extends TestCase
      */
     private $api;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->resolver = $this->prophesize(Prismic\LinkResolver::class);
         $this->api = $this->prophesize(Prismic\Api::class);
     }
 
-    public function getHelper()
+    private function getHelper() : Url
     {
         return new Url(
-            $this->api->reveal(),
-            $this->resolver->reveal()
+            $this->api->reveal()
         );
     }
 
-    public function testStringIdIsResolved()
+    public function testStringIdIsResolved() : void
     {
         $id = 'testId';
         $doc = $this->prophesize(Prismic\DocumentInterface::class);
@@ -59,7 +51,7 @@ class UrlTest extends TestCase
         $this->assertSame('/some-url', $helper($id));
     }
 
-    public function testUnknownIdReturnsNull()
+    public function testUnknownIdReturnsNull() : void
     {
         $id = 'testId';
 
@@ -70,7 +62,7 @@ class UrlTest extends TestCase
         $this->assertNull($helper($id));
     }
 
-    public function testDocumentIsResolved()
+    public function testDocumentIsResolved() : void
     {
         $doc = $this->prophesize(Prismic\DocumentInterface::class);
         $link = $this->prophesize(DocumentLink::class);
@@ -81,7 +73,7 @@ class UrlTest extends TestCase
         $this->assertSame('/some-url', $helper($doc->reveal()));
     }
 
-    public function testLinkIsResolved()
+    public function testLinkIsResolved() : void
     {
         $link = $this->prophesize(Prismic\Document\Fragment\LinkInterface::class);
         $link->getUrl()->willReturn('/some-url');

@@ -3,28 +3,22 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Middleware\ValidatePrismicWebhookFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
-use Prismic\Cache\CacheInterface;
+use ExpressivePrismicTest\TestCase;
+use Psr\Container\ContainerInterface;
 
 class ValidatePrismicWebhookFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $this->container->get('config')->willReturn([
             'prismic' => [

@@ -3,22 +3,13 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest;
 
-// Infra
-use Prophecy\Argument;
-
-// SUT
 use ExpressivePrismic\LinkResolver;
-
-// Deps
-use Prismic;
-use Prismic\Document;
-use Prismic\Document\Fragment\LinkInterface;
+use ExpressivePrismic\RouteMatcher;
+use ExpressivePrismic\Service\RouteParams;
 use Prismic\Document\Fragment\Link\DocumentLink;
 use Prismic\Document\Fragment\Link\WebLink;
+use Prophecy\Argument;
 use Zend\Expressive\Helper\UrlHelper;
-use Zend\Expressive\Router\Exception\ExceptionInterface as RouterException;
-use ExpressivePrismic\Service\RouteParams;
-use ExpressivePrismic\RouteMatcher;
 use Zend\Expressive\Router\Route;
 
 class LinkResolverTest extends TestCase
@@ -28,13 +19,13 @@ class LinkResolverTest extends TestCase
 
     private $matcher;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->url = $this->prophesize(UrlHelper::class);
         $this->matcher = $this->prophesize(RouteMatcher::class);
     }
 
-    private function resolver()
+    private function resolver() : LinkResolver
     {
         $bookmarks = [
             'bookmark-name' => 'document-id',
@@ -47,7 +38,7 @@ class LinkResolverTest extends TestCase
         );
     }
 
-    public function testBrokenLinkReturnsNull()
+    public function testBrokenLinkReturnsNull() : void
     {
         $resolver = $this->resolver();
         $link = $this->prophesize(DocumentLink::class);
@@ -56,7 +47,7 @@ class LinkResolverTest extends TestCase
         $this->assertNull($resolver->resolve($link->reveal()));
     }
 
-    public function testLinkWithoutMatchingBookmarkRouteOrTypeRouteWillReturnNull()
+    public function testLinkWithoutMatchingBookmarkRouteOrTypeRouteWillReturnNull() : void
     {
         $link = $this->prophesize(DocumentLink::class);
         $link->isBroken()->willReturn(false);
@@ -69,7 +60,7 @@ class LinkResolverTest extends TestCase
         $this->assertNull($resolver->resolve($link->reveal()));
     }
 
-    public function testNonDocumentLinkWillReturnUrl()
+    public function testNonDocumentLinkWillReturnUrl() : void
     {
         $resolver = $this->resolver();
         $link = $this->prophesize(WebLink::class);
@@ -77,7 +68,7 @@ class LinkResolverTest extends TestCase
         $this->assertSame('/nuts', $resolver->resolve($link->reveal()));
     }
 
-    public function testBookmarkedLinkWithoutMatchingRouteIsTriedAsType()
+    public function testBookmarkedLinkWithoutMatchingRouteIsTriedAsType() : void
     {
         $link = $this->prophesize(DocumentLink::class);
         $link->isBroken()->willReturn(false);
@@ -90,7 +81,7 @@ class LinkResolverTest extends TestCase
         $this->assertNull($resolver->resolve($link->reveal()));
     }
 
-    public function testLinkWithMatchingTypedRouteIsResolved()
+    public function testLinkWithMatchingTypedRouteIsResolved() : void
     {
         $link = $this->prophesize(DocumentLink::class);
         $link->isBroken()->willReturn(false);
@@ -114,7 +105,7 @@ class LinkResolverTest extends TestCase
         $this->assertSame('/foo', $resolver->resolve($link->reveal()));
     }
 
-    public function testDocumentLinkWillBeResolved()
+    public function testDocumentLinkWillBeResolved() : void
     {
         /** @var DocumentLink $link */
         $link = $this->prophesize(DocumentLink::class);

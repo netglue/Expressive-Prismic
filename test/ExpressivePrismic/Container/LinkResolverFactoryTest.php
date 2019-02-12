@@ -3,31 +3,26 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\LinkResolverFactory;
-
-// Deps
+use ExpressivePrismic\LinkResolver;
+use ExpressivePrismic\RouteMatcher;
+use ExpressivePrismic\Service\RouteParams;
+use ExpressivePrismicTest\TestCase;
+use Prismic\Api;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
-use Prismic\Api;
-use ExpressivePrismic\LinkResolver;
-use ExpressivePrismic\Service\RouteParams;
-use ExpressivePrismic\RouteMatcher;
 use Zend\Expressive\Helper\UrlHelper;
 
 class LinkResolverFactoryTest extends TestCase
 {
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testLinkResolverWillBeCreated()
+    public function testLinkResolverWillBeCreated() : void
     {
         $api = $this->prophesize(Api::class);
         $api->setLinkResolver(Argument::type(LinkResolver::class))->shouldBeCalled();

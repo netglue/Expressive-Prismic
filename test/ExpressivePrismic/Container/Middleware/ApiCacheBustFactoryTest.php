@@ -3,29 +3,24 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Container\Middleware\ApiCacheBustFactory;
-
-// Deps
-use Psr\Container\ContainerInterface;
-use Prismic\Api;
 use ExpressivePrismic\Middleware\ApiCacheBust;
+use ExpressivePrismicTest\TestCase;
+use Prismic\Api;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Container\ContainerInterface;
 
 class ApiCacheBustFactoryTest extends TestCase
 {
 
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testFactory()
+    public function testFactory() : void
     {
         $api = $this->prophesize(Api::class);
         $cache = $this->prophesize(CacheItemPoolInterface::class)->reveal();

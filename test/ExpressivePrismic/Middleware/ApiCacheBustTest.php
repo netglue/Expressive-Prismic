@@ -3,17 +3,12 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Middleware;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Middleware\ApiCacheBust;
-
-// Deps
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Cache\CacheItemPoolInterface;
 use ExpressivePrismic\Middleware\ValidatePrismicWebhook;
+use ExpressivePrismicTest\TestCase;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 
 class ApiCacheBustTest extends TestCase
 {
@@ -26,23 +21,21 @@ class ApiCacheBustTest extends TestCase
     private $delegate;
     private $request;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->cache    = $this->prophesize(CacheItemPoolInterface::class);
         $this->delegate = $this->prophesize(DelegateInterface::class);
         $this->request  = $this->prophesize(Request::class);
     }
 
-    public function getMiddleware()
+    private function getMiddleware() : ApiCacheBust
     {
         return new ApiCacheBust(
             $this->cache->reveal()
         );
     }
 
-
-
-    public function testCacheIsCleanedWithApiUpdate()
+    public function testCacheIsCleanedWithApiUpdate() : void
     {
         $this->cache->clear()->shouldBeCalled();
 
@@ -59,7 +52,7 @@ class ApiCacheBustTest extends TestCase
         );
     }
 
-    public function testCacheIsNotCleanedWithoutApiUpdate()
+    public function testCacheIsNotCleanedWithoutApiUpdate() : void
     {
         $this->cache->clear()->shouldNotBeCalled();
 
@@ -76,7 +69,7 @@ class ApiCacheBustTest extends TestCase
         );
     }
 
-    public function testNoopWithoutValidationAttribute()
+    public function testNoopWithoutValidationAttribute() : void
     {
         $this->cache->clear()->shouldNotBeCalled();
         $this->request->getAttribute(ValidatePrismicWebhook::class)->willReturn(null);

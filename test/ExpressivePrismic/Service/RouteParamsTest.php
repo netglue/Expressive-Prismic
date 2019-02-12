@@ -3,16 +3,13 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Service;
 
-// Infra
-use ExpressivePrismicTest\TestCase;
-
-// SUT
 use ExpressivePrismic\Service\RouteParams;
+use ExpressivePrismicTest\TestCase;
 
 class RouteParamsTest extends TestCase
 {
 
-    public function testConstructWithEmptyArrayRetainsDefaults()
+    public function testConstructWithEmptyArrayRetainsDefaults() : void
     {
         $params = new RouteParams([]);
         $this->assertSame('prismic-bookmark', $params->getBookmark());
@@ -22,7 +19,7 @@ class RouteParamsTest extends TestCase
         $this->assertSame('prismic-lang', $params->getLang());
     }
 
-    public function testConstructWithValuesReturnsExpected()
+    public function testConstructWithValuesReturnsExpected() : void
     {
         $params = new RouteParams([
             'bookmark' => 'foo',

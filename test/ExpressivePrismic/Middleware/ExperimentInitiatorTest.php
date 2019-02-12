@@ -66,7 +66,7 @@ class ExperimentInitiatorTest extends TestCase
         $middleware->process($request, $this->delegate->reveal());
     }
 
-    public function testScriptsAreAdded()
+    public function testScriptsAreAdded() : void
     {
         $experiments = $this->prophesize(Prismic\Experiments::class);
         $experiment  = $this->prophesize(Prismic\Experiment::class);

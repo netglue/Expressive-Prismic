@@ -3,21 +3,15 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Middleware;
 
-// Infra
 use ExpressivePrismic\Exception\DocumentNotFoundException;
+use ExpressivePrismic\Middleware\PrismicTemplate;
 use ExpressivePrismicTest\TestCase;
 use Prismic\DocumentInterface;
 use Prophecy\Argument;
-
-// SUT
-use ExpressivePrismic\Middleware\PrismicTemplate;
-
-// Deps
-use Zend\Expressive\Template\TemplateRendererInterface;
-use Prismic\LinkResolver;
-use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as DelegateInterface;
 use Zend\Diactoros\Response\HtmlResponse;
+use Zend\Expressive\Template\TemplateRendererInterface;
 
 class PrismicTemplateTest extends TestCase
 {
@@ -26,32 +20,30 @@ class PrismicTemplateTest extends TestCase
     private $request;
     private $renderer;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->delegate = $this->prophesize(DelegateInterface::class);
         $this->request  = $this->prophesize(Request::class);
         $this->renderer  = $this->prophesize(TemplateRendererInterface::class);
     }
 
-    public function getMiddleware()
+    private function getMiddleware() : PrismicTemplate
     {
         return new PrismicTemplate(
             $this->renderer->reveal()
         );
     }
 
-    /**
-     * @expectedException \ExpressivePrismic\Exception\DocumentNotFoundException
-     */
-    public function testExceptionIsThrownWhenDocumentCannotBeResolved()
+    public function testExceptionIsThrownWhenDocumentCannotBeResolved() : void
     {
         $this->request->getAttribute('template')->willReturn('SomeTemplate');
         $this->request->getAttribute(DocumentInterface::class)->willReturn(null);
         $middleware = $this->getMiddleware();
+        $this->expectException(DocumentNotFoundException::class);
         $middleware->process($this->request->reveal(), $this->delegate->reveal());
     }
 
-    public function testTemplateIsRendered()
+    public function testTemplateIsRendered() : void
     {
         $doc = $this->prophesize(DocumentInterface::class)->reveal();
         $this->request->getAttribute('template')->willReturn('SomeTemplate');

@@ -3,19 +3,14 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Middleware;
 
-// Infra
 use ExpressivePrismic\Exception\DocumentNotFoundException;
+use ExpressivePrismic\Middleware\ErrorResponseGenerator;
 use ExpressivePrismicTest\TestCase;
 use Prophecy\Argument;
-
-// SUT
-use ExpressivePrismic\Middleware\ErrorResponseGenerator;
-
-// Deps
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Zend\Stratigility\MiddlewarePipe;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Zend\Diactoros\Response\TextResponse;
+use Zend\Stratigility\MiddlewarePipe;
 use Zend\Stratigility\MiddlewarePipeInterface;
 
 class ErrorResponseGeneratorTest extends TestCase
@@ -26,13 +21,13 @@ class ErrorResponseGeneratorTest extends TestCase
     /** @var MiddlewarePipe */
     private $notFoundPipe;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->errorPipe    = $this->prophesize(MiddlewarePipeInterface::class);
         $this->notFoundPipe = $this->prophesize(MiddlewarePipeInterface::class);
     }
 
-    public function getMiddleware()
+    private function getMiddleware() : ErrorResponseGenerator
     {
         return new ErrorResponseGenerator(
             $this->errorPipe->reveal(),
@@ -40,7 +35,7 @@ class ErrorResponseGeneratorTest extends TestCase
         );
     }
 
-    public function testThatInvokeProcessesErrorPipe()
+    public function testThatInvokeProcessesErrorPipe() : void
     {
         $response = new TextResponse('Some Text');
         $this->errorPipe->process(
@@ -58,7 +53,7 @@ class ErrorResponseGeneratorTest extends TestCase
         $this->assertSame(500, $result->getStatusCode());
     }
 
-    public function testThatExceptionDuringProcessRendersFallbackTextResponse()
+    public function testThatExceptionDuringProcessRendersFallbackTextResponse() : void
     {
         $this->errorPipe->process(
             Argument::any(),
@@ -76,7 +71,7 @@ class ErrorResponseGeneratorTest extends TestCase
         $this->assertSame(500, $result->getStatusCode());
     }
 
-    public function testNotFoundPipeIsProcessedWhenThrowableInstanceofDocumentNotFound()
+    public function testNotFoundPipeIsProcessedWhenThrowableInstanceofDocumentNotFound() : void
     {
         $response = new TextResponse('Some Text');
         $this->errorPipe->process(Argument::any())->shouldNotBeCalled();

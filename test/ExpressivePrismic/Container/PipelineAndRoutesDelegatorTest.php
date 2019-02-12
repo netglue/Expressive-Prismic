@@ -3,15 +3,9 @@ declare(strict_types=1);
 
 namespace ExpressivePrismicTest\Container;
 
-// Infra
+use ExpressivePrismic\Container\PipelineAndRoutesDelegator;
 use ExpressivePrismicTest\TestCase;
 use Prophecy\Argument;
-
-// SUT
-use ExpressivePrismic\Container\PipelineAndRoutesDelegator;
-
-// Deps
-
 use Psr\Container\ContainerInterface;
 use Zend\Expressive\Application;
 
@@ -19,12 +13,12 @@ class PipelineAndRoutesDelegatorTest extends TestCase
 {
     private $container;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
 
-    public function testRoutesAreConfigured()
+    public function testRoutesAreConfigured() : void
     {
         $app = $this->prophesize(Application::class);
         $app->route(

@@ -24,7 +24,7 @@ class PreviewInitiatorTest extends TestCase
     private $api;
     private $uri;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->api      = $this->prophesize(Prismic\Api::class);
         $this->delegate = $this->prophesize(RequestHandlerInterface::class);
@@ -32,7 +32,7 @@ class PreviewInitiatorTest extends TestCase
         $this->uri      = $this->prophesize(UriInterface::class);
     }
 
-    public function getMiddleware() : PreviewInitiator
+    private function getMiddleware() : PreviewInitiator
     {
         return new PreviewInitiator(
             $this->api->reveal()
@@ -59,7 +59,7 @@ class PreviewInitiatorTest extends TestCase
              ->willReturn('/some-url');
     }
 
-    public function testResponseIsRedirect()
+    public function testResponseIsRedirect() : void
     {
         $this->prepareRequest();
 
