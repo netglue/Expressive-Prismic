@@ -46,7 +46,7 @@ class ValidatePrismicWebhookTest extends TestCase
         $this->assertSame($expectedCode, $response->getStatusCode());
         $json = json_decode((string)$response->getBody(), true);
         $this->assertTrue($json['error']);
-        $this->assertInternalType('string', $json['message']);
+        $this->assertIsString($json['message']);
     }
 
     public function testInvalidJsonIsError() : void

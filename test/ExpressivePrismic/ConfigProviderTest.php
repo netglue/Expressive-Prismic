@@ -10,6 +10,6 @@ class ConfigProviderTest extends TestCase
     public function testInvokeReturnsAnArray() : void
     {
         $config = new ConfigProvider();
-        $this->assertInternalType('array', $config());
+        $this->assertIsArray($config());
     }
 }

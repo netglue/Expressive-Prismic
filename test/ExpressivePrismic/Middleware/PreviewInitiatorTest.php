@@ -80,7 +80,7 @@ class PreviewInitiatorTest extends TestCase
         $this->api->previewSession('foo', '/')->willThrow(new ExpiredPreviewTokenException);
         $handler = $this->getMiddleware();
         $response = $handler->process($request, $this->delegate->reveal());
-        $this->assertContains('text/html', $response->getHeaderLine('Content-Type'));
+        $this->assertStringContainsString('text/html', $response->getHeaderLine('Content-Type'));
         $this->assertSame(410, $response->getStatusCode());
     }
 
