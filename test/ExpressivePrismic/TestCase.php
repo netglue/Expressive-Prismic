@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase as PHPUnit;
 
 class TestCase extends PHPUnit
 {
-    protected function tearDown()
+    protected function tearDown() : void
     {
         $refl = new \ReflectionObject($this);
         foreach ($refl->getProperties() as $prop) {
