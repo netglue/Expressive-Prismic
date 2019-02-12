@@ -34,7 +34,7 @@ class ExperimentInitiatorTest extends TestCase
     /** @var Request|ObjectProphecy */
     private $request;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->api         = $this->prophesize(Prismic\Api::class);
         $this->experiments = $this->prophesize(Prismic\Experiments::class);
