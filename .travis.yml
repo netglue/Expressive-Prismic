@@ -6,7 +6,6 @@ env:
     - CC_TEST_REPORTER_ID=088cd44df30d78dd62d79c9af0549a5b9620a4515ff27274387c5fb5b3eba772
     
 php:
-  - 7.1
   - 7.2
   - 7.3
 
