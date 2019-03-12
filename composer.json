@@ -27,7 +27,7 @@
         "ext-json": "*",
         "dflydev/fig-cookies": "^1.0|^2.0",
         "netglue/prismic-php-kit": "^4.2",
-        "zendframework/zend-diactoros": "^1.7",
+        "zendframework/zend-diactoros": "^1.7.1 || ^2.0",
         "zendframework/zend-expressive": "^3.0.1",
         "zendframework/zend-expressive-helpers": "^5.0",
         "zendframework/zend-expressive-zendviewrenderer": "^2.0",
