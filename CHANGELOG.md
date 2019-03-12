@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 4.3.1 - 2019-03-12
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Relaxed composer constraint for Zend Diactoros to allow ^2.0.
+- Fixed a range of issues with tests caused by deprecations in PHPUnit 7
+
 ## 4.3.0 - 2018-11-26
 
 ### Added
