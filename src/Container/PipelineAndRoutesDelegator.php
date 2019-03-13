@@ -9,27 +9,28 @@ use ExpressivePrismic\Middleware;
 
 class PipelineAndRoutesDelegator
 {
-    /**
-     * @param ContainerInterface $container
-     * @param string $serviceName Name of the service being created.
-     * @param callable $callback Creates and returns the service.
-     * @return Application
-     */
     public function __invoke(ContainerInterface $container, $serviceName, callable $callback) : Application
     {
-        /** @var Application */
+        /** @var Application $app */
         $app = $callback();
+
+        $config = $container->get('config')['prismic'];
 
         /**
          * Preview Initiator
          */
-        $app->route('/prismic-preview', [Middleware\PreviewInitiator::class], ['GET'], 'prismic-preview');
+        $app->route(
+            $config['preview_url'],
+            [Middleware\PreviewInitiator::class],
+            ['GET'],
+            'prismic-preview'
+        );
 
         /**
          * Webhook Cache Bust
          */
         $app->route(
-            '/prismicio-cache-webhook',
+            $config['webhook_url'],
             [Middleware\WebhookPipe::class],
             ['POST'],
             'prismic-webhook-cache-bust'

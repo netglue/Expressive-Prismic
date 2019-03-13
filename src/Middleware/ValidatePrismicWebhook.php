@@ -18,11 +18,11 @@ class ValidatePrismicWebhook implements MiddlewareInterface
 {
 
     /**
-     * @var string
+     * @var string|null
      */
     private $expectedSecret;
 
-    public function __construct(string $expectedSecret)
+    public function __construct(?string $expectedSecret = null)
     {
         $this->expectedSecret = $expectedSecret;
     }
@@ -41,9 +41,10 @@ class ValidatePrismicWebhook implements MiddlewareInterface
             return $this->jsonError('Invalid payload', 400);
         }
 
-
-        if (! isset($json['secret']) || $json['secret'] !== $this->expectedSecret) {
-            return $this->jsonError('Invalid payload', 400);
+        if ($this->expectedSecret) {
+            if (! isset($json['secret']) || $json['secret'] !== $this->expectedSecret) {
+                return $this->jsonError('Invalid payload', 400);
+            }
         }
 
         $request = $request->withAttribute(__CLASS__, $json);

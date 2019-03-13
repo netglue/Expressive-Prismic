@@ -20,18 +20,11 @@ class ValidatePrismicWebhookTest extends TestCase
         $this->request  = $this->prophesize(Request::class);
     }
 
-    private function getMiddleware() : ValidatePrismicWebhook
-    {
-        return new ValidatePrismicWebhook(
-            'big-secret'
-        );
-    }
-
     public function testEmptyRequestBodyIsError() : void
     {
         $this->request->getBody()->willReturn(null);
 
-        $middleware = $this->getMiddleware();
+        $middleware = new ValidatePrismicWebhook();
 
         $response = $middleware->process(
             $this->request->reveal(),
@@ -52,7 +45,7 @@ class ValidatePrismicWebhookTest extends TestCase
     public function testInvalidJsonIsError() : void
     {
         $this->request->getBody()->willReturn('foo');
-        $middleware = $this->getMiddleware();
+        $middleware = new ValidatePrismicWebhook();
         $response = $middleware->process(
             $this->request->reveal(),
             $this->delegate->reveal()
@@ -64,7 +57,7 @@ class ValidatePrismicWebhookTest extends TestCase
     public function testMissingSecretIsError() : void
     {
         $this->request->getBody()->willReturn('{"json" : "foo"}');
-        $middleware = $this->getMiddleware();
+        $middleware = new ValidatePrismicWebhook('need-a-secret');
         $response = $middleware->process(
             $this->request->reveal(),
             $this->delegate->reveal()
@@ -75,7 +68,7 @@ class ValidatePrismicWebhookTest extends TestCase
     public function testIncorrectSecretIsError() : void
     {
         $this->request->getBody()->willReturn('{"secret" : "wrong"}');
-        $middleware = $this->getMiddleware();
+        $middleware = new ValidatePrismicWebhook('right');
         $response = $middleware->process(
             $this->request->reveal(),
             $this->delegate->reveal()
@@ -90,7 +83,21 @@ class ValidatePrismicWebhookTest extends TestCase
             ->withAttribute(ValidatePrismicWebhook::class, ['secret' => 'big-secret'])
             ->willReturn($this->request->reveal());
         $this->delegate->handle($this->request->reveal())->shouldBeCalled();
-        $middleware = $this->getMiddleware();
+        $middleware = new ValidatePrismicWebhook('big-secret');
+        $middleware->process(
+            $this->request->reveal(),
+            $this->delegate->reveal()
+        );
+    }
+
+    public function testValidationSucceedsWhenNoSecretIsRequired() : void
+    {
+        $this->request->getBody()->willReturn('{"json" : "payload"}');
+        $this->request
+            ->withAttribute(ValidatePrismicWebhook::class, ['json' => 'payload'])
+            ->willReturn($this->request->reveal());
+        $this->delegate->handle($this->request->reveal())->shouldBeCalled();
+        $middleware = new ValidatePrismicWebhook();
         $middleware->process(
             $this->request->reveal(),
             $this->delegate->reveal()
