@@ -121,6 +121,9 @@ class DocumentResolver implements MiddlewareInterface
         if (! $type || ! $uid) {
             return null;
         }
-        return $this->api->getByUid($type, $uid);
+        $search = $this->routeParams->getLang();
+        $lang = isset($params[$search]) && ! empty($params[$search]) ? (string) $params[$search] : null;
+        $options = $lang ? ['lang' => $lang] : [];
+        return $this->api->getByUid($type, $uid, $options);
     }
 }
