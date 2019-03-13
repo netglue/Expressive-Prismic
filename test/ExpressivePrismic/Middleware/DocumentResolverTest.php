@@ -136,8 +136,39 @@ class DocumentResolverTest extends TestCase
         $document = $this->document->reveal();
 
         $this->api
-             ->getByUid('some-type', 'some-uid')
+             ->getByUid('some-type', 'some-uid', [])
              ->willReturn($document);
+
+        $this->docRegistry->setDocument($document)->shouldBeCalled();
+
+        $anotherRequest = $this->prophesize(Request::class)->reveal();
+        $this->request->withAttribute(Prismic\DocumentInterface::class, $document)->willReturn($anotherRequest);
+
+        $request = $this->request->reveal();
+
+        $this->delegate->handle($anotherRequest)->shouldBeCalled();
+
+        $this->request->getAttribute(RouteResult::class)->willReturn($this->routeResult->reveal());
+        $middleware = $this->getMiddleware();
+        $middleware->process(
+            $request,
+            $this->delegate->reveal()
+        );
+    }
+
+    public function testResolveWithUidWillPassLanguageOptionIfAvailable() : void
+    {
+        $this->routeResult->getMatchedParams()->shouldBeCalled()->willReturn([
+            'prismic-uid' => 'some-uid',
+            'prismic-type' => 'some-type',
+            'prismic-lang' => 'en-gb',
+        ]);
+
+        $document = $this->document->reveal();
+
+        $this->api->getByUid('some-type', 'some-uid', ['lang' => 'en-gb'])
+            ->shouldBeCalled()
+            ->willReturn($document);
 
         $this->docRegistry->setDocument($document)->shouldBeCalled();
 
