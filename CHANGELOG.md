@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 4.4.0 - 2019-03-13
+
+### Added
+
+- [#15](https://github.com/netglue/Expressive-Prismic/pull/15) Adds 2 new configuration options allowing you to set both
+the cache busting webhook url and the preview url. These options are beneath the top level `prismic` array and are named
+`webhook_url` and `preview_url` respectively.
+
+### Changed
+
+- [#15](https://github.com/netglue/Expressive-Prismic/pull/15) Allows the webhook shared secret to be left in its default
+state of `null` - Previously, not configuring a secret would cause a type error on use as documented, but because Prismic
+no longer provides a way of setting up a shared secret, the option is obsolete, so it's now permitted to be null.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing
+
 ## 4.3.2 - 2019-03-13
 
 ### Added
