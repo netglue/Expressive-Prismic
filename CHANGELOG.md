@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 4.3.2 - 2019-03-13
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#14](https://github.com/netglue/Expressive-Prismic/pull/14) fixes DocumentResolver Middleware so that when a document
+is getting located by UID, the language parameter is used in the query, if it is present. Previously, the document in 
+the primary language would always be returned whether a language parameter was present in the route result or not.
+
 ## 4.3.1 - 2019-03-12
 
 ### Added
