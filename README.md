@@ -95,8 +95,8 @@ route like this _(If you are using FastRoute)_:
 ## Cache Busting Webhook
 
 You will see in `Factory\PipelineAndRoutesDelegator` that two routes are wired in by default, one of these is the
-webhook to bust the cache. In order to use it, you **will need** to provide the shared secret that Prismic.io sends in it's
-webhook payload to a local configuration file or Config Provider like this:
+webhook to bust the cache. In order to use it, you **might** need to provide the shared secret that Prismic.io sends in
+it's webhook payload to a local configuration file or Config Provider like this:
 
 ```php
     return [
@@ -106,12 +106,24 @@ webhook payload to a local configuration file or Config Provider like this:
     ];
 ```
 
-> By default the secret is `null`, so if you don't set it the Validation middleware will cause a `TypeError` due to the
-> secret string being a constructor dependency. If it's really important that you don't use a shared secret, you'll have
-> to override `ValidatePrismicWebhook` with your own middleware or configure your own pipeline and webhook handlers.
+> By default the secret is `null`, which means that the secret will not be validated even if it's sent by Prismic.
+> Prismic have recently dropped the shared secret option when setting up webhooks, so you can probably just ignore
+> the setting. If this applies to you, I **strongly** recommend that you configure an obscure URL otherwise anyone
+> will be able to POST to your webhook endpoint and bust the cache on demand, slowing down your site.
 
-The Url of the webhook will be `/prismicio-cache-webhook` - given a valid Json payload containing a matching shared
-secret, the pre-configured middleware will empty the cache attached to the Prismic API instance.
+By default the url of the webhook will be `/prismicio-cache-webhook`. You should change this to something sufficiently
+random in the following way:
+
+```php
+    return [
+        'prismic' => [
+            'webhook_url' => '/send-prismic-webhooks-here',
+        ],
+    ];
+```
+
+If the webhook url is hit with a POST request and valid JSON payload, the pre-configured middleware will empty the 
+cache attached to the Prismic API instance.
 
 The webhook route points to a middleware pipe named `ExpressivePrismic\Middleware\WebhookPipe` so if you want to modify
 the pipeline to do other things, or replace it entirely, just alias that pipe to different factory or implement a
@@ -132,7 +144,15 @@ you need one.
 There's another route that's auto-wired like the cache busting webhook for initiating previews. All you have to do is
 add the URL in the settings on your Prismic repository and clicks on the preview button in the writing room will put
 the site in preview mode. You can see how this is configured in `Factory\PipelineAndRoutesDelegator` - the URL is
-`/prismic-preview`
+`/prismic-preview` by default, but you can change the url by setting the following configuration value:
+
+```php
+    return [
+        'prismic' => [
+            'preview_url' => '/some-other-endpoint',
+        ],
+    ];
+```
 
 > In 4.2.0, the middleware responsible for initiating a preview session was altered to catch an exception that is
 > thrown when the preview token has expired and subsequently return a simple html response with a descriptive error.
