@@ -190,6 +190,10 @@ class ConfigProvider
 
             // Webhook Shared Secret
             'webhook_secret' => null,
+            // URL where webhooks will get POSTed
+            'webhook_url' => '/prismicio-cache-webhook',
+            // URL for Previews
+            'preview_url' => '/prismic-preview',
 
             /**
              * Error Handler configuration for content managed
