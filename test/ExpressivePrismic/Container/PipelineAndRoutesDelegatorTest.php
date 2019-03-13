@@ -6,11 +6,13 @@ namespace ExpressivePrismicTest\Container;
 use ExpressivePrismic\Container\PipelineAndRoutesDelegator;
 use ExpressivePrismicTest\TestCase;
 use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 use Zend\Expressive\Application;
 
 class PipelineAndRoutesDelegatorTest extends TestCase
 {
+    /** @var ContainerInterface&ObjectProphecy */
     private $container;
 
     public function setUp() : void
@@ -22,15 +24,28 @@ class PipelineAndRoutesDelegatorTest extends TestCase
     {
         $app = $this->prophesize(Application::class);
         $app->route(
-            Argument::type('string'),
+            '/webhook',
             Argument::type('array'),
             Argument::type('array'),
             Argument::type('string')
-        )->shouldBeCalledTimes(2);
+        )->shouldBeCalled();
+        $app->route(
+            '/preview',
+            Argument::type('array'),
+            Argument::type('array'),
+            Argument::type('string')
+        )->shouldBeCalled();
 
         $app = $app->reveal();
 
         $factory = new PipelineAndRoutesDelegator;
+
+        $this->container->get('config')->shouldBeCalled()->willReturn([
+            'prismic' => [
+                'webhook_url' => '/webhook',
+                'preview_url' => '/preview',
+            ],
+        ]);
 
         $return = $factory(
             $this->container->reveal(),
