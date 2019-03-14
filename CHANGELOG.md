@@ -13,8 +13,8 @@ the cache busting webhook url and the preview url. These options are beneath the
 ### Changed
 
 - [#15](https://github.com/netglue/Expressive-Prismic/pull/15) Allows the webhook shared secret to be left in its default
-state of `null` - Previously, not configuring a secret would cause a type error on use as documented, but because Prismic
-no longer provides a way of setting up a shared secret, the option is obsolete, so it's now permitted to be null.
+state of `null` - Previously, not configuring a secret would cause a type error on use as documented. It's now permitted
+to be null meaning that no shared secret validation will occur.
 
 ### Deprecated
 
