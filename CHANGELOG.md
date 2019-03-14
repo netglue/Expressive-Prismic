@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 4.4.1 - Not yet released
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Nothing
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Updated documentation removing stuff about Prismic dropping the shared secret for webhooks. It was late. I was tired!
+
 ## 4.4.0 - 2019-03-13
 
 ### Added
