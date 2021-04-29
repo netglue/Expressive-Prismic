@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 4.5.0 - 2021-04-29
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Update deps to allow for recent versions of `laminas/laminas-diactoros`
+- Requires `laminas-diactoros` instead of zend* and requires the zendframework bridge to ensure the legacy class names are aliased
+- Removes PHPStan as it is mostly unused and causes conflicts
+- Updates PHPUnit to recent version along with the Prophecy Trait so tests work.
+- Bumps minimum PHP to 7.3
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 4.4.1 - Not yet released
 
 ### Added
