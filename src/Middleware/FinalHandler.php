@@ -165,7 +165,7 @@ class FinalHandler
             $this->renderer->render($this->templateError, $view)
         );
 
-        return $response->withStatus(500);
+        return $response->withStatus(500, '');
     }
 
     /**
@@ -192,7 +192,7 @@ class FinalHandler
             $this->renderer->render($this->template404, $view)
         );
 
-        return $response->withStatus(404);
+        return $response->withStatus(404, '');
     }
 
     private function renderFallback(Request $request, Response $response, $error = null)
@@ -200,7 +200,7 @@ class FinalHandler
         $response->getBody()->write(
             $this->renderer->render($this->templateFallback, ['layout' => $this->layoutFallback])
         );
-        return $response->withStatus(500);
+        return $response->withStatus(500, '');
     }
 
 }
