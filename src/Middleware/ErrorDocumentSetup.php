@@ -57,7 +57,7 @@ class ErrorDocumentSetup implements MiddlewareInterface
         }
 
         $response = $delegate->handle($request);
-        return $response->withStatus(404);
+        return $response->withStatus(404, '');
     }
 
     /**

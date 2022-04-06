@@ -38,10 +38,10 @@ class ErrorResponseGenerator implements RequestHandlerInterface
         try {
             if ($error instanceof DocumentNotFoundException) {
                 $response = $this->notFoundPipeline->process($request, $this);
-                return $response->withStatus(404);
+                return $response->withStatus(404, '');
             }
             $response = $this->errorPipeline->process($request, $this);
-            return $response->withStatus(500);
+            return $response->withStatus(500, '');
         } catch (\Throwable $e) {
             return $this->generateFallbackResponse();
         }
